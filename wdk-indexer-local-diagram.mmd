@@ -1,0 +1,47 @@
+flowchart LR
+    subgraph Clients
+        U["WDK End User<br>wallet or SDK caller"]
+    end
+
+    subgraph HTTP_Surface["HTTP Surface"]
+        APP["1_wdk-indexer-app-node<br>Fastify HTTP server<br>wtype: wdk-server-http-base<br>port: 3000"]
+    end
+
+    subgraph Hyperswarm["Hyperswarm Mesh<br>topicConf.capability &amp; crypto.key"]
+        ORK["2_wdk-ork-wrk<br>Org API worker<br>wtype: wrk-ork-api<br>Topic: @wdk/ork"]
+        DSAPI["3_wdk-data-shard-wrk_api-type<br>API worker<br>wtype: wrk-data-shard-api<br>Topic: @wdk/data-shard"]
+        DSPROC["3_wdk-data-shard-wrk_proc-type<br>Proc worker<br>wtype: wrk-data-shard-proc<br>prints shard PROC_RPC key"]
+        EVMAPI["4_wdk-indexer-wrk-evm_api-type<br>API worker<br>wtype: wrk-evm-indexer-api<br>Topic: @wdk/indexer/evm"]
+        EVMPROC["4_wdk-indexer-wrk-evm_proc-type<br>Proc worker<br>wtype: wrk-evm-indexer-proc<br>prints indexer PROC_RPC key<br>runs HyperDB writers"]
+    end
+
+    subgraph Mongo["MongoDB Replica Set rs0<br>no auth, local docker"]
+        M1["mongo1:27017<br>Primary"]
+        M2["mongo2:27017<br>Secondary"]
+        M3["mongo3:27017<br>Secondary"]
+    end
+
+    subgraph RPC["Ethereum JSON-RPC Providers"]
+        CF["Cloudflare ETH<br>https://cloudflare-eth.com"]
+        ANKR["Ankr Public<br>https://rpc.ankr.com/eth"]
+        PN["PublicNode<br>https://ethereum.publicnode.com"]
+    end
+
+    U -- "HTTPS :3000" --> APP
+    APP -- "Hyperswarm RPC<br>@wdk/ork topic" --> ORK
+    ORK -- "Hyperswarm RPC<br>@wdk/data-shard" --> DSAPI
+    DSAPI -- "proc-rpc = shard key" --> DSPROC
+    DSPROC -- "Hyperswarm RPC<br>@wdk/indexer/evm" --> EVMAPI
+    EVMAPI -- "proc-rpc = indexer key" --> EVMPROC
+
+    DSPROC -- "Mongo driver<br>mongodb://mongo1,mongo2,mongo3/wdk_data_shard?replicaSet=rs0" --> M1
+    DSPROC --> M2
+    DSPROC --> M3
+
+    EVMPROC -- "Mongo driver<br>mongodb://mongo1,mongo2,mongo3/wdk_indexer_evm?replicaSet=rs0" --> M1
+    EVMPROC --> M2
+    EVMPROC --> M3
+
+    EVMPROC -- "HTTPS JSON-RPC" --> CF
+    EVMPROC --> ANKR
+    EVMPROC --> PN
