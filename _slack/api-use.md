@@ -1,0 +1,2 @@
+Hi all,
+The plan we purchased for Candide allows 5M api calls/month and we the backend has already spend 1M in 5 days. We will run out of API credits by the end of the month. The usage level was flagged in an email from Candide. Are we sure that this is expected usage or is there an issue?

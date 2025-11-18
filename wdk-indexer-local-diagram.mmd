@@ -4,15 +4,15 @@ flowchart LR
     end
 
     subgraph HTTP_Surface["HTTP Surface"]
-        APP["1_wdk-indexer-app-node<br>Fastify HTTP server<br>wtype: wdk-server-http-base<br>port: 3000"]
+        APP["wdk-indexer-app-node<br>Fastify HTTP server<br>wtype: wdk-server-http-base<br>port: 3000"]
     end
 
     subgraph Hyperswarm["Hyperswarm Mesh<br>topicConf.capability &amp; crypto.key"]
-        ORK["2_wdk-ork-wrk<br>Org API worker<br>wtype: wrk-ork-api<br>Topic: @wdk/ork"]
-        DSAPI["3_wdk-data-shard-wrk_api-type<br>API worker<br>wtype: wrk-data-shard-api<br>Topic: @wdk/data-shard"]
-        DSPROC["3_wdk-data-shard-wrk_proc-type<br>Proc worker<br>wtype: wrk-data-shard-proc<br>prints shard PROC_RPC key"]
-        EVMAPI["4_wdk-indexer-wrk-evm_api-type<br>API worker<br>wtype: wrk-evm-indexer-api<br>Topic: @wdk/indexer/evm"]
-        EVMPROC["4_wdk-indexer-wrk-evm_proc-type<br>Proc worker<br>wtype: wrk-evm-indexer-proc<br>prints indexer PROC_RPC key<br>runs HyperDB writers"]
+        ORK["wdk-ork-wrk<br>Org API worker<br>wtype: wrk-ork-api<br>Topic: @wdk/ork"]
+        DSAPI["wdk-data-shard-wrk_api-type<br>API worker<br>wtype: wrk-data-shard-api<br>Topic: @wdk/data-shard"]
+        DSPROC["wdk-data-shard-wrk_proc-type<br>Proc worker<br>wtype: wrk-data-shard-proc<br>prints shard PROC_RPC key"]
+        EVMAPI["wdk-indexer-wrk-evm_api-type<br>API worker<br>wtype: wrk-evm-indexer-api<br>Topic: @wdk/indexer/evm"]
+        EVMPROC["wdk-indexer-wrk-evm_proc-type<br>Proc worker<br>wtype: wrk-evm-indexer-proc<br>prints indexer PROC_RPC key<br>runs HyperDB writers"]
     end
 
     subgraph Mongo["MongoDB Replica Set rs0<br>no auth, local docker"]

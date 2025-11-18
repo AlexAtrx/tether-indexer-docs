@@ -38,7 +38,7 @@ Services must be started in this order:
 ### Terminal 1 - EVM Proc Worker (Writer)
 
 ```bash
-cd /Users/alexa/Documents/repos/tether/INDEXER/4_wdk-indexer-wrk-evm_2-types/
+cd /Users/alexa/Documents/repos/tether/INDEXER/wdk-indexer-wrk-evm/
 npm install
 ./setup-config.sh  # Copy .example configs (if not done already)
 
@@ -61,7 +61,7 @@ Proc RPC Key: abc123def456...
 ### Terminal 2 - EVM API Worker (Reader)
 
 ```bash
-cd /Users/alexa/Documents/repos/tether/INDEXER/4_wdk-indexer-wrk-evm_2-types/
+cd /Users/alexa/Documents/repos/tether/INDEXER/wdk-indexer-wrk-evm/
 
 # Start the API worker (replace <PROC_RPC_KEY> with the key from Terminal 1)
 node worker.js --wtype wrk-evm-indexer-api --env development --rack eth-api --chain eth --proc-rpc <PROC_RPC_KEY>
@@ -74,7 +74,7 @@ node worker.js --wtype wrk-evm-indexer-api --env development --rack eth-api --ch
 ### Terminal 3 - Data Shard Proc (Writer)
 
 ```bash
-cd /Users/alexa/Documents/repos/tether/INDEXER/3_wdk-data-shard-wrk_2-types/
+cd /Users/alexa/Documents/repos/tether/INDEXER/wdk-data-shard-wrk/
 npm install
 ./setup-config.sh  # Copy .example configs (if not done already)
 
@@ -91,7 +91,7 @@ node worker.js --wtype wrk-data-shard-proc --env development --rack shard-proc
 ### Terminal 4 - Data Shard API (Reader)
 
 ```bash
-cd /Users/alexa/Documents/repos/tether/INDEXER/3_wdk-data-shard-wrk_2-types/
+cd /Users/alexa/Documents/repos/tether/INDEXER/wdk-data-shard-wrk/
 
 # Start the API worker (replace <SHARD_PROC_RPC_KEY> with the key from Terminal 3)
 node worker.js --wtype wrk-data-shard-api --env development --rack shard-api --proc-rpc <SHARD_PROC_RPC_KEY>
@@ -104,7 +104,7 @@ node worker.js --wtype wrk-data-shard-api --env development --rack shard-api --p
 ### Terminal 5 - Org Service API
 
 ```bash
-cd /Users/alexa/Documents/repos/tether/INDEXER/2_wdk-ork-wrk/
+cd /Users/alexa/Documents/repos/tether/INDEXER/wdk-ork-wrk/
 npm install
 ./setup-config.sh  # Copy .example configs (if not done already)
 
@@ -124,7 +124,7 @@ This service discovers data shards via Hyperswarm and routes requests to them.
 ### Terminal 6 - HTTP App Node
 
 ```bash
-cd /Users/alexa/Documents/repos/tether/INDEXER/1_wdk-indexer-app-node/
+cd /Users/alexa/Documents/repos/tether/INDEXER/wdk-indexer-app-node/
 npm install
 ./setup-config.sh  # Copy .example configs (if not done already)
 
@@ -183,7 +183,7 @@ Edit `config/facs/db-mongo.config.json` in each service:
 
 ### 🌐 Ethereum RPC Endpoint
 
-Edit `4_wdk-indexer-wrk-evm_2-types/config/eth.json`:
+Edit `wdk-indexer-wrk-evm/config/eth.json`:
 
 ```json
 {
@@ -298,27 +298,27 @@ Once configs are set up, use these commands in separate terminals:
 
 ```bash
 # Terminal 1 - EVM Proc
-cd /Users/alexa/Documents/repos/tether/INDEXER/4_wdk-indexer-wrk-evm_2-types/
+cd /Users/alexa/Documents/repos/tether/INDEXER/wdk-indexer-wrk-evm/
 node worker.js --wtype wrk-evm-indexer-proc --env development --rack eth-proc --chain eth
 
 # Terminal 2 - EVM API (replace <KEY>)
-cd /Users/alexa/Documents/repos/tether/INDEXER/4_wdk-indexer-wrk-evm_2-types/
+cd /Users/alexa/Documents/repos/tether/INDEXER/wdk-indexer-wrk-evm/
 node worker.js --wtype wrk-evm-indexer-api --env development --rack eth-api --chain eth --proc-rpc <KEY>
 
 # Terminal 3 - Data Shard Proc
-cd /Users/alexa/Documents/repos/tether/INDEXER/3_wdk-data-shard-wrk_2-types/
+cd /Users/alexa/Documents/repos/tether/INDEXER/wdk-data-shard-wrk/
 node worker.js --wtype wrk-data-shard-proc --env development --rack shard-proc
 
 # Terminal 4 - Data Shard API (replace <KEY>)
-cd /Users/alexa/Documents/repos/tether/INDEXER/3_wdk-data-shard-wrk_2-types/
+cd /Users/alexa/Documents/repos/tether/INDEXER/wdk-data-shard-wrk/
 node worker.js --wtype wrk-data-shard-api --env development --rack shard-api --proc-rpc <KEY>
 
 # Terminal 5 - Org Service
-cd /Users/alexa/Documents/repos/tether/INDEXER/2_wdk-ork-wrk/
+cd /Users/alexa/Documents/repos/tether/INDEXER/wdk-ork-wrk/
 node worker.js --wtype wrk-ork-api --env development --rack ork-api
 
 # Terminal 6 - HTTP API (optional)
-cd /Users/alexa/Documents/repos/tether/INDEXER/1_wdk-indexer-app-node/
+cd /Users/alexa/Documents/repos/tether/INDEXER/wdk-indexer-app-node/
 node worker.js --wtype wdk-server-http-base --env development --port 3000
 ```
 
