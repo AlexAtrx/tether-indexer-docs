@@ -2,7 +2,7 @@ Prerequisites Setup
 
 1. MongoDB Cluster (Already Documented)
 
-Follow your existing MongoDB setup in _mongo_db_local/:
+Follow your existing MongoDB setup in _wdk_docker_network/:
 
 # Add hostnames to /etc/hosts
 echo "127.0.0.1 mongo1 mongo2 mongo3" | sudo tee -a /etc/hosts
