@@ -29,3 +29,4 @@ Things to read:
 2- Put all the output and findings in _docs/___TRUTH.md in a well formatted way. 
 3- This task will repeat every random period depending on updates, so make sure the output is expandable/changeable. 
 4- Optimize the truth file for developer reading AND for LLM as context for any project-related prompt.
+5- If any issue or piece of info in the truth file is not reflected either in docs, code or any reading material I gave you here, this means it doesn't exist anymore and it needs to be removed.

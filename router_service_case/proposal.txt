@@ -1,0 +1,36 @@
+Defining a push based system for associating transactions with wallets
+
+Introduction:
+In our current system, different blockchain indexers fetch the latest blocks and transactions from providers. Whereas, each data-shard worker runs a job where, for all the wallet addresses, it queries the indexers to check if there was any transaction associated with its wallet addresses. This pull-based method means that we run this job for every wallet address, even if no transaction was added for it. This led to a scenario where even for 5K users, we were experiencing delay in synchronization of transactions with wallets.
+We want to modify the architecture to support a push based method, where indexers can notify the data-shard workers about the new transactions, and they can immediately update the relevant wallets, as opposed to doing so in a job.
+
+We have narrowed down to two options available:
+Implement router service(s), that different indexers forward the transactions to. This router service then calls the data-shard workers that include wallets associated with the address
+Push all transactions directly to all the data-shard workers, each data-shard worker then decides independently which transactions are associated with it’s wallets. It discards non-relevant transactions, while updating the transaction history of relevant wallets.
+
+Implement router based service(s):
+The router service will store all the lookups of addresses to wallet ids and the shards each wallet belongs to. 
+We have already implemented a topic based service discovery method that is used to identify all the ork workers, data-shard-workers and indexers. We will reuse the same functionality to define a new topic: `@rumble/route-transaction`. This will ensure that we can spin-up multiple services that register to the same `@rumble/route-transaction` topic, allowing us to horizontally scale our system.
+    Note: I am leaning towards simply sending from and to addresses, as opposed to sending the complete transaction. This way, the data-shard can fetch the transaction for these addresses directly from indexers. This will greatly reduce the amount of data we send from indexers to router service. Wdyt?
+When a router service receives a new transaction event, it checks if the addresses used in the transaction are associated with any wallets in our system. If it finds such a wallet, it forwards the request to the relevant shard.
+The relevant data-shard then fetches the relevant transactions from the specific indexer for that address
+
+When a router service receives a new transaction event, it checks if the addresses used in the transaction are associated with any wallets in our system. If it finds such a wallet, it forwards the request to the relevant shard.
+The relevant data-shard then fetches the relevant transactions from the specific indexer for that address
+
+Below, I show a partial diagram of the overall architecture, where a new service will exist and how it communicates with other services.
+Diagram in _docs/router_service_case/chart.png
+
+Benefits:
+We can easily scale the system by adding more router services and they would be able to handle more requests
+The data-shard workers won’t be bombarded with unrelated data
+Drawbacks:
+We add another layer in our backend system
+Maintaining the lookups in the router service can be difficult. The approach I recommend is: using a read replica of the wdk-ork database, which basically stores all this information)
+Push all transactions directly to all the data-shard worker:
+In this approach, we push all the transactions received by all different indexers to all the data-shards. This approach is relatively simple.
+
+Benefits:
+We don’t need to implement any new service and can keep the architecture simple
+Drawbacks:
+We’ll be sending all the transactions of all the different blockchains to all the data-shards. 99.9% of the time, the transactions will be discarded. We haven’t tested this throughput with hyperswarm and unsure how well it will perform.
