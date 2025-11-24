@@ -4,9 +4,25 @@
 
 ---
 
-## Opening Statement
+## Statement
 
 "We're solving a real problem (sync lag at 5K users), but I'm concerned we're designing for a theoretical scale problem (100M users) without evidence that the simpler solution won't work. Let's measure first, then optimize."
+
+"I understand staging tests show stalling at 5K users. This makes the problem urgent. However, we still need to answer: what specifically is
+  stalling?
+
+  If it's the polling job queue backing up, both broadcast and router fix this—but broadcast can be deployed in 2 weeks vs. 12 weeks.
+
+  If it's indexer query overload, router has an edge—but broadcast still reduces queries by 99%+.
+
+  If it's MongoDB lock contention, neither solution fixes the root cause—we need the timeout fixes from ___TRUTH.md.
+
+  Given urgency, I propose:
+  - Week 1: Implement broadcast POC, test in staging
+  - If broadcast solves the stall → deploy to production (week 2-3)
+  - If broadcast doesn't solve it → we have data proving we need router, build it (week 4-15)
+
+  This de-risks the decision while solving the production issue as fast as possible."
 
 ---
 
