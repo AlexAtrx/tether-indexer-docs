@@ -18,14 +18,16 @@
 wdk-indexer-wrk-evm
 terminal 1
 node worker.js --wtype wrk-evm-indexer-proc --env development --rack eth-proc --chain usdt-eth
+node worker.js --wtype wrk-evm-indexer-proc --env development --rack eth-proc --chain xaut
 terminal 2
-node worker.js --wtype wrk-evm-indexer-api --env development --rack eth-api --chain usdt-eth --proc-rpc e81d60d5d2721e9a113016604ebc174aed3eada8208f7c465c88c5a06abfd530
+node worker.js --wtype wrk-evm-indexer-api --env development --rack eth-api --chain usdt-eth --proc-rpc <PROC_RPC_KEY>
+node worker.js --wtype wrk-evm-indexer-api --env development --rack eth-api --chain xaut --proc-rpc
 
 rumble-data-shard-wrk
 terminal 1
 node worker.js --wtype wrk-data-shard-proc --env development --rack shard-1
 terminal 2
-node worker.js --wtype wrk-data-shard-api --env development --rack shard-1-1 --proc-rpc 1d4bb5ac76c1c1a7f83dbe135bc6803960fc446a2f935db47c13e7e5a4d9977d
+node worker.js --wtype wrk-data-shard-api --env development --rack shard-1-1 --proc-rpc <DATA_SHARD_PROC_RPC_KEY>
 
 rumble-ork-wrk
 node worker.js --wtype wrk-ork-api --env development --rack ork-1
@@ -54,3 +56,57 @@ node worker.js --wtype wrk-ork-api --env development --rack ork-1
 
 rumble-app-node
 node worker.js --wtype wrk-node-http --env development --port 3000
+
+----
+
+## Quick start with xaut-eth and run Hyperswarm pool test
+
+1. Make sure all workers are stopped first
+
+2. Start XAUT Indexer
+
+### Terminal 1: XAUT Indexer Proc
+wdk-indexer-wrk-evm
+node worker.js --wtype wrk-erc20-indexer-proc --env development --rack xaut-proc --chain xaut-eth
+⚠️ Copy the RPC key!
+
+### Terminal 2: XAUT Indexer API
+wdk-indexer-wrk-evm
+node worker.js --wtype wrk-erc20-indexer-api --env development --rack xaut-api --chain xaut-eth --proc-rpc <XAUT_PROC_KEY>
+
+3. Start Data Shard
+
+### Terminal 3: Data Shard Proc
+rumble-data-shard-wrk
+node worker.js --wtype wrk-data-shard-proc --env development --rack shard-1
+⚠️ Copy the RPC key!
+
+### Terminal 4: Data Shard API
+rumble-data-shard-wrk
+node worker.js --wtype wrk-data-shard-api --env development --rack shard-1-1 --proc-rpc <DATA_SHARD_PROC_KEY>
+0209ee88cade0f6c9631da92e52dd14aee6b5f138029afc8ca37e267a4dac83a
+
+4. Start Org Service (REQUIRED!)
+
+### Terminal 5: Org Service
+rumble-ork-wrk
+node worker.js --wtype wrk-ork-api --env development --rack ork-1
+
+5. Start HTTP App Node (REQUIRED!)
+
+### Terminal 6: HTTP App Node
+rumble-app-node
+node worker.js --wtype wrk-node-http --env development --port 3000
+
+6. Run the Test
+
+hyperswarm_prod_issue
+./reproduce_exact_error.sh
+
+7. Watch Terminal 3
+
+At ~30-35 seconds, look for:
+[HRPC_ERR]=Pool was force destroyed
+ERR_WALLET_TRANSFER_RPC_FAIL: ethereum:xaut:0x68749665FF8D2d112Fa859AA293F07A622782F38
+
+----
