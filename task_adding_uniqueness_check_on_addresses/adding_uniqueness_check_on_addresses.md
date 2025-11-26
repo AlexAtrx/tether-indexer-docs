@@ -1,6 +1,5 @@
 - Context:
 Must read ‘./_docs/___TRUTH.md’ for context.
-Optionally you can read all what's in ‘./_docs’ to get a good grasp of this app.
 
 - In short:
 "

@@ -1,11 +1,32 @@
 # Additional Fix: DHT Error Handler
 
 **Date:** November 25, 2025
-**Status:** ✅ Implemented (not committed/pushed per user request)
+**Status:** ❌ REMOVED from PR #19 per reviewer feedback (Nov 26, 2025)
+**Note:** This was originally implemented but removed based on PR #19 review
 
 ---
 
-## Problem
+## Reviewer Feedback (PR #19 - Nov 26, 2025)
+
+**Comment from SargeKhan:**
+> "tether-wrk-base is used in multiple different projects in tether. This change could have unintended consequences in other projects as well. I guess PEER_NOT_FOUND error is unrelated to the issue we face with Pool was force destroyed. So, I think we should remove these changes as well."
+
+**Decision:** ❌ Removed from PR #19
+
+**Rationale:**
+1. DHT error handling is a **separate concern** from pool timeout race conditions
+2. Changes to base library affect all projects (wdk-data-shard-wrk, rumble-data-shard-wrk, all indexers)
+3. Should be addressed separately if needed, with proper analysis of impact across all projects
+4. PEER_NOT_FOUND is distinct from "Pool was force destroyed" error
+
+**Current Status:**
+- Not included in PR #19
+- Can be reconsidered in a future PR if worker crashes from PEER_NOT_FOUND become an issue
+- Would require separate discussion and impact analysis
+
+---
+
+## Problem (Historical - for reference)
 
 During local reproduction testing, a **more severe variant** of the Hyperswarm issue was discovered:
 
@@ -176,26 +197,18 @@ This fix **complements** the PRs:
 
 ---
 
-## Recommendation
+## Recommendation (Historical)
 
-✅ **Include this fix with PR #19** (tether-wrk-base changes)
+~~✅ **Include this fix with PR #19** (tether-wrk-base changes)~~ **REJECTED**
 
-**Why bundle with PR #19:**
-1. Both modify `tether-wrk-base`
-2. Both address the same root issue (Hyperswarm resilience)
-3. Keeps related changes together
-4. Single deployment cycle
+**Original plan:** Bundle with PR #19
+**Reviewer decision:** Remove from PR #19 (separate concern)
+**Final decision:** Not included
 
-**Updated PR #19 title:**
-```
-feat: improve Hyperswarm resilience with netOpts config and DHT error handling
-```
-
-**Updated PR #19 description:**
-```
-1. Pass netOpts config to hp-svc-facs-net facility for poolLinger/timeout tuning
-2. Add DHT error event handler to prevent worker crashes from PEER_NOT_FOUND
-```
+**PR #19 final scope:**
+1. ✅ Pass netOpts config to hp-svc-facs-net facility for poolLinger/timeout tuning
+2. ✅ Implement _loadFacConf() to load facility configs correctly
+3. ❌ DHT error handler removed per reviewer feedback
 
 ---
 

@@ -1,13 +1,15 @@
 # Example Configuration File Updates
 
-**Date:** November 25, 2025
+**Date:** November 25, 2025 (Updated: November 26, 2025 - Final)
 **Purpose:** Document new configuration options for Hyperswarm RPC pool management
 
 ---
 
 ## Summary
 
-Updated example configuration files across 3 repositories to document the new `netOpts` configuration introduced to fix Hyperswarm RPC pool timeout issues.
+**FINAL UPDATE (Nov 26, 2025):** Following PR #19 and PR #115 review feedback, configuration has been moved to the proper location (net facility config file), retry-related configs have been removed, and tether-wrk-base now implements _loadFacConf() to load and pass facility configs correctly.
+
+Updated example configuration files to document the new `netOpts` configuration introduced to fix Hyperswarm RPC pool timeout issues.
 
 ---
 
@@ -26,75 +28,74 @@ Without updating example files, developers would:
 
 ---
 
-## Files Updated
+## Files Updated (Final Nov 26, 2025)
 
-### 1. `wdk-data-shard-wrk/config/common.json.example`
+### 1. `tether-wrk-base/config/facs/net.config.json.example` ✅ **UPDATED**
 
 **Changes:**
 ```json
 {
-  "netOpts": {
+  "r0": {
     "poolLinger": 600000,
     "timeout": 60000
   }
 }
 ```
 
-**Location in file:** After `topicConf`, before `shardTopic`
+**Location:** Net facility config file (proper location per PR #19 review)
 
-**Note:** `maxRetries` and `retryDelay` were already present in this example file
+**Previous location:** ~~`config/common.json.example`~~ (moved from here)
+
+**How it's loaded:** Via `_loadFacConf('net')` method in `workers/base.wrk.tether.js`
+
+**Note:** This follows the established pattern where facility-specific configs live in `config/facs/`
+
+### 1b. `tether-wrk-base/workers/base.wrk.tether.js` ✅ **UPDATED**
+
+**Changes:**
+- Added `_loadFacConf(facName)` method to load facility configs
+- Loads `config/facs/net.config.json` and passes values as opts to hp-svc-facs-net
+- Backward compatible: returns `{}` if config doesn't exist
+- Removed DHT error handler per reviewer feedback
+
+### 2. `wdk-data-shard-wrk/config/facs/net.config.json.example` ✅ **UPDATED**
+
+**Changes:** Same as tether-wrk-base (consistent across repos)
+
+**Location:** Net facility config file
+
+**Note:** Child repos inherit the pattern from tether-wrk-base
 
 ---
 
-### 2. `rumble-data-shard-wrk/config/common.json.example`
+### ~~2. `rumble-data-shard-wrk/config/common.json.example`~~ **NOT IN THIS REPO**
 
-**Changes:**
-```json
-{
-  "netOpts": {
-    "poolLinger": 600000,
-    "timeout": 60000
-  },
-  "maxRetries": 3,
-  "retryDelay": 1000
-}
-```
+**Status:** Deferred - Different repository
 
-**Location in file:** After `topicConf`, before `shardTopic`
-
-**Note:** Added both `netOpts` AND `maxRetries`/`retryDelay` (these were missing)
+**Note:** Similar changes should be applied to rumble-data-shard-wrk in that repo
 
 ---
 
-### 3. `tether-wrk-base/config/common.json.example`
+### ~~3. `tether-wrk-base/config/common.json.example`~~ **NOT IN THIS REPO**
 
-**Changes:**
-```json
-{
-  "debug": 0,
-  "netOpts": {
-    "poolLinger": 600000,
-    "timeout": 60000
-  }
-}
-```
+**Status:** Deferred - Different repository, different PR
 
-**Location in file:** After `debug`
-
-**Note:** This is the base library that passes netOpts to hp-svc-facs-net, so documenting here is important
+**Note:** Base library changes are tracked separately
 
 ---
 
 ## Configuration Documentation
 
-### `netOpts` Object
+### `netOpts` Object (Updated Nov 26, 2025)
 
 **Purpose:** Configure Hyperswarm RPC connection pool behavior
+
+**Location:** `config/facs/net.config.json` (under `r0` object)
 
 **Schema:**
 ```json
 {
-  "netOpts": {
+  "r0": {
     "poolLinger": <number>,  // milliseconds
     "timeout": <number>      // milliseconds
   }
@@ -115,97 +116,57 @@ Without updating example files, developers would:
 
 ---
 
-### `maxRetries` and `retryDelay`
+### ~~`maxRetries` and `retryDelay`~~ **REMOVED**
 
-**Purpose:** Configure retry behavior for RPC calls in `blockchain.svc.js`
+**Status:** ❌ **REMOVED per PR #115 review feedback (Nov 26, 2025)**
 
-**Schema:**
-```json
-{
-  "maxRetries": <number>,
-  "retryDelay": <number>  // milliseconds
-}
-```
+**Reason:** Retry logic was removed from blockchain.svc.js because sync jobs run frequently enough (every 5 minutes) that failed wallets will be retried on the next cycle.
 
-**Parameters:**
+**Previous purpose:** Configure retry behavior for RPC calls in `blockchain.svc.js`
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `maxRetries` | number | 2 | Number of retry attempts for failed RPC calls. Uses exponential backoff |
-| `retryDelay` | number | 500 | Base delay (ms) between retries. Actual delay: `retryDelay * 2^attemptNumber` |
-
-**Example retry timing with defaults:**
-- Attempt 1: Immediate
-- Attempt 2: 500ms delay
-- Attempt 3: 1000ms delay
-
-**When to configure:**
-- ✅ Set `maxRetries: 3` in production for high reliability
-- ✅ Set `retryDelay: 1000` for slower but more reliable retries
-- ℹ️ Defaults (2 retries, 500ms) are reasonable for most cases
+**Impact of removal:**
+- Simpler code without retry complexity
+- Failed wallet syncs wait up to 5 minutes for next cycle
+- Trade-off accepted per reviewer feedback
 
 ---
 
-## Commit Messages for Example File Updates
+## Commit Messages for Example File Updates (Updated Nov 26, 2025)
 
 ### Repository: `wdk-data-shard-wrk`
 
 ```
-docs: add netOpts to common.json.example
+refactor: move netOpts to net facility config and remove retry logic
 
-Document new netOpts configuration for Hyperswarm RPC pool management:
+- Move poolLinger and timeout config from common.json to net.config.json
+- Remove retry logic from blockchain.svc.js (frequent sync makes it unnecessary)
+- Keep Promise.allSettled for resilient batch operations
+
+Config now in config/facs/net.config.json.example under r0:
 - poolLinger: 600000ms (10 minutes) - time before idle pools are destroyed
 - timeout: 60000ms (1 minute) - RPC request timeout
 
 These settings prevent [HRPC_ERR]=Pool was force destroyed errors by
 providing sufficient buffer between sync jobs and pool destruction.
 
-Note: maxRetries and retryDelay were already documented in this example.
+Addresses PR #115 review feedback from SargeKhan.
 
-Refs: _docs/hyperswarm_prod_issue/CODE_CHANGES_ASSESSMENT.md
+Refs: _docs/task_hyperswarm_prod_issue/CODE_CHANGES_ASSESSMENT.md
 ```
 
 ---
 
-### Repository: `rumble-data-shard-wrk`
+### ~~Repository: `rumble-data-shard-wrk`~~ **DEFERRED**
 
-```
-docs: add netOpts, maxRetries, and retryDelay to common.json.example
+**Status:** Not in this repo, separate PR needed
 
-Document new configuration options for Hyperswarm RPC resilience:
-
-1. netOpts - Hyperswarm RPC pool management:
-   - poolLinger: 600000ms (10 minutes)
-   - timeout: 60000ms (1 minute)
-
-2. Retry configuration:
-   - maxRetries: 3
-   - retryDelay: 1000ms
-
-These settings prevent transient RPC failures and pool timeout race
-conditions in production.
-
-Refs: _docs/hyperswarm_prod_issue/CODE_CHANGES_ASSESSMENT.md
-```
+Similar changes should be applied following the same pattern (move to net.config.json)
 
 ---
 
-### Repository: `tether-wrk-base`
+### ~~Repository: `tether-wrk-base`~~ **DEFERRED**
 
-```
-docs: add netOpts to common.json.example
-
-Document netOpts configuration that is now passed to hp-svc-facs-net:
-- poolLinger: 600000ms (10 minutes) - idle time before pool destruction
-- timeout: 60000ms (1 minute) - RPC request timeout
-
-This base library spreads netOpts from config to the net facility,
-allowing downstream services to configure Hyperswarm RPC pool behavior.
-
-Related: Fix for [HRPC_ERR]=Pool was force destroyed production errors.
-
-Refs: _docs/hyperswarm_prod_issue/CODE_CHANGES_ASSESSMENT.md
-```
+**Status:** Not in this repo, separate PR/discussion needed
 
 ---
 
@@ -262,24 +223,32 @@ Create a dedicated `CONFIGURATION.md` file in each repository with detailed docu
 
 ---
 
-## Summary
+## Summary (Updated Nov 26, 2025)
 
-### Files Changed
-- ✅ `wdk-data-shard-wrk/config/common.json.example` - Added netOpts
-- ✅ `rumble-data-shard-wrk/config/common.json.example` - Added netOpts + maxRetries/retryDelay
-- ✅ `tether-wrk-base/config/common.json.example` - Added netOpts
+### Files Changed in wdk-data-shard-wrk
+- ✅ `config/facs/net.config.json.example` - Added poolLinger/timeout to r0
+- ~~❌ `config/common.json.example`~~ - Removed netOpts (moved to net.config)
+- ✅ `workers/lib/blockchain.svc.js` - Removed retry logic, kept Promise.allSettled
+- ✅ `tests/unit/lib/blockchain.svc.unit.test.js` - Removed retry config
 
 ### Why These Changes Matter
-- ✅ Developers will know about new configuration options
-- ✅ Production deployments will use correct values by default
-- ✅ Reduces risk of Hyperswarm RPC pool timeout errors
-- ✅ Documents the retry logic configuration
+- ✅ Config follows proper architectural patterns (facility configs in config/facs/)
+- ✅ Simpler code without retry complexity
+- ✅ Reduces risk of Hyperswarm RPC pool timeout errors via increased poolLinger
+- ✅ Promise.allSettled prevents cascading batch failures
+- ⚠️ Trade-off: No immediate retry on transient failures (acceptable per review)
 
-### Next Steps (Optional)
-- Consider adding a Configuration section to README.md files
-- Document these options in any internal wikis or deployment guides
-- Update any infrastructure-as-code (Terraform, Ansible, etc.) to include these settings
+### Important Caveats
+- ⚠️ Solution is partial without DHT error handlers (see ADDITIONAL_FIX_DHT_ERRORS.md)
+- ⚠️ Worker crashes from PEER_NOT_FOUND still possible
+- ⚠️ Failed wallets wait up to 5 minutes for next sync
+
+### Next Steps
+- ✅ Deploy these changes to address pool timeout race conditions
+- ⚠️ **CRITICAL:** Add DHT error handlers to prevent worker crashes
+- 📝 Monitor transaction data staleness in production
+- 📝 Consider re-adding retry logic if staleness becomes problematic
 
 ---
 
-**Note:** These example file updates should be committed along with the code changes that introduced the netOpts functionality.
+**Note:** These changes implement PR #115 review feedback. DHT error handlers (ADDITIONAL_FIX_DHT_ERRORS.md) should be added for complete solution.
