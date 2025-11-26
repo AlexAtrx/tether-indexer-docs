@@ -5,8 +5,9 @@ We have this urgent important issue:
 ==============
 fyi another npm attack: https://helixguard.ai/blog/malicious-sha1hulud-2025-11-24, please double check packages, it seems along affected is ethereum-ens
 
-The attack page: 
-https://helixguard.ai/blog/malicious-sha1hulud-2025-11-24
+The web page contents are in the file:
+_docs/task_dependencies_issue/website_info.md
+
 -------
 
 This is why we should always pin dependencies by the way, not sure if we already have that as best practice (and disable pre/post install scripts).
@@ -48,3 +49,4 @@ Can you confirm if we are using any of these libraries in the project?
 - Check the web page rewiring all its contents if you can. If you can't stop and tell until I provide its contents.
 - Read the provided list of dependencies in Slack chat.
 - Go thought all the repos and code in this project and tell me which repo uses any of the decencies in the Slack-shared list or any dependencies/effect that can be concluded from the web page. 
+- Put your findings in the file: _docs/task_dependencies_issue/findings.md
