@@ -60,3 +60,5 @@ Share what you find and I'll guide you on next steps!
 Your task:
 
 Read as much context and code as you can and try to find out why this is not being repeated and try to help me updating the test by writing a new version of it, which makes you repeat it.
+
+PS: At the moment, there are no service that is running.

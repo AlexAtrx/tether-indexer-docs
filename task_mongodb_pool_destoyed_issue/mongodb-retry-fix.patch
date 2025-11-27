@@ -1,0 +1,155 @@
+diff --git a/workers/api.indexer.wrk.js b/workers/api.indexer.wrk.js
+index 9a9ec01..e71a6df 100644
+--- a/workers/api.indexer.wrk.js
++++ b/workers/api.indexer.wrk.js
+@@ -104,6 +104,64 @@ class WrkIndexerApi extends WrkBase {
+     return this.db.transfers.findByTimestamp(from, to, limit)
+   }
+ 
++  /**
++   * Check if error is a transient MongoDB error that should be retried
++   * @param {Error} err
++   * @returns {boolean}
++   */
++  _isMongoTransientError (err) {
++    const message = err.message || ''
++    return (
++      message.includes('Pool was force destroyed') ||
++      message.includes('connection') ||
++      message.includes('ECONNREFUSED') ||
++      message.includes('ECONNRESET') ||
++      message.includes('ETIMEDOUT') ||
++      message.includes('topology was destroyed') ||
++      message.includes('server selection timed out')
++    )
++  }
++
++  /**
++   * Wrap MongoDB operation with retry logic for transient errors
++   * @param {Function} fn - Async function to execute
++   * @param {number} maxRetries - Maximum number of retries (default: 2)
++   * @returns {Promise<any>}
++   */
++  async _withMongoRetry (fn, maxRetries = 2) {
++    let lastError
++
++    for (let attempt = 0; attempt <= maxRetries; attempt++) {
++      try {
++        return await fn()
++      } catch (err) {
++        lastError = err
++
++        // Only retry on transient MongoDB errors
++        if (this._isMongoTransientError(err) && attempt < maxRetries) {
++          const backoffMs = 200 * Math.pow(2, attempt)
++          this.logger.warn(
++            { err: err.message, attempt: attempt + 1, maxRetries, backoffMs },
++            'MongoDB query retry due to transient error'
++          )
++          await new Promise(resolve => setTimeout(resolve, backoffMs))
++          continue
++        }
++
++        // Non-retryable error or retries exhausted
++        if (attempt === maxRetries && this._isMongoTransientError(err)) {
++          this.logger.error(
++            { err: err.message, attempts: maxRetries + 1 },
++            'MongoDB query failed after all retries'
++          )
++        }
++        throw err
++      }
++    }
++
++    throw lastError
++  }
++
+   async validAddress (req) {
+     const { address } = req
+     return this.chainClient.validAddress(address)
+@@ -128,7 +186,7 @@ class WrkIndexerApi extends WrkBase {
+ 
+   async getTransaction (req) {
+     const { hash } = req
+-    return this.db.transfers.get(hash)
++    return this._withMongoRetry(() => this.db.transfers.get(hash))
+   }
+ 
+   async queryTransactions (req) {
+@@ -141,26 +199,28 @@ class WrkIndexerApi extends WrkBase {
+       throw new Error('ERR_LIMIT_INVALID')
+     }
+ 
+-    let stream
+-    if (fromTs || toTs) {
+-      stream = this._queryTransactionsTs(fromTs, toTs, limit)
+-    } else {
+-      stream = this._queryTransactionsBlock(fromBlock, toBlock, limit)
+-    }
+-    if (!stream) {
+-      return []
+-    }
++    return this._withMongoRetry(async () => {
++      let stream
++      if (fromTs || toTs) {
++        stream = this._queryTransactionsTs(fromTs, toTs, limit)
++      } else {
++        stream = this._queryTransactionsBlock(fromBlock, toBlock, limit)
++      }
++      if (!stream) {
++        return []
++      }
+ 
+-    const txns = []
+-    const addrFilter = addresses ? new Set(addresses) : null
++      const txns = []
++      const addrFilter = addresses ? new Set(addresses) : null
+ 
+-    for await (const tx of stream) {
+-      if (!addrFilter || addrFilter.has(tx.from) || addrFilter.has(tx.to)) {
+-        txns.push(tx)
++      for await (const tx of stream) {
++        if (!addrFilter || addrFilter.has(tx.from) || addrFilter.has(tx.to)) {
++          txns.push(tx)
++        }
+       }
+-    }
+ 
+-    return txns
++      return txns
++    })
+   }
+ 
+   async queryTransfersByAddress (req) {
+@@ -173,7 +233,9 @@ class WrkIndexerApi extends WrkBase {
+       throw new Error('ERR_LIMIT_INVALID')
+     }
+ 
+-    return this.db.transfers.findByAddressAndTimestamp(address, fromTs, toTs, limit).toArray()
++    return this._withMongoRetry(() =>
++      this.db.transfers.findByAddressAndTimestamp(address, fromTs, toTs, limit).toArray()
++    )
+   }
+ 
+   async getTransactionFromChain (req) {
+@@ -184,12 +246,14 @@ class WrkIndexerApi extends WrkBase {
+ 
+   async getBlock (req) {
+     const { blockNumber } = req
+-    const block = await this.db.blocks.get(blockNumber)
+-    if (!block) {
+-      return null
+-    }
+-    block.txns = await this.db.transfers.findByBlockNumber(blockNumber, blockNumber).toArray()
+-    return block
++    return this._withMongoRetry(async () => {
++      const block = await this.db.blocks.get(blockNumber)
++      if (!block) {
++        return null
++      }
++      block.txns = await this.db.transfers.findByBlockNumber(blockNumber, blockNumber).toArray()
++      return block
++    })
+   }
+ 
+   async getBlockFromChain (req) {
