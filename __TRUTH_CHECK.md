@@ -19,9 +19,8 @@ Think deeply about this and take all the time you need.
 Things to read: 
 • All the repos in this project including their README, config files, and main code modules.
 • Meeting minutes in ./_minutes
-• Tickets in ./_docs/_tickets (check files, folders, and subfolders).
-• Slack messages in ./_docs/_slack
-• All files in this directory.
+• Tasks in _docs/tasks
+• All files in this directory
 • Understand the diagram ./_docs/wdk-indexer-local-diagram.mmd which doesn't include everything.
 
 ## Important: 

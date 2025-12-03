@@ -1,0 +1,1 @@
+Fix the code the right way, in a way that works everywhere MongoDB is being used. If any configuration existing anywhere that is not used or being useless, remove this configuration. Make sure wherever MangoDB is used in this repository, it is picking the configuration from the right place.

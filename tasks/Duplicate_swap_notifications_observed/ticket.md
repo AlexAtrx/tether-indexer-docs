@@ -1,0 +1,3 @@
+Duplicate swap notifications observed
+
+Users occasionally receive duplicate swap notifications. The issue is inconsistent and cannot be reliably reproduced. App-side causes seem unlikely since even swap completion notifications are duplicated, which are not triggered by the app. Initial suspicion was a duplicated FCM token, but this seems unlikely because it would cause consistent duplication for affected users. Further investigation is needed to identify the root cause.
