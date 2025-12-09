@@ -31,7 +31,3 @@ Reference: `_docs/tasks/Duplicate_swap_notifications_observed/analysis.md`
 - Repo: `rumble-data-shard-wrk`.
 - Goal: Observe dedupe effectiveness.
 - Steps: Log metrics/counters for “duplicate-suppressed” vs “sent” per notification key; add debug logs with traceId.
-
-### Task 7 – Deployment/compat notes
-- Repo: docs.
-- Goal: Document config/env flags for idempotency and cache sizing; rollout order (base then child) to avoid missing hooks.

@@ -1,0 +1,53 @@
+# Rumble Wallet & Indexers - Standup
+
+## Action Items
+- Finish PR for address‑uniqueness security fix  
+- Complete Mongo config performance changes  
+- Create PR for duplicate swap‑notification bug (analysis already shared)  
+- Start decoder‑view ticket after finishing wiggle code reviews  
+- Add safeguard PR to prevent duplicate transaction events  
+- Implement manual retry endpoint for skipped blocks/transactions  
+- Test all staging‑environment endpoints (Gohar) before production rollout  
+- Follow up with Nicholas on orchestrator performance testing results  
+- Schedule a debugging session for the ORC worker peer‑connection failures  
+- Work with Usman on consolidating RPC‑error metrics in the base worker  
+- Merge Prometheus push‑gateway and indexer‑lag metric PRs  
+- Decide on Firebase auth vs Remote Config; add simple registration toggle via Firebase console  
+
+## Metrics & Monitoring
+- Added histogram and gauge visualizations for chain‑head vs. last indexed block latency  
+- Prometheus push‑gateway set up; Grafana dashboards will show indexer lag and error counts  
+- Plan to surface specific “failed after 3 retries” errors in Grafana  
+- Discussed alerting on repeated transaction‑save failures (critical log + alert)  
+
+## Indexer Retry Mechanism
+- Push‑based flow now includes 3‑retry limit; after third failure transaction is ignored  
+- Noted a staging incident where price‑fetch service (BFX) caused a third‑retry failure  
+- Agreed to log such failures as errors and add alerting for potential indexer blockage  
+- Pull‑based sync will run hourly to catch any missed transactions from push flow  
+
+## Firebase Whitelisting Discussion
+- Explored using Firebase Remote Config for a registration whitelist flag – rejected due to global visibility of email list  
+- Consensus: keep whitelist logic server‑side; expose a verification endpoint for the app  
+- Firebase Auth can provide user‑specific tokens, but still needs backend logic for whitelist checks  
+- Immediate goal: simple toggle to enable/disable new registrations via Firebase console; whitelist feature is a later “luxury”  
+
+## ORC Worker Issues
+- Intermittent “peer connection failed” errors tied to HybridDB data‑hash table  
+- Errors increase with multiple workers; also seeing unexpected autobase errors  
+- Benchmarking script works for small loads; scaling to 100k requests reveals stability problems  
+- Plan: debugging session after call; consider separating script execution from worker launch  
+
+## Ticket Updates (Alex)
+- Closed two tickets: address uniqueness bug and Mongo performance config  
+- Analyzed duplicate swap‑notification issue; shared findings on Slack, PR pending  
+- Next focus: decoder‑view ticket (expected larger PR, will split into subtasks)  
+- Will address code reviews for wiggle before moving to new tickets  
+
+## General Team Updates
+- Usman working on a unified RPC‑error matrix for all indexers (base worker implementation)  
+- Kulwinder integrating Prometheus metrics for indexer lag monitoring  
+- Gohar to verify staging endpoints across mobile APIs after recent response‑code changes  
+- Subash raised urgent email‑whitelist request; team agreed to postpone until a secure solution is defined  
+- Jesse mentioned whitelist as a “luxury” feature, not required for immediate launch  
+- Confidence expressed about iOS v2 launch, pending resolution of retry‑logic and monitoring gaps.
