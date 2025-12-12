@@ -1,70 +1,231 @@
 # WDK Indexer – Engineering Truth
 
-**Last Updated:** 2025-12-02  
-**Scope:** `_INDEXER` workspace (app-node, ork, data-shard, per-chain indexers, docs)
+**Last Updated:** 2025-12-12
+**Scope:** `_INDEXER` workspace (app-node, ork, data-shard, per-chain indexers, Rumble extensions)
 
-## Architecture (from code/config)
-- **Topology:** Fastify HTTP surface (`wdk-indexer-app-node`) → ork gateway (`wdk-ork-wrk`) → data shard (`wdk-data-shard-wrk` proc/api) → per-chain indexers (proc/api). All services are Node.js workers on Hyperswarm; topics use `${chain}:${token}` and share `topicConf.capability/crypto.key`.
-- **Proc/API split:** Proc workers sync and write; API workers serve reads and require `--proc-rpc` (printed on proc start). `app-node` exposes RPC for API-key/admin ops; ork/data-shard expose RPC internally only.
-- **Storage:** HyperDB is the default DB across repos; MongoDB is optional via config (no auth/TLS defined). Autobase holds API keys and wallet lookups in app-node/ork. Price cache is per-process LRU (no shared cache).
-- **Data flow:** Data shard pulls balances/transfers over Hyperswarm (`jTopicRequest`); Redis stream publish/consume exists in indexer/data-shard but is **off by default** unless `eventEngine: "redis"` is set.
-- **Scheduling:** Indexers run `syncTx` + cleanup (daily/weekly). Data shard runs balance history, transfer sync (`*/5 * * * *` default), inactivity cleanup. App node revokes inactive API keys (daily).
-- **Chain/Token coverage (configs):** Ethereum, Arbitrum, Polygon, Sepolia (`usdt0`), Plasma (`usdt0`, `xaut0`), Tron, TON, Solana, Bitcoin, Spark. EVM configs include ERC-4337 bundler/paymaster endpoints; data-shard/app configs expect the `usdt0/xaut0` names for test chains.
-- **HTTP surface:** Swagger at `/docs`. Routes: request API key (email), health, token balances/transfers (single + batch) with API-key auth and per-route rate limits (Redis-backed).
+---
 
-## Delivered Capabilities
-- Token balance/transfer queries over HTTP (single and batch) mapped to per-chain indexer RPCs with address normalization for non-case-sensitive chains.
-- API key lifecycle via RPC/HTTP (`create/revoke/get/deleteApiKeysForOwner`, block/unblock user); inactivity sweep job.
-- Data shard wallet CRUD, balance aggregation with FX lookup, transfer history per wallet/user; sanitizes addresses using chain-specific case rules.
-- Per-chain indexers stream blocks/transactions from configured RPC providers, store to HyperDB/Mongo, and (optionally) publish to Redis streams.
+## 1. Architecture
 
-## Challenges & Weak Points
-- **Mongo pool failures unhandled:** Indexer API handlers lack retries/timeouts; documented root cause (`[HRPC_ERR]=Pool was force destroyed`) is not patched in the current code.
-- **Address uniqueness gap:** Ork only logs warnings on duplicate addresses; no enforced normalization/uniqueness at org level. Data shard allows same address across users after sanitization.
-- **Config drift on token names:** App/data-shard use `usdt0/xaut0` for Sepolia/Plasma while indexer configs use `usdt`/`xaut`; risk of topic mismatch and empty data.
-- **Pull-only sync:** `eventEngine` is unset in shipped configs, so data shard polls indexers; push/broadcast design is pending (Nov 25–Dec 2 meetings).
-- **Balance flicker:** Slack/tickets cite mixed cache behavior (per-worker LRU, cache poisoning when `cache=false` still writes) plus provider height differences.
-- **Tracing gaps:** Trace ID utilities exist in ork/data-shard, but HTTP layer doesn’t inject/propagate IDs; logs are hard to stitch end-to-end.
-- **Secrets in repo:** `topicConf` keys and `apiKeySecret` committed; no TLS/auth for Mongo/Redis in configs; proc RPC keys printed to stdout.
-- **Observability gaps:** RPC errors omit provider name; Alertmanager/Grafana contact points incomplete; rate-limit/proxy usage unclear for heavy providers (Candide usage spike).
-- **AA duplicate hashes:** UserOperation hash vs bundle hash not reconciled; leads to duplicate webhook/history entries.
-- **Swap correlation not implemented:** Dec 2 discussion defined `transactions` + `transaction_legs` with `swapId`; no code yet.
+### 1.1 Topology
+- **HTTP Surface:** `wdk-indexer-app-node` (Fastify) → `wdk-ork-wrk` (routing) → `wdk-data-shard-wrk` (data layer) → per-chain indexers
+- **Transport:** Hyperswarm/HyperDHT peer-to-peer mesh; topics use `${chain}:${token}` format with shared `topicConf.capability` and `crypto.key`
+- **Worker Types:** Proc (writer) and API (reader) pairs; Proc publishes RPC key, API connects to it
 
-## Security Threats
-- Shared capability/crypto keys + API-key secret stored in Git; no mTLS/JWT on internal RPC; proc RPC tokens are bearer secrets.
-- API keys delivered via plaintext email; no CAPTCHA or HMAC-signed webhooks; Redis/Mongo auth/TLS absent in examples.
-- Address collision risk from missing normalization/uniqueness enforcement.
-- Supply-chain audit (SHA1HULUD) in docs reports clean on 2025-11-26; recommendations (ignore-scripts, Dependabot) not applied in configs.
+### 1.2 Service Layers
+| Layer | Repo | Function |
+|-------|------|----------|
+| HTTP Gateway | `wdk-indexer-app-node` | API key mgmt, rate limiting, Swagger docs |
+| Orchestrator | `wdk-ork-wrk` | Wallet registry, address lookups, multi-shard aggregation |
+| Data Shard | `wdk-data-shard-wrk` | Wallet/transfer storage, balance aggregation, FX lookup |
+| Chain Indexers | `wdk-indexer-wrk-{evm,btc,solana,ton,tron,spark}` | Block/tx sync from RPC providers |
 
-## Features Needed for Industry Standard
-- Authenticated mesh and secret management (Vault/env), mTLS/JWT/HMAC on RPC + secure API-key delivery portal.
-- End-to-end tracing with trace IDs from HTTP → ork → data-shard → indexer, plus provider metadata in logs and alerts.
-- Robust push pipeline (Redis/Kafka) with at-least-once + idempotency for transfers instead of cron polling; health checks/metrics on delivery lag.
-- Shared OpenAPI/TypeScript schema + generated SDKs to reduce drift (noted lack of shared spec in reviews).
-- Centralized caching for balances (Redis) and provider health/circuit-breakers to avoid per-worker LRU divergence.
-- Webhook hardening (HMAC signatures, retry/DLQ) and AA hash mapping (userOp + bundle hash) in history/webhooks.
+### 1.3 Storage
+- **Primary:** HyperDB (peer-to-peer) or MongoDB (centralized) via pluggable factory
+- **Caching:** Per-worker LRU for balances/lookups (10K max, 15min TTL)
+- **Autobase:** API keys, wallet lookups, org registry
 
-## Nice-to-Haves (from discussions)
-- Cross-chain swap orchestration layer using `transactions` + `transaction_legs` with `swapId` metadata.
-- Provider-aware error logging/alerting and rate-limit dashboards; automated deployment scripts (Ansible/K8s) for workers.
-- One-command local stacks (Mongo replica set, Redis, sample Hyperswarm keys) for reproducible tests.
+### 1.4 Data Flow
+```
+Client → HTTP (app-node) → Hyperswarm RPC → ork → data-shard → indexer
+                                                      ↓
+                                              MongoDB/HyperDB ← RPC Providers
+```
 
-## Active TODOs (from minutes/tickets/tasks)
-- Add Mongo retry/timeouts in indexer API handlers; fix `[HRPC_ERR]=Pool was force destroyed` crash path.
-- Handle Hyperswarm pool/DHT errors (netOpts/poolLinger) in tether-wrk-base; align data-shard/indexer configs.
-- Enforce address normalization + uniqueness in ork/data-shard; add migration for existing data.
-- Migrate balance caching to Redis (`update_caching_of_endpoints_to_use_bfx-facs-redis_as_opposed_to_lru_cache.md`); avoid cache poisoning when bypassing cache.
-- Align Plasma/Sepolia token names/topics across app/data-shard/indexer; verify HyperDHT topics (`plasma+usdt0/xaut0`, `sepolia+usdt0`).
-- Add provider identifiers to RPC error logs; configure alerts for critical RPC timeouts.
-- Finish push-based broadcast POC and load tests; keep router design as fallback.
-- Add trace-id propagation from HTTP layer; include service name + trace in logs.
-- Create proxy endpoints for BTC/TON RPC per ticket; confirm port/TLS expectations.
-- Implement AA hash mapping (userOp + bundle) to stop duplicate transactions in webhooks/history.
-- Apply security-audit recs (ignore-scripts, Dependabot, secret scanning) and move secrets to env.
-- Support Sepolia/Plasma deployments per tickets; ensure configs and tests are updated accordingly.
+---
 
-## References
-- Diagram: `_docs/wdk-indexer-local-diagram.mmd`
-- Minutes: `_docs/_minutes/*.md` (Nov 5–Dec 2 sessions on timeouts, cache, push design, swaps)
-- Slack notes: `_docs/_slack/*.md` (balance flicker, trace ID, AA duplicate hashes, provider usage)
-- Tasks/Tickets: `_docs/tasks/*`, `_docs/_tickets/*` (Mongo pool destruction analysis, Hyperswarm pool fixes, caching, Sepolia/Plasma, proxy endpoints)
+## 2. Chain & Token Coverage
+
+| Chain | Native | Tokens | Indexer | Sync Interval | Notes |
+|-------|--------|--------|---------|---------------|-------|
+| Ethereum | ETH | USDT, XAUT | wdk-indexer-wrk-evm | 30s | ERC-4337/Paymaster support |
+| Polygon | MATIC | USDT | wdk-indexer-wrk-evm | 15s | Candide bundler |
+| Arbitrum | ETH | USDT | wdk-indexer-wrk-evm | 5s | Fast blocks (~0.25s) |
+| Plasma | - | USDT0, XAUT0 | wdk-indexer-wrk-evm | 30s | Test chain |
+| Sepolia | - | USDT0 | wdk-indexer-wrk-evm | 30s | Test chain |
+| Bitcoin | BTC | - | wdk-indexer-wrk-btc | 10m | UTXO conversion |
+| Solana | SOL | USDT (SPL) | wdk-indexer-wrk-solana | 5s | Bitquery integration |
+| TON | TON | USDT, XAUT (Jetton) | wdk-indexer-wrk-ton | 10s | Gasless/Paymaster |
+| Tron | TRX | USDT (TRC20) | wdk-indexer-wrk-tron | 15s | Gasfree.io integration |
+| Spark | BTC | - | wdk-indexer-wrk-spark | 10s | Time-based indexing, LNURL |
+
+---
+
+## 3. Rumble Extension Layer
+
+Rumble extends WDK with consumer-facing features:
+
+| Repo | Extends | Added Features |
+|------|---------|----------------|
+| `rumble-app-node` | `wdk-app-node` | SSO auth, MoonPay, device mgmt, notifications API |
+| `rumble-ork-wrk` | `wdk-ork-wrk` | FCM device registry, notification routing, idempotency |
+| `rumble-data-shard-wrk` | `wdk-data-shard-wrk` | Firebase notifications, webhooks, Rumble server integration |
+
+**Key Rumble Features:**
+- Firebase Cloud Messaging (FCM) for push notifications
+- Multi-device registration and management
+- Notification types: TOKEN_TRANSFER, SWAP_*, TOPUP_*, CASHOUT_*, LOGIN
+- Transaction webhooks ("rant" for tips)
+- MoonPay buy/sell integration
+- LNURL/Lightning support
+
+---
+
+## 4. Delivered Capabilities
+
+### 4.1 Core Features
+- Token balance/transfer queries (single and batch) with address normalization
+- API key lifecycle: create, revoke, list, delete; inactivity sweep (30-day default)
+- Wallet CRUD with balance aggregation and FX conversion (Bitfinex API)
+- Per-chain indexers sync blocks/transactions with configurable batch sizes
+
+### 4.2 Recent Implementations (Dec 2025)
+- **MongoDB Retry Logic:** Configurable retries with exponential backoff in data-shard and indexer repos (PR #115, #120, #52)
+- **Circuit Breaker:** Provider health tracking with CLOSED/OPEN/HALF_OPEN states in `RpcBaseManager`
+- **Address Uniqueness Fix:** Local normalization in ork-wrk prevents case-sensitivity bypass attacks
+- **Push-Based Mechanism:** Deployed to dev; 3-retry limit with hourly pull fallback
+- **Prometheus Metrics:** Indexer lag, error counts, histograms via push-gateway
+- **Test Fixes:** wdk-data-shard-wrk unit tests now 78/78 passing
+
+---
+
+## 5. Challenges & Weak Points
+
+### 5.1 Resolved or Mitigated
+- **Mongo timeouts:** Retry logic + `maxTimeMS` added to all read/write operations
+- **Address uniqueness:** Local normalization at ork-wrk validation layer
+- **RPC failover:** Circuit breaker with weighted provider ordering
+
+### 5.2 Remaining Issues
+- **Balance flicker:** Per-worker LRU cache divergence across multiple app-node instances; shared Redis cache planned but not implemented
+- **Cache poisoning:** `cache=false` param still writes results; providers at different block heights cause oscillation
+- **Pull-only sync:** `eventEngine` unset in shipped configs; push/broadcast POC needs production validation
+- **Tracing gaps:** Trace-ID utilities exist but HTTP layer doesn't inject/propagate end-to-end
+- **Secrets in repo:** `topicConf` keys and `apiKeySecret` committed; no mTLS/auth on Mongo/Redis
+- **AA duplicate hashes:** UserOperation hash vs bundle hash not reconciled; causes duplicate webhook/history entries
+- **Swap correlation:** `transactions` + `transaction_legs` tables designed (Dec 2 meeting) but not implemented
+
+### 5.3 Operational Concerns
+- **Candide API usage:** 1M calls in 5 days of 5M monthly limit; needs monitoring
+- **ORC worker stability:** Peer connection failures at scale (100K requests); HyperDB data-hash issues
+- **Provider errors:** Heavy volume from some RPC providers; not release-blocking but needs alerts
+
+---
+
+## 6. Security
+
+### 6.1 Threats
+- Shared capability/crypto keys + API-key secret in Git
+- No mTLS/JWT on internal RPC; proc RPC tokens are bearer secrets
+- API keys delivered via plaintext email; no CAPTCHA or HMAC-signed webhooks
+- Redis/Mongo auth/TLS absent in example configs
+
+### 6.2 Mitigations Applied
+- Address normalization prevents collision attacks (Nov 2025)
+- SHA1HULUD supply-chain audit: all 21 repos clean (Nov 26, 2025)
+- Exact dependency versions pinned in package.json
+
+### 6.3 Recommendations (from audit)
+- Add `.npmrc` with `ignore-scripts=true`
+- Enable Dependabot alerts
+- Move secrets to env/Vault
+- Implement HMAC-signed webhooks
+
+---
+
+## 7. Features Needed for Industry Standard
+
+| Priority | Feature | Why |
+|----------|---------|-----|
+| High | Shared Redis balance cache | Eliminate per-worker LRU divergence |
+| High | Trace-ID propagation from HTTP | End-to-end request tracing |
+| High | Secret management (Vault/env) | Remove secrets from repo |
+| Medium | Push pipeline with idempotency | At-least-once delivery, replace polling |
+| Medium | AA hash mapping | Map userOp + bundle hash in webhooks/history |
+| Medium | mTLS/JWT on internal RPC | Secure mesh communication |
+| Low | Shared OpenAPI/TypeScript schema | Reduce drift, generate SDKs |
+
+---
+
+## 8. Nice-to-Haves (from discussions)
+
+- Cross-chain swap orchestration with `swapId` metadata
+- Provider-aware error logging with rate-limit dashboards
+- One-command local stack (Mongo replica, Redis, Hyperswarm keys)
+- Automated deployment scripts (Ansible/K8s)
+- Manual retry endpoint for skipped blocks/transactions
+
+---
+
+## 9. Active TODOs
+
+### 9.1 High Priority
+- [ ] Migrate balance caching to Redis (task: `task_update_caching_to_redis`)
+- [ ] Implement AA hash mapping (userOp + bundle) to stop duplicate transactions
+- [ ] Add trace-ID injection from HTTP layer
+- [ ] Move secrets to env and apply audit recommendations
+
+### 9.2 Medium Priority
+- [ ] Gate transfer-triggered pushes on new inserts to prevent duplicate notifications (task: `Duplicate_swap_notifications_observed`)
+- [ ] Add per-notification idempotency for transfer pushes
+- [ ] Finish push-based broadcast POC and load tests
+- [ ] Align Plasma/Sepolia token names across all repos (usdt0/xaut0 vs usdt/xaut)
+
+### 9.3 Low Priority
+- [ ] Create proxy endpoints for BTC/TON RPC
+- [ ] Support swap linking via orchestration layer
+- [ ] Add Firebase registration toggle via console
+
+---
+
+## 10. Configuration Patterns
+
+### 10.1 File Structure
+```
+repo/
+├── config/
+│   ├── common.json          # Global settings, blockchains, topics
+│   ├── <chain>.json         # Chain-specific RPC/sync config
+│   └── facs/
+│       ├── db-mongo.config.json    # MongoDB operations
+│       ├── net.config.json         # Hyperswarm/pool settings
+│       └── redis.config.json       # Redis connection
+```
+
+### 10.2 Key Config Options
+```json
+// MongoDB retry (db-mongo.config.json)
+{ "operations": { "readRetries": 1, "readRetryDelay": 500, "readTimeout": 30000 } }
+
+// Circuit breaker (rpc.base.manager defaults)
+{ "failureThreshold": 3, "resetTimeout": 30000, "successThreshold": 2 }
+
+// Sync scheduling (common.json)
+{ "syncTx": "*/30 * * * * *", "txBatchSize": 20 }
+```
+
+---
+
+## 11. References
+
+| Resource | Path |
+|----------|------|
+| Architecture diagram | `_docs/wdk-indexer-local-diagram.mmd` |
+| Meeting minutes | `_docs/_minutes/*.md` |
+| Task documentation | `_docs/tasks/` |
+| Slack discussions | `_docs/_slack/*.md` |
+| Security audit | `_docs/tasks/task_dependencies_issue/security_audit_report.md` |
+
+---
+
+## 12. Glossary
+
+| Term | Definition |
+|------|------------|
+| Proc worker | Write-path worker that syncs from blockchain and writes to DB |
+| API worker | Read-path worker that serves queries; requires proc-rpc key |
+| HyperDHT | Distributed hash table for peer discovery |
+| Autobase | Distributed append-only log for wallet/key lookups |
+| Jetton | TON token standard (like ERC-20) |
+| ERC-4337 | Account abstraction standard for gasless/bundled transactions |
+| Paymaster | Contract that sponsors gas fees for ERC-4337 |
