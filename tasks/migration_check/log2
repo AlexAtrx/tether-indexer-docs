@@ -1,0 +1,601 @@
+npm run migration -- mongodb run -m ./migrations/mongodb/2025-11-26_normalize-wallet-addresses.js wtype=wrk-data-shard-proc rack=w-0-0 --dry-run
+
+> rumble-data-shard-wrk@0.1.0 migration
+> node scripts/migration-cli.js mongodb run -m ./migrations/mongodb/2025-11-26_normalize-wallet-addresses.js wtype=wrk-data-shard-proc rack=w-0-0 --dry-run
+
+argv {
+  env: 'production',
+  ns: 'm0',
+  root: '/srv/data/staging/rumble-data-shard-wrk',
+  migration: '/srv/data/staging/rumble-data-shard-wrk/migrations/mongodb/2025-11-26_normalize-wallet-addresses.js',
+  m: '/srv/data/staging/rumble-data-shard-wrk/migrations/mongodb/2025-11-26_normalize-wallet-addresses.js',
+  help: false,
+  h: false
+}
+Initializing db context with argv: {
+  env: 'production',
+  ns: 'm0',
+  root: '/srv/data/staging/rumble-data-shard-wrk',
+  migration: '/srv/data/staging/rumble-data-shard-wrk/migrations/mongodb/2025-11-26_normalize-wallet-addresses.js',
+  m: '/srv/data/staging/rumble-data-shard-wrk/migrations/mongodb/2025-11-26_normalize-wallet-addresses.js',
+  help: false,
+  h: false
+} rest: [ 'wtype=wrk-data-shard-proc', 'rack=w-0-0', '--dry-run' ]
+Using db: wdk_shard_wrk_data_shard_proc_w_0_0
+(node:3451969) [DEP0170] DeprecationWarning: The URL mongodb://wallet:ztjzBW5CRnxDlbSW1dp0E8JT7fzykajG@walletmdbstg3:27017,walletmdbstg1:27017,walletmdbstg2:27017/wallet?authSource=wallet&replicaSet=rws0 is invalid. Future versions of Node.js will throw an error.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+(node:3451969) [MONGODB DRIVER] Warning: Current Server Discovery and Monitoring engine is deprecated, and will be removed in a future version. To use the new Server Discover and Monitoring engine, pass option { useUnifiedTopology: true } to the MongoClient constructor.
+2025-12-11T15:15:17.333Z started running migration /srv/data/staging/rumble-data-shard-wrk/migrations/mongodb/2025-11-26_normalize-wallet-addresses.js
+================================================================================
+Migration: Normalize Wallet Addresses (MongoDB)
+================================================================================
+Mode: DRY RUN (no changes will be made)
+
+Step 1: Scanning wallets collection...
+
+  Scanned: 211/211 | To normalize: 0
+
+================================================================================
+Summary:
+================================================================================
+Total wallets: 211
+Wallets to normalize: 0
+Wallets unchanged: 211
+Errors: 0
+
+Addresses by chain:
+  polygon            211 (lowercase)
+  ethereum           209 (lowercase)
+  arbitrum           209 (lowercase)
+  bitcoin            209 (case-sensitive)
+  ton                188 (case-sensitive)
+  spark              166 (lowercase)
+  tron                 1 (case-sensitive)
+
+⚠️  Normalized address collisions detected (shared by multiple wallets):
+  spark:sp1pgssxqpskk24k3wqw2zz9ax2dg42w3803lus6u87ck4h82wg2za6gkdmxshzyx → 03ae3789-06bd-4932-9191-8bd738a83705, 07289d03-703c-4894-bc93-886e8ee00a5c, 0edcec3f-388e-440c-982f-396a1d03dfec, 24730e78-5b68-43b8-9f00-9eb96ff7b129, 247750bd-8140-4351-9d62-618b338e5308, 24caea11-96a6-415e-9d17-2914a3348bbc, 31b1ed19-c692-4e78-a896-cbbca8890d2f, 32a702f0-3168-4f60-a146-63fb790ae20c, 357e1f76-aa7d-4719-a76a-db02c5cbd771, 3b82d2d1-7fee-43e3-b81c-9544ce0b01d8, 3f91f435-33ca-4115-8eb4-203374d4bba7, 47537a2b-e7fb-4c3b-9680-bda80cb2117a, 539f8b1b-a0cf-40c5-8bd5-9bf4425a6713, 55181268-4d78-4ef7-b090-fe03a35667ad, 603c1681-01b6-4aef-a652-7bbb50c2ea1e, 6ae031ab-4bd5-4d46-904d-c33d4c25e8bc, 7d166669-aafe-43a9-a2a0-90ca9e49ba10, 80938b54-3ee3-4e23-aa18-d57b27efb935, 9d432edd-3334-45c5-ac68-84b0125b0ff8, 9ff8b77a-4076-4582-805e-d937877e464d, b983c682-7bbe-448b-88a3-0f559d344099, 04551ecf-0de6-40b4-b342-a8029714efdd, 06c2e17d-5e67-47cd-942a-4be0e4f4dd00, 0c00a128-3b71-466e-94f0-8455136cce27, 12d31f09-6e97-4c1b-ae8b-65b292e211fa, 134333cf-6dab-4ed2-861a-5f4d305f81e5, 1440b6d2-cdd7-406a-9030-5660294f50d1, 1837f11c-7d79-4b69-8a41-bfcbe471c5ba, 1d950d08-be5a-4135-9719-15331a0169a6, 259d3494-9bd5-402a-a9d9-de72c2e92420, 2621f4b0-f3a5-4d94-b9e3-b7e1773be0cf, 29777ed3-b982-464c-afce-f9961e74d37d, 2d13ffd5-4692-491d-9e10-4e9921f18e1b, 32329824-abc7-42df-b5bc-4b6cb10de76d, 333cb167-0ac5-4bc7-9b3c-a67d05715a2e, 35c41f1c-d5fc-46b4-961a-3327d59ac7e2, 36d5f132-d342-491e-b02c-86e5d0a6cbd7, 3ef12516-7bca-4c2a-a58e-8ff98c540837, 40ca2fc7-178c-4269-8c0c-c476d4a9176d, 4607ff1d-841c-410f-beec-c108f46e06e4, 46f5fc06-f686-4ac9-8b4b-5c2e5583b6c1, 51001401-5c9c-4dc9-b0fb-91e752d8893b, 54af4851-d205-4be6-a19d-38a8505fc844, 5982dee3-4179-443f-8560-e3974d6e6f97, 5fa4fcce-392d-4b05-854c-0f1845922879, 62676ad8-84c4-4b1b-9b4a-3dcae4dc1bd0, 626ff8f2-4b01-4425-9fae-e387766e5466, 69833e1a-375f-4191-b9d6-02be37d5403e, 6d0f5f98-e5d6-4d6f-8e81-92a66a5edf21, 701063b9-52df-452a-8e28-0e2953a8a8da, 7525fe80-2d50-4231-9793-7486c704ba13, 792afd7e-3ca7-43d9-b5d6-cea11e1a54d2, 7e0fbca8-a006-4e40-b425-a77c12c10f71, 7e837328-6938-498b-b2fc-60005d1d1a37, 8972ca81-dc15-443e-9d53-d5a2ffd50387, 900620e6-232f-4d0c-a645-7302f6f1586c, 94f9315c-479b-4130-899c-74947fbc6a90, 972ba65a-65ef-4ae0-91ad-4eae717a54c2, 9dbf4fee-c63b-4019-bf63-2242ba28276c, 9ee4c4f4-b4fe-45ef-a143-c983836935ae, a132b4a6-d6ce-4ae1-8726-5e511fbfeca9, a5050078-ac8c-49d4-80b8-08e87b0fb049, a8436a6a-62e2-46ff-b9a5-1d90cd6f30a0, ae35adbb-eb61-4071-aa12-28a88189d820, b40bf028-07ed-4257-8084-fb27363289f1, bc7c4a4c-7b4b-4bf5-a77b-fe7d8bed1fb3, 0185c0c6-782a-404b-8dd2-d7a099762463, 0591e6ee-be44-4411-acd6-a9134d8c5412, 06894876-3370-49d4-ac28-1d484a4b4ba3, 0d7cb9b6-dcce-4c91-8f63-f2ce9c9d666d, 1c2abc4d-6d2c-46ba-a965-1c75cf90495c, 21b9ef1b-781b-4587-b14e-60eeb0df610a, 25636b60-31ac-4e97-9197-f8bbbbbb4aed, 2fec0396-eaf9-450c-bf53-95c0cd192e47, 344708e2-de55-4ef9-a21a-673bc7b74f0e, 3b1f4e28-ff05-4622-8b64-d3f702061b80, 41a53eb5-eb9a-403f-b7cd-e380ebe52315, 4a04e1b7-8cc0-4f5e-bac0-f0971e12ea30, 4d737396-c4af-4854-82b0-5a687885fa84, 5f0126fb-df9f-4122-9476-a077f4c4d3f0, 707e4ae6-0063-49b0-bdc0-3f558e04c63b, 86d826a2-3e97-4d5f-a431-327502fa0aad, 8893f86d-9926-4831-8ede-349500ccdc47, 8b6d91bb-38e2-42b2-861f-2ce9e1e9f72b, 8cc58702-86dd-4f97-ae91-a405a9a17c60, 962ef210-3b0c-4010-8d68-080ef47ce773, a01e821d-7feb-42f6-bef7-6a1de6644a99, a0f657e3-291b-45b8-b517-59368e171181, a448edcb-30bd-4ad9-8ef9-9dd1dde339db, a65ebb78-d9ce-4de8-afb7-86b20d01b217, ac517b07-9f82-4f1a-9c50-f765f03f6bfa, b6302181-b1d7-4ab0-b443-37241f2e5453, bfd12fea-9253-4f62-9002-54a443263927, 08dcd87a-7fc4-483a-9445-68d30e2f0905, 0adb7baf-890f-4931-8172-713631f8e9da, 112ed95a-6298-48bb-a29b-13d9d0f31879, 12ad200b-e50f-4131-8d15-f885824513af, 35e6def0-507e-4f7f-bc52-ec8b8ae39bed, 3618a40e-3ed0-4d9a-b027-0a5ff97a6260, 3d3c7a87-e733-4d80-a18f-48a12ed2b283, 4129084a-81cc-4835-a965-c35bb502714c, 42e4ad0f-1944-4f61-bcc3-f839f58c77e5, 4d33fa51-5a01-45fc-8709-cac35866bf92, 5c116fd6-456e-4a2a-8a81-44770d14bb6c, 5c15b9f1-0f39-4359-9a36-089c0700dcd2, 5f485e31-c0e5-43c3-ac99-439cfd9f0362, 6dd97849-7dba-487e-a955-1c59b447fc79, 8237be2c-d993-4af2-83fc-87aceb6bf178, 9095f926-8483-4219-8a1f-971c2728f008, 93055e36-3720-486f-a4c7-51a07a172d24, 95d3eb83-1f12-4a64-b839-3fe76a0b6127, 9c946703-8dd1-4422-89f8-bbb3caaedba2, a1e2a946-5296-42e5-bee8-3ef0895a0776, a2a1e5fc-3c69-47ca-ac2d-8575f486e13b, b1bb683b-a5ef-4ec1-8603-516d6690b1e9, b30f2c0f-b49b-4fd9-97f8-07a1e11b9ec3, b729eb98-d9a6-4ab1-9b19-b962d57e0a84, bbb8c421-c8b5-45b1-bc66-53787104fe07, bec65b19-ae8c-4a50-a9ed-e8db87ae1842, bfbb075a-6028-448a-87fd-494c0faca03c, c0719cfb-6ac9-4216-b7c9-9131204a088f, cabba324-0b68-4949-a8b3-3cbfd6f26525, cb96b638-d2b7-410b-85dd-74a35d35b150, d4cb2967-b820-468e-b574-6108b6e33217, d6f2584b-d024-4b04-9f02-df0dd77f7d42, e3a4fb33-bca5-40fe-a269-1486585f9aef, e6408536-0db8-4cc1-8c02-9dd5c657dd13, e9038cd7-9212-49d6-bf1e-e03d533d1037, ecaadebf-94e6-49aa-83b1-c3b1494a6e0d, ecf7bd80-afda-4308-8d56-a38da5d4ab6d, fb5711d3-6558-4fdc-869a-49a13afcda34, fb6acfca-4dfa-42fc-b45c-4594e55e8811, c1064217-da31-4a61-8b12-6c1a73a53b94, c18e812f-4def-4463-9b3f-49bd18b6020a, c2aa9d7e-340b-4ba1-b7af-4a57709bfded, c64dc276-58fa-47b7-8d4f-b90ee6ee67a1, c8c172c3-d04d-480b-8643-8af8839b850d, d663ba64-8d3b-41e2-83b7-9d10ab9e2e4e, e62daa4d-3f41-4c66-9b51-eceb87103fd7, edf7bd90-6dd8-496f-8755-c46290678d66, ccce871f-0557-49c1-b904-1f6ac19e1a70, d15a2470-41f1-472c-9976-b8c2409e3e13, dba85b3e-9c1d-4d92-9268-09a7e2dfc410, de5edac9-376b-40b4-961a-4502014082e9, e955c79a-e681-40f6-b034-354edd249d7d, edafb067-d5ad-45a2-91fe-c1cc060dd47c, f0a352f7-95fb-4e76-82ab-88f345170881, f10977c9-6dd6-4a65-8f99-9fbd5b76a8fd, fad0a2a1-a157-4b86-a764-030785f18bc2, ffa57f7a-3a73-4227-9e20-2e1fafba8724, c4efb364-7735-4cd2-a46e-50e47afbfd80, d192c1d0-1dc7-486c-9bb7-c95e747e2db3, d8372fbf-be02-4b5e-a20a-a469bc2a16da, e03d11af-a247-4fe0-9d8d-3a939ec390b1, e0637281-c56e-48fb-ac59-719bda6746b7, e11b829e-c338-4b16-a25c-f07810353e5d, e1eda9c9-8f18-441d-8655-833e0b64320c, e22d7cba-2deb-407c-83d2-9e0f98030c5f, e408fe5a-fd36-4ce8-a466-673da05653f9, e5e3b619-1b52-4613-ba60-7dec14f8ef40, e66cbe42-b71a-43c9-a5b9-a8e4c134cbdd, e7eca4fd-a848-4805-8775-556b1b644729, ec28ca4f-28c0-4538-b8a3-c04eaaaf1b71, f5c76243-54de-4fbe-9b10-7d0d80976398, f7d5bcfd-81f9-4bbd-88be-604f17cef598
+  ton:UQBlp49uVFm29sCbxIfhG16_qRtFGeGO6ADWhgFT6vQqXxrp → 07289d03-703c-4894-bc93-886e8ee00a5c, 247750bd-8140-4351-9d62-618b338e5308, 32a702f0-3168-4f60-a146-63fb790ae20c, 3f91f435-33ca-4115-8eb4-203374d4bba7, 55181268-4d78-4ef7-b090-fe03a35667ad, 603c1681-01b6-4aef-a652-7bbb50c2ea1e, 7d166669-aafe-43a9-a2a0-90ca9e49ba10, 80938b54-3ee3-4e23-aa18-d57b27efb935, 06c2e17d-5e67-47cd-942a-4be0e4f4dd00, 134333cf-6dab-4ed2-861a-5f4d305f81e5, 1837f11c-7d79-4b69-8a41-bfcbe471c5ba, 1d950d08-be5a-4135-9719-15331a0169a6, 2621f4b0-f3a5-4d94-b9e3-b7e1773be0cf, 29777ed3-b982-464c-afce-f9961e74d37d, 3ef12516-7bca-4c2a-a58e-8ff98c540837, 40ca2fc7-178c-4269-8c0c-c476d4a9176d, 51001401-5c9c-4dc9-b0fb-91e752d8893b, 54af4851-d205-4be6-a19d-38a8505fc844, 5982dee3-4179-443f-8560-e3974d6e6f97, 5fa4fcce-392d-4b05-854c-0f1845922879, 62676ad8-84c4-4b1b-9b4a-3dcae4dc1bd0, 69833e1a-375f-4191-b9d6-02be37d5403e, 6d0f5f98-e5d6-4d6f-8e81-92a66a5edf21, 7525fe80-2d50-4231-9793-7486c704ba13, 792afd7e-3ca7-43d9-b5d6-cea11e1a54d2, 900620e6-232f-4d0c-a645-7302f6f1586c, 94f9315c-479b-4130-899c-74947fbc6a90, 972ba65a-65ef-4ae0-91ad-4eae717a54c2, 9dbf4fee-c63b-4019-bf63-2242ba28276c, a132b4a6-d6ce-4ae1-8726-5e511fbfeca9, ae35adbb-eb61-4071-aa12-28a88189d820, b40bf028-07ed-4257-8084-fb27363289f1, 0185c0c6-782a-404b-8dd2-d7a099762463, 0d7cb9b6-dcce-4c91-8f63-f2ce9c9d666d, 1c2abc4d-6d2c-46ba-a965-1c75cf90495c, 21b9ef1b-781b-4587-b14e-60eeb0df610a, 25636b60-31ac-4e97-9197-f8bbbbbb4aed, 344708e2-de55-4ef9-a21a-673bc7b74f0e, 3b1f4e28-ff05-4622-8b64-d3f702061b80, 4a04e1b7-8cc0-4f5e-bac0-f0971e12ea30, 5f0126fb-df9f-4122-9476-a077f4c4d3f0, 86d826a2-3e97-4d5f-a431-327502fa0aad, 8b6d91bb-38e2-42b2-861f-2ce9e1e9f72b, a0f657e3-291b-45b8-b517-59368e171181, a65ebb78-d9ce-4de8-afb7-86b20d01b217, 112ed95a-6298-48bb-a29b-13d9d0f31879, 3618a40e-3ed0-4d9a-b027-0a5ff97a6260, 3d3c7a87-e733-4d80-a18f-48a12ed2b283, 5c116fd6-456e-4a2a-8a81-44770d14bb6c, 8237be2c-d993-4af2-83fc-87aceb6bf178, 9095f926-8483-4219-8a1f-971c2728f008, 95d3eb83-1f12-4a64-b839-3fe76a0b6127, a1e2a946-5296-42e5-bee8-3ef0895a0776, b729eb98-d9a6-4ab1-9b19-b962d57e0a84, bbb8c421-c8b5-45b1-bc66-53787104fe07, c0719cfb-6ac9-4216-b7c9-9131204a088f, cabba324-0b68-4949-a8b3-3cbfd6f26525, cb96b638-d2b7-410b-85dd-74a35d35b150, d6f2584b-d024-4b04-9f02-df0dd77f7d42, e9038cd7-9212-49d6-bf1e-e03d533d1037, fb5711d3-6558-4fdc-869a-49a13afcda34, c18e812f-4def-4463-9b3f-49bd18b6020a, c8c172c3-d04d-480b-8643-8af8839b850d, d663ba64-8d3b-41e2-83b7-9d10ab9e2e4e, e62daa4d-3f41-4c66-9b51-eceb87103fd7, ccce871f-0557-49c1-b904-1f6ac19e1a70, d15a2470-41f1-472c-9976-b8c2409e3e13, dba85b3e-9c1d-4d92-9268-09a7e2dfc410, de5edac9-376b-40b4-961a-4502014082e9, e955c79a-e681-40f6-b034-354edd249d7d, ffa57f7a-3a73-4227-9e20-2e1fafba8724, c4efb364-7735-4cd2-a46e-50e47afbfd80, d192c1d0-1dc7-486c-9bb7-c95e747e2db3, e22d7cba-2deb-407c-83d2-9e0f98030c5f, e408fe5a-fd36-4ce8-a466-673da05653f9, e66cbe42-b71a-43c9-a5b9-a8e4c134cbdd, ec28ca4f-28c0-4538-b8a3-c04eaaaf1b71, f5c76243-54de-4fbe-9b10-7d0d80976398
+  ethereum:0xd5ccaa44681fe3afd553b11b291e02ed2f647db7 → 972ba65a-65ef-4ae0-91ad-4eae717a54c2, a448edcb-30bd-4ad9-8ef9-9dd1dde339db, 6dd97849-7dba-487e-a955-1c59b447fc79
+  arbitrum:0xd5ccaa44681fe3afd553b11b291e02ed2f647db7 → 972ba65a-65ef-4ae0-91ad-4eae717a54c2, a448edcb-30bd-4ad9-8ef9-9dd1dde339db, 6dd97849-7dba-487e-a955-1c59b447fc79
+  polygon:0xd5ccaa44681fe3afd553b11b291e02ed2f647db7 → 972ba65a-65ef-4ae0-91ad-4eae717a54c2, a448edcb-30bd-4ad9-8ef9-9dd1dde339db, 6dd97849-7dba-487e-a955-1c59b447fc79
+  bitcoin:bc1qe4vs5ez3crx7fagduh0g48ugj0qyfp52vc2emd → 972ba65a-65ef-4ae0-91ad-4eae717a54c2, a448edcb-30bd-4ad9-8ef9-9dd1dde339db, 6dd97849-7dba-487e-a955-1c59b447fc79
+  ton:UQBV2hCnnRqLPR5lyMX0nJl1yMiN2x6B7S6tFxC_flU297Ua → a448edcb-30bd-4ad9-8ef9-9dd1dde339db, 6dd97849-7dba-487e-a955-1c59b447fc79
+  ethereum:0xf64eeea50b351bb0a3d270a083e75eacf42af50a → 603c1681-01b6-4aef-a652-7bbb50c2ea1e, 9c946703-8dd1-4422-89f8-bbb3caaedba2
+  arbitrum:0xf64eeea50b351bb0a3d270a083e75eacf42af50a → 603c1681-01b6-4aef-a652-7bbb50c2ea1e, 9c946703-8dd1-4422-89f8-bbb3caaedba2
+  polygon:0xf64eeea50b351bb0a3d270a083e75eacf42af50a → 603c1681-01b6-4aef-a652-7bbb50c2ea1e, 9c946703-8dd1-4422-89f8-bbb3caaedba2
+  ... and 9 more
+
+✅ No wallets need normalization. Database is already up to date!
+2025-12-11T15:15:17.573Z finished running /srv/data/staging/rumble-data-shard-wrk/migrations/mongodb/2025-11-26_normalize-wallet-addresses.js
+
+
+npm run migration -- mongodb run -m ./migrations/mongodb/2025-11-26_normalize-wallet-addresses.js wtype=wrk-data-shard-proc rack=w-0-1 --dry-run
+
+> rumble-data-shard-wrk@0.1.0 migration
+> node scripts/migration-cli.js mongodb run -m ./migrations/mongodb/2025-11-26_normalize-wallet-addresses.js wtype=wrk-data-shard-proc rack=w-0-1 --dry-run
+
+argv {
+  env: 'production',
+  ns: 'm0',
+  root: '/srv/data/staging/rumble-data-shard-wrk',
+  migration: '/srv/data/staging/rumble-data-shard-wrk/migrations/mongodb/2025-11-26_normalize-wallet-addresses.js',
+  m: '/srv/data/staging/rumble-data-shard-wrk/migrations/mongodb/2025-11-26_normalize-wallet-addresses.js',
+  help: false,
+  h: false
+}
+Initializing db context with argv: {
+  env: 'production',
+  ns: 'm0',
+  root: '/srv/data/staging/rumble-data-shard-wrk',
+  migration: '/srv/data/staging/rumble-data-shard-wrk/migrations/mongodb/2025-11-26_normalize-wallet-addresses.js',
+  m: '/srv/data/staging/rumble-data-shard-wrk/migrations/mongodb/2025-11-26_normalize-wallet-addresses.js',
+  help: false,
+  h: false
+} rest: [ 'wtype=wrk-data-shard-proc', 'rack=w-0-1', '--dry-run' ]
+Using db: wdk_shard_wrk_data_shard_proc_w_0_1
+(node:3451998) [DEP0170] DeprecationWarning: The URL mongodb://wallet:ztjzBW5CRnxDlbSW1dp0E8JT7fzykajG@walletmdbstg3:27017,walletmdbstg1:27017,walletmdbstg2:27017/wallet?authSource=wallet&replicaSet=rws0 is invalid. Future versions of Node.js will throw an error.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+(node:3451998) [MONGODB DRIVER] Warning: Current Server Discovery and Monitoring engine is deprecated, and will be removed in a future version. To use the new Server Discover and Monitoring engine, pass option { useUnifiedTopology: true } to the MongoClient constructor.
+2025-12-11T15:16:05.518Z started running migration /srv/data/staging/rumble-data-shard-wrk/migrations/mongodb/2025-11-26_normalize-wallet-addresses.js
+================================================================================
+Migration: Normalize Wallet Addresses (MongoDB)
+================================================================================
+Mode: DRY RUN (no changes will be made)
+
+Step 1: Scanning wallets collection...
+
+  Scanned: 130/130 | To normalize: 0
+
+================================================================================
+Summary:
+================================================================================
+Total wallets: 130
+Wallets to normalize: 0
+Wallets unchanged: 130
+Errors: 0
+
+Addresses by chain:
+  polygon            130 (lowercase)
+  bitcoin            130 (case-sensitive)
+  ethereum           129 (lowercase)
+  arbitrum           129 (lowercase)
+  ton                112 (case-sensitive)
+  spark               92 (lowercase)
+
+⚠️  Normalized address collisions detected (shared by multiple wallets):
+  spark:sp1pgssxqpskk24k3wqw2zz9ax2dg42w3803lus6u87ck4h82wg2za6gkdmxshzyx → 0451923d-a02b-4cb4-b0aa-52701397f754, 0aa94188-98d1-41b6-a4f2-60be842d48ee, 12f9fb75-9783-4bd6-b078-affa09e8e24f, 15de12c0-8ab9-4279-a06c-1804d3604a50, 186176f1-db5b-4229-9300-9af5417fc4e4, 1c6af310-d77b-417f-93b9-f62523feacee, 250df8f1-27d3-4249-b8eb-6283e5d06768, 449cc62a-9f95-48ba-84f9-dba9d6662efb, 4ed59516-9b88-4663-b0f3-8b45b0ef4577, 96e7f1cc-4d79-4b07-a13b-f00b73179a2e, 979016d3-7d6e-4b93-b01f-5e526e3ebabf, 9bf4b36d-92da-418b-b0f3-52e94f57c7db, 9cac86b7-307a-44cd-b9a1-482ba5102d1f, 9ebde354-03c6-4d9f-bf1d-dce6101c1bdb, 9f4376c4-6abf-47d5-b369-7549dff6fbec, ba5e719d-43ef-4599-9b35-8ae523d9cc60, bd4d16a5-1ba7-47b1-a345-3feb0f6b62ee, c7ea3501-0455-46d0-9a3c-98169c3b93df, c8e1c804-4be3-4955-b81b-deed491ff5af, d652d5dc-e4da-4d52-ac98-da4a167c887d, d89e5223-3c5f-45f8-851f-3e430b50f9e0, dc4248a3-5a75-41c2-8f36-438430c020e3, e2de132e-4009-45de-9da4-a66fc9fd5b6b, efc86190-44de-4a97-b7d8-181f42c2d7c7, f5bf34e8-dc8d-47c6-af32-f633642868c3, f7a451ee-da98-4151-bf26-bc2593461f56, f8dc6737-e5d7-4f57-adc0-e13bff4d7505, 1c5825d9-1734-48b4-8b91-fbbc863635a5, 27fff439-135b-422d-a823-939a50fa0105, 32ca9b35-f878-455a-9ad0-d06144f44835, 3b871f36-4462-424e-9af3-fce1e0d0d8ed, 424a2886-91e0-445d-b136-819bd98447b1, 4803bcde-4d00-498f-9226-a75a63ad5468, 5556b440-4e26-46f7-9cef-c23d360a9a98, 5b1049e0-d99f-48bb-96ed-96098780fe96, 6807668b-c220-4f32-a2f5-c32b30cb75d1, 6d85910d-588f-43be-a17c-d18e9773b09b, 74e12846-7670-4bd9-80b0-77a9c277f8e8, 8931790d-66d1-4dfa-b654-41e512f6a470, 8ca9fbce-c88a-43b5-a032-121cbc971ca3, 9a634a3d-d9c9-4d66-9e39-e9c3fc150c74, bfa1ac82-104b-4311-84c4-e8ef9eddfae9, c462feca-5407-4b3d-aa53-59c404577bd3, c523cff8-e093-4289-99cb-3a9e002128ef, c9ae7cf4-7dc3-4e3a-89ea-6345facef28e, ce7caf04-e418-4e1c-92ad-f6ee636bb766, d6fcda38-5365-485e-b5c6-29783a58a5a3, ec10bb78-d3b1-4574-8de8-94a92077d827, edef125c-bcf5-45c8-b5b3-34bc91066a3b, f711331d-d821-4953-9a24-59ba7f61aaa2, 0bec222e-18f7-48c3-81b8-984f4bdd0b54, 114b5b38-fb77-47c5-bb05-16d8dd3822e4, 216ddcf0-3917-4f99-9ba2-de5dead13a4f, 24afa47b-4867-494a-8207-b77e3a05f697, 29ad0885-cf08-49d6-afaa-39965eeb055f, 2ef58d10-87a9-46c3-bb21-43cf8ddc8bb6, 2ff5bc49-27fa-4449-9a23-52cc43cec17c, 33e24c49-d17e-4159-bb35-b2b885ecc882, 38361716-ebd9-49d8-9ced-b0a854c01749, 6aafa72c-e184-40e9-936d-8bc20e095d14, 91165935-ebc8-46d7-a42c-c87a52c6ea3c, 91ce0028-21fd-4655-8646-0ac15081a851, 9c5536ac-a546-4a0a-a625-40b7f60df3ca, aba3823d-ebc3-4a88-bd92-4b8bda08056d, c28f0d8d-034c-4487-a74f-9f85769a88e4, ccb81271-90cd-424a-ad79-2b9a8dc86cd8, e93a84b6-64fb-473f-82ae-3c466bf7fdd7, f4e45be6-d013-42e6-aaf7-5ff2ef4c3b78, f66f9ff6-0d04-4a5e-8729-dbf767b891be, f76d32b5-650d-4b7c-bfd0-8ad49bfbffff, 0e4cfc67-6e1f-49d7-8c7e-03e45194971b, 156ecb94-c684-4136-8378-221a27a4d205, 1d377c47-d49c-4adb-ac76-73c2d2bd4f0a, 1fa96e07-d2b6-4704-83a3-cb8458541929, 21a1935c-b715-4e6f-85cc-7ff6dfd0dcef, 3221d194-03d2-4d97-85cf-251287ec83b5, 41106621-57e6-4774-ab28-4216c66a150d, 44b33ffa-d5b2-4838-9145-cf0ef39fc6a2, 4af7a116-eb2b-4422-9d4b-5cf1f733bdd9, 54f5ba0b-1783-4cb6-9d47-4d444fbff47c, 5bb8b22a-d70c-47cf-9d94-56834586125a, 5fa6ecab-76d9-4fda-87de-bd320a4a2019, 611c0cf7-cf35-4f95-8647-a9eb7774be50, 63edc581-5374-4927-9e3b-d9858998e067, 6fe33534-94a3-4dd7-9105-3a7241fe697c, 87a8e661-a4c7-44b4-8930-51240032b3da, a2d80750-9054-4335-a445-32b0040fce1e, b735efef-c480-4626-97e2-d78a6970cf97, b7c7ffc8-572f-420b-aa6b-75d2dc17484d, d0ceaa69-f53d-45df-8414-b001c33c82e2, e31f9c30-0540-4923-9cb1-0f37108e6264, f29ceb61-3519-4f23-8f57-334e7b8d7f30
+  ton:UQBlp49uVFm29sCbxIfhG16_qRtFGeGO6ADWhgFT6vQqXxrp → 15de12c0-8ab9-4279-a06c-1804d3604a50, 250df8f1-27d3-4249-b8eb-6283e5d06768, 449cc62a-9f95-48ba-84f9-dba9d6662efb, 979016d3-7d6e-4b93-b01f-5e526e3ebabf, 9bf4b36d-92da-418b-b0f3-52e94f57c7db, 9cac86b7-307a-44cd-b9a1-482ba5102d1f, 9f4376c4-6abf-47d5-b369-7549dff6fbec, ba5e719d-43ef-4599-9b35-8ae523d9cc60, bd4d16a5-1ba7-47b1-a345-3feb0f6b62ee, d89e5223-3c5f-45f8-851f-3e430b50f9e0, dc4248a3-5a75-41c2-8f36-438430c020e3, efc86190-44de-4a97-b7d8-181f42c2d7c7, f8dc6737-e5d7-4f57-adc0-e13bff4d7505, 3b871f36-4462-424e-9af3-fce1e0d0d8ed, 5b1049e0-d99f-48bb-96ed-96098780fe96, 6807668b-c220-4f32-a2f5-c32b30cb75d1, 6d85910d-588f-43be-a17c-d18e9773b09b, 74e12846-7670-4bd9-80b0-77a9c277f8e8, 9a634a3d-d9c9-4d66-9e39-e9c3fc150c74, c9ae7cf4-7dc3-4e3a-89ea-6345facef28e, ce7caf04-e418-4e1c-92ad-f6ee636bb766, d6fcda38-5365-485e-b5c6-29783a58a5a3, 0bec222e-18f7-48c3-81b8-984f4bdd0b54, 114b5b38-fb77-47c5-bb05-16d8dd3822e4, 24afa47b-4867-494a-8207-b77e3a05f697, 29ad0885-cf08-49d6-afaa-39965eeb055f, 38361716-ebd9-49d8-9ced-b0a854c01749, 91165935-ebc8-46d7-a42c-c87a52c6ea3c, 91ce0028-21fd-4655-8646-0ac15081a851, 9c5536ac-a546-4a0a-a625-40b7f60df3ca, aba3823d-ebc3-4a88-bd92-4b8bda08056d, c28f0d8d-034c-4487-a74f-9f85769a88e4, f4e45be6-d013-42e6-aaf7-5ff2ef4c3b78, f76d32b5-650d-4b7c-bfd0-8ad49bfbffff, 0e4cfc67-6e1f-49d7-8c7e-03e45194971b, 156ecb94-c684-4136-8378-221a27a4d205, 3221d194-03d2-4d97-85cf-251287ec83b5, 44b33ffa-d5b2-4838-9145-cf0ef39fc6a2, 5bb8b22a-d70c-47cf-9d94-56834586125a, 611c0cf7-cf35-4f95-8647-a9eb7774be50, 6fe33534-94a3-4dd7-9105-3a7241fe697c, 87a8e661-a4c7-44b4-8930-51240032b3da, a2d80750-9054-4335-a445-32b0040fce1e, b735efef-c480-4626-97e2-d78a6970cf97, b7c7ffc8-572f-420b-aa6b-75d2dc17484d, f29ceb61-3519-4f23-8f57-334e7b8d7f30
+  ethereum:0xe01d96646d716fbbb99aafdf513bed421ebeeafe → c8e1c804-4be3-4955-b81b-deed491ff5af, e93a84b6-64fb-473f-82ae-3c466bf7fdd7
+  arbitrum:0xe01d96646d716fbbb99aafdf513bed421ebeeafe → c8e1c804-4be3-4955-b81b-deed491ff5af, e93a84b6-64fb-473f-82ae-3c466bf7fdd7
+  polygon:0xe01d96646d716fbbb99aafdf513bed421ebeeafe → c8e1c804-4be3-4955-b81b-deed491ff5af, e93a84b6-64fb-473f-82ae-3c466bf7fdd7
+  ton:UQD8AXyr7ZLYvpQJ6suLTSMaKmsyjVKZw4bmLmLwuceDVRXV → c8e1c804-4be3-4955-b81b-deed491ff5af, e93a84b6-64fb-473f-82ae-3c466bf7fdd7
+  bitcoin:bc1qwayjs6dq5wdm9e25l0z5y8ueyjh4swshwt8ajh → c8e1c804-4be3-4955-b81b-deed491ff5af, e93a84b6-64fb-473f-82ae-3c466bf7fdd7
+  ethereum:0xafb42a28d482cafb6a98b865371ed677929138ad → 12f9fb75-9783-4bd6-b078-affa09e8e24f, 41106621-57e6-4774-ab28-4216c66a150d
+  arbitrum:0xafb42a28d482cafb6a98b865371ed677929138ad → 12f9fb75-9783-4bd6-b078-affa09e8e24f, 41106621-57e6-4774-ab28-4216c66a150d
+  polygon:0xafb42a28d482cafb6a98b865371ed677929138ad → 12f9fb75-9783-4bd6-b078-affa09e8e24f, 41106621-57e6-4774-ab28-4216c66a150d
+  ... and 6 more
+
+✅ No wallets need normalization. Database is already up to date!
+2025-12-11T15:16:05.697Z finished running /srv/data/staging/rumble-data-shard-wrk/migrations/mongodb/2025-11-26_normalize-wallet-addresses.js
+vabdurrahmani@walletstg1:/srv/data/staging/rumble-data-shard-wrk$ npm run migration -- mongodb run -m ./migrations/mongodb/2025-11-26_normalize-wallet-addresses.js wtype=wrk-data-shard-proc rack=w-0-2 --dry-run
+
+> rumble-data-shard-wrk@0.1.0 migration
+> node scripts/migration-cli.js mongodb run -m ./migrations/mongodb/2025-11-26_normalize-wallet-addresses.js wtype=wrk-data-shard-proc rack=w-0-2 --dry-run
+
+argv {
+  env: 'production',
+  ns: 'm0',
+  root: '/srv/data/staging/rumble-data-shard-wrk',
+  migration: '/srv/data/staging/rumble-data-shard-wrk/migrations/mongodb/2025-11-26_normalize-wallet-addresses.js',
+  m: '/srv/data/staging/rumble-data-shard-wrk/migrations/mongodb/2025-11-26_normalize-wallet-addresses.js',
+  help: false,
+  h: false
+}
+Initializing db context with argv: {
+  env: 'production',
+  ns: 'm0',
+  root: '/srv/data/staging/rumble-data-shard-wrk',
+  migration: '/srv/data/staging/rumble-data-shard-wrk/migrations/mongodb/2025-11-26_normalize-wallet-addresses.js',
+  m: '/srv/data/staging/rumble-data-shard-wrk/migrations/mongodb/2025-11-26_normalize-wallet-addresses.js',
+  help: false,
+  h: false
+} rest: [ 'wtype=wrk-data-shard-proc', 'rack=w-0-2', '--dry-run' ]
+Using db: wdk_shard_wrk_data_shard_proc_w_0_2
+(node:3452022) [DEP0170] DeprecationWarning: The URL mongodb://wallet:ztjzBW5CRnxDlbSW1dp0E8JT7fzykajG@walletmdbstg3:27017,walletmdbstg1:27017,walletmdbstg2:27017/wallet?authSource=wallet&replicaSet=rws0 is invalid. Future versions of Node.js will throw an error.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+(node:3452022) [MONGODB DRIVER] Warning: Current Server Discovery and Monitoring engine is deprecated, and will be removed in a future version. To use the new Server Discover and Monitoring engine, pass option { useUnifiedTopology: true } to the MongoClient constructor.
+2025-12-11T15:16:12.589Z started running migration /srv/data/staging/rumble-data-shard-wrk/migrations/mongodb/2025-11-26_normalize-wallet-addresses.js
+================================================================================
+Migration: Normalize Wallet Addresses (MongoDB)
+================================================================================
+Mode: DRY RUN (no changes will be made)
+
+Step 1: Scanning wallets collection...
+
+  Scanned: 135/135 | To normalize: 0
+
+================================================================================
+Summary:
+================================================================================
+Total wallets: 135
+Wallets to normalize: 0
+Wallets unchanged: 135
+Errors: 0
+
+Addresses by chain:
+  ethereum           135 (lowercase)
+  polygon            135 (lowercase)
+  bitcoin            135 (case-sensitive)
+  arbitrum           132 (lowercase)
+  ton                117 (case-sensitive)
+  spark              105 (lowercase)
+  tron                 3 (case-sensitive)
+  solana               3 (case-sensitive)
+
+⚠️  Normalized address collisions detected (shared by multiple wallets):
+  spark:sp1pgssxqpskk24k3wqw2zz9ax2dg42w3803lus6u87ck4h82wg2za6gkdmxshzyx → 01351f92-9df9-4706-99fe-edd91d41e111, 09851678-b5bf-4f9e-8905-0587cb83fb6b, 13710e71-321a-4507-8dcd-fe0df0f0ee83, 14779364-beae-4683-846b-a9bbaf6c74f3, 170bf9d5-7f36-450b-b211-b5faadfabb3e, 219537b0-9f07-48ae-bb9b-605251557654, 2ad65aa7-5583-4b75-bcdc-d5b6cf420d03, 3334dc6a-5bb8-4cc0-ad9c-493e0daf03e7, 4185a0e5-3b16-469d-91df-04c22f53d733, 42b48b69-fac8-4f8c-a75b-4ba1d05b0839, 759fb7c9-ed43-4751-a5be-591d0a1a0afe, 86710c97-ed1f-4896-965f-c954efd789c7, 8e986b4f-959c-4796-ab92-83cba828c015, 95e6dc6a-b035-4b31-b7f2-5f14c7b7d85e, 9a4b9b81-7863-45a8-8cfe-1e2fc6fc2a4a, 9b2d136b-5031-4acb-94cf-5c0dae81ab45, a88c56ed-2955-4ec2-8ed3-39538f99b223, aa6292fa-d0e4-459e-909a-8533629d8ba7, af2a7ee1-34e2-4a27-b5ac-755e7c0ff299, b6cd65ce-36aa-49e8-a14c-23811b1bd913, c900e29d-7b67-428f-a0c1-6511bad94780, cbf8154f-01b9-4005-98e1-e7a18e8dd76c, eed9e96e-9fff-491a-aef4-ea3c5cd1e72b, ef57f06c-5f16-40bd-8428-7de10810af6c, f36c05a7-614d-40dc-8747-292f0a83851d, 0be7ce89-261d-4732-a9af-35b676564ad8, 11abb379-efa9-4613-964c-c8812521fec3, 1ab2eb14-eada-4475-a76c-9d4c6101efd8, 1be31533-5542-4128-9891-8fba27f267f6, 1c1a9359-1c9a-47c2-8c4a-ced459bd5655, 1de3d7fb-effe-4911-976c-83133ea79768, 449c9c7d-ae21-4a8f-9b67-fa5d89be9360, 513eb00e-f5e2-4021-a171-42fa8f3a1731, 5be1c891-c4f6-4545-bcf6-8d8d45a3df8a, 5c741a76-f1a0-4fb6-80e0-f3ee45479031, 5e8028ef-9d43-45a0-8175-f5429f4e40e4, 61007a70-0515-4bba-baf5-d5c8d41aa8b2, 6553e3c4-364b-4f63-a6ff-afb9010c209f, 74dcbcc9-214e-4c50-aed3-0a1987fd91eb, 794ace54-dc40-46c9-ad21-f4aff5528975, 80ecaa15-ea95-452f-b564-c0d7b7163e1a, 871ca3fd-0809-4025-a2b5-fecede243163, 8eca56b0-95f2-44ea-807f-d95750e50ca0, 94358d6e-f42d-48b5-82c9-3611a21c19d1, 9b4e9c13-857e-42a7-8528-f54bb32bc2ab, 9b8938f2-c2e2-49d4-a570-fa2906f2dae0, a0ae9871-a73d-4a2c-bf59-f98dcedcfcc6, afbbd891-0ee2-4d96-8e8b-30aec61b8a9b, b328523f-afb2-4b68-999c-290c813cb814, c003b380-680e-48f6-a53b-b4782d0bb5b3, e978ac37-2d44-40ce-b56f-df12b4ca4c9c, f5d833c4-c477-437d-aca3-9eb837ebdb5d, 0a5d93c6-a860-4437-a41a-54d884f8bb00, 38056b36-8106-46d9-bd88-c73d7cab21c0, 383eb0d0-1c86-4484-b0a7-7bd7907ae4b0, 4c1d8d46-2392-472b-b727-6401ed9657d5, 60bafa0b-d3ed-4cac-8e09-89bf69033f3c, 69d680f6-387c-4dec-a768-9963a8b6ba10, 6c02e8d9-da0f-48ba-9cfd-b2209d4281fc, 7a442e45-6fb3-4804-930a-e57a7dcc5f77, 7d8fa6b6-c61b-40cb-93f0-8519477fbde4, 85d58a9f-4438-4b9e-b665-f654b4ad353f, 88341540-dec4-43a7-9909-a22dc0e137c3, 8e4cbccf-91a4-4303-bf38-a4263106d8c6, 8f788778-381a-408c-b764-f2e18e5303b4, 981c8ce5-016a-4921-a537-eb6bcd362204, b85c0bcf-45ed-4400-b21e-9ce9f8d991ec, ba3256fd-6b79-4a27-9ec9-0064bd9130ef, c0167acf-d52b-4311-ad78-b40cf6379931, cefd9f22-216e-4de7-bc41-f47af7bcd763, d576907c-d37b-4438-83cc-43a973595431, dfbdc21f-5920-4ae6-b0ba-a2ff0a38a01f, e04c416e-d408-4ac7-b179-36e63dd6fe91, e47ee4ca-2083-4a2c-860b-2474fcf2657f, fc4a6ab6-ee94-4e21-9c11-d1bc65c34a43, ff060114-b451-4db2-b20d-b5269fae849e, 060e6d56-85bd-4048-8140-a21ced523ed2, 22019c31-8b3f-4d5d-b549-b63b81f0d170, 2e72b594-402e-4593-b0a3-4d8e4d1766c2, 3fe7bca0-1830-443a-86a6-ff4348cf2978, 4575d492-96ff-490f-9b96-32b27cc61b00, 4f2b0df9-1962-4448-9645-97317ce05472, 5000cae7-d6f3-42ec-95e1-8599d09afca0, 53b88efe-bf92-4da1-bfb5-7104b5681be2, 59bb3982-3ce9-45f8-8560-77c714d085b7, 5ea7e29e-58f8-4e0e-89ea-66f898ff14bb, 5ff9c35a-c1b9-48c9-a342-5a704ed44d52, 696999bc-7e1c-48d7-9c2b-83876b8f5645, 70d5833a-6685-41a7-b0be-a5deb7cb301d, 71ebaaf5-f598-42ab-bce1-d9049126dcac, 7e3bb339-b51f-4281-850e-043a366cf3b4, 8639c287-a5f8-43a2-bee0-04dc854a2398, 8aa137f2-48e4-4800-ba3c-b1a1985ad5c5, 95d81f36-32dc-4095-916e-15fee7c726a3, ac1111d6-c1a3-4993-93d1-a49e739df86a, bfbfa205-805c-47ad-8934-3ed9ba70753b, c7e8fecb-5796-459c-8d3b-2f704b46f735, ca7e358a-dbbb-43f4-aeab-c9f1a1ef2cf9, cd69e8fc-7063-4fc6-81df-148de06638b6, f1187b33-5aaf-425d-b3b1-d42209811600, f89994e0-fff5-4859-ac38-fa39f1f834a8, fb912d35-a97a-470e-abad-f883a35df013
+  ton:UQBlp49uVFm29sCbxIfhG16_qRtFGeGO6ADWhgFT6vQqXxrp → 219537b0-9f07-48ae-bb9b-605251557654, 4185a0e5-3b16-469d-91df-04c22f53d733, 86710c97-ed1f-4896-965f-c954efd789c7, 5e8028ef-9d43-45a0-8175-f5429f4e40e4, 74dcbcc9-214e-4c50-aed3-0a1987fd91eb, b328523f-afb2-4b68-999c-290c813cb814, e978ac37-2d44-40ce-b56f-df12b4ca4c9c, 38056b36-8106-46d9-bd88-c73d7cab21c0, 69d680f6-387c-4dec-a768-9963a8b6ba10, 6c02e8d9-da0f-48ba-9cfd-b2209d4281fc, 7a442e45-6fb3-4804-930a-e57a7dcc5f77, 7d8fa6b6-c61b-40cb-93f0-8519477fbde4, 981c8ce5-016a-4921-a537-eb6bcd362204, ba3256fd-6b79-4a27-9ec9-0064bd9130ef, d576907c-d37b-4438-83cc-43a973595431, 7e3bb339-b51f-4281-850e-043a366cf3b4, 8aa137f2-48e4-4800-ba3c-b1a1985ad5c5
+  ethereum:0x3f5c253dcd73c031d0655ef4851fc1d561daba99 → 1ab2eb14-eada-4475-a76c-9d4c6101efd8, 0a5d93c6-a860-4437-a41a-54d884f8bb00
+  arbitrum:0x3f5c253dcd73c031d0655ef4851fc1d561daba99 → 1ab2eb14-eada-4475-a76c-9d4c6101efd8, 0a5d93c6-a860-4437-a41a-54d884f8bb00
+  polygon:0x3f5c253dcd73c031d0655ef4851fc1d561daba99 → 1ab2eb14-eada-4475-a76c-9d4c6101efd8, 0a5d93c6-a860-4437-a41a-54d884f8bb00
+  ton:UQDVhxNiy7tDJBFMbgyCf6zwophNgfp6wyaCYZv5hG1SnSzg → 1ab2eb14-eada-4475-a76c-9d4c6101efd8, 0a5d93c6-a860-4437-a41a-54d884f8bb00
+  bitcoin:bc1qljknutyrq0w4f5umy9vy6fd9hwcuugy5hm7f8r → 1ab2eb14-eada-4475-a76c-9d4c6101efd8, 0a5d93c6-a860-4437-a41a-54d884f8bb00
+  ethereum:0xd5ccaa44681fe3afd553b11b291e02ed2f647db7 → 4c1d8d46-2392-472b-b727-6401ed9657d5, 060e6d56-85bd-4048-8140-a21ced523ed2, 313cf6df-1dc3-4d87-85dc-7b9511403f81
+  arbitrum:0xd5ccaa44681fe3afd553b11b291e02ed2f647db7 → 4c1d8d46-2392-472b-b727-6401ed9657d5, 060e6d56-85bd-4048-8140-a21ced523ed2, 313cf6df-1dc3-4d87-85dc-7b9511403f81
+  polygon:0xd5ccaa44681fe3afd553b11b291e02ed2f647db7 → 4c1d8d46-2392-472b-b727-6401ed9657d5, 060e6d56-85bd-4048-8140-a21ced523ed2, 313cf6df-1dc3-4d87-85dc-7b9511403f81
+  ... and 14 more
+
+✅ No wallets need normalization. Database is already up to date!
+2025-12-11T15:16:12.774Z finished running /srv/data/staging/rumble-data-shard-wrk/migrations/mongodb/2025-11-26_normalize-wallet-addresses.js
+
+
+npm run migration -- mongodb run -m ./migrations/mongodb/2025-11-26_normalize-wallet-addresses.js wtype=wrk-data-shard-proc rack=w-1-0 --dry-run
+
+> rumble-data-shard-wrk@0.1.0 migration
+> node scripts/migration-cli.js mongodb run -m ./migrations/mongodb/2025-11-26_normalize-wallet-addresses.js wtype=wrk-data-shard-proc rack=w-1-0 --dry-run
+
+argv {
+  env: 'production',
+  ns: 'm0',
+  root: '/srv/data/staging/rumble-data-shard-wrk',
+  migration: '/srv/data/staging/rumble-data-shard-wrk/migrations/mongodb/2025-11-26_normalize-wallet-addresses.js',
+  m: '/srv/data/staging/rumble-data-shard-wrk/migrations/mongodb/2025-11-26_normalize-wallet-addresses.js',
+  help: false,
+  h: false
+}
+Initializing db context with argv: {
+  env: 'production',
+  ns: 'm0',
+  root: '/srv/data/staging/rumble-data-shard-wrk',
+  migration: '/srv/data/staging/rumble-data-shard-wrk/migrations/mongodb/2025-11-26_normalize-wallet-addresses.js',
+  m: '/srv/data/staging/rumble-data-shard-wrk/migrations/mongodb/2025-11-26_normalize-wallet-addresses.js',
+  help: false,
+  h: false
+} rest: [ 'wtype=wrk-data-shard-proc', 'rack=w-1-0', '--dry-run' ]
+Using db: wdk_shard_wrk_data_shard_proc_w_1_0
+(node:3517814) [DEP0170] DeprecationWarning: The URL srv+mongodb://wallet:ztjzBW5CRnxDlbSW1dp0E8JT7fzykajG@walletmdbstg3:27017,walletmdbstg1:27017,walletmdbstg2:27017/wallet?authSource=wallet&replicaSet=rws0&maxPoolSize=150&socketTimeoutMS=30000&serverSelectionTimeoutMS=30000&connectTimeoutMS=10000 is invalid. Future versions of Node.js will throw an error.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+(node:3517814) [MONGODB DRIVER] Warning: Current Server Discovery and Monitoring engine is deprecated, and will be removed in a future version. To use the new Server Discover and Monitoring engine, pass option { useUnifiedTopology: true } to the MongoClient constructor.
+2025-12-11T15:17:36.390Z started running migration /srv/data/staging/rumble-data-shard-wrk/migrations/mongodb/2025-11-26_normalize-wallet-addresses.js
+================================================================================
+Migration: Normalize Wallet Addresses (MongoDB)
+================================================================================
+Mode: DRY RUN (no changes will be made)
+
+Step 1: Scanning wallets collection...
+
+  Scanned: 103/103 | To normalize: 0
+
+================================================================================
+Summary:
+================================================================================
+Total wallets: 103
+Wallets to normalize: 0
+Wallets unchanged: 103
+Errors: 0
+
+Addresses by chain:
+  ethereum           103 (lowercase)
+  arbitrum           103 (lowercase)
+  polygon            103 (lowercase)
+  bitcoin            103 (case-sensitive)
+  ton                 88 (case-sensitive)
+  spark               68 (lowercase)
+
+⚠️  Normalized address collisions detected (shared by multiple wallets):
+  spark:sp1pgssxqpskk24k3wqw2zz9ax2dg42w3803lus6u87ck4h82wg2za6gkdmxshzyx → 06183714-9372-4fbb-ad37-972b41e55345, 0b64aba5-73a0-4759-86d2-4fba5017a420, 13db8620-0bbe-4da7-b0ff-b8c99180cfb5, 14e410e4-bfb9-434e-89dd-bdfa1a4d81fa, 3065df0a-f398-4fdd-a535-c2d689f80e66, 3b428a7d-02c2-4487-8330-b7b0fc688e91, 3d7ea699-fe0a-4c05-bdc0-a1d3e4c9565c, 4049145e-cef5-4156-adc5-a076948ad836, 4899f724-a8ba-405f-ae98-f88d8dedca60, 4960cfaf-7ae6-4a23-b119-86f077ed4b25, 5544b7fb-576b-42ce-9978-ef525bfb11b1, 68c5a6ac-123a-40dc-8b2c-6d9e76a193cf, 6e974428-07d4-4adf-8b97-095cb166d2d2, 75c6f8de-8715-4f7a-81e7-bd279ce38aa4, 8c5e36a1-f44e-4a7c-a078-f5b5bb4d353e, 9306f0be-f478-47f2-8faf-9354371c51ac, 93c5b040-a36e-42bf-8bcf-0209ed63c46f, a6a56c7c-873e-47c4-99f4-2fdc6511ef70, bc84b41d-10dd-47ee-8f67-e5d988033c27, ca3765d7-104a-4f52-979e-006cd9bc6b51, d5097aea-e474-4f89-9d2f-9e23255632b3, 02b0cbb1-7b20-4f59-b030-a97dee3aaf05, 08c01b93-b166-47ec-84d5-48cc8efb56db, 1203c2fb-b28e-44bb-a3a3-ab9a345f3520, 2e09b1f0-b8f8-4419-bc65-ea7c8c8afc7b, 67cf8fd3-0e4b-45b3-8bdb-884fca2ba8f5, 6b1ed905-f5c6-448f-b44d-1d9eccf0fe91, 7079a3ae-2b40-46a2-ac99-67bcf52dc2ed, 89786275-b98f-4606-87ff-2d1097fd8f82, 8d51e2a6-e56d-4472-b47b-f119f6635694, 9216614b-bf97-46b6-81b1-46b901c05e75, a72dcc89-65f4-43d6-aff2-5168e2fbfe12, b3033937-b218-4f03-85bc-dcab0d31c9f7, c2a4b116-624c-4824-865c-9c9521484184, de9ee108-e484-425d-8bac-5b9d6bf0deb9, e897ef19-9232-47c4-9cb4-b27f5687facc, f46813ca-8e91-404a-8afb-2af9585f8e31, fa07493a-9227-47e2-a393-d01569df08af, 1936a80b-483e-424c-9b8b-2f5823e66440, 5e4953e1-2b5c-4dfb-b5e4-f0a331aa4aca, 681ab445-4512-4827-85c4-8a2bba3c9265, 7069b836-b23c-4c0f-8733-6c51f16d7de2, 841c77e1-f1ff-4789-a30d-2b8d313fbaab, 931eb333-16e4-428c-b528-93d096dea309, b57d4243-20aa-4426-83ee-7801f984f1cd, c77fd196-ecdb-41fd-a3f1-e53abbe887cb, d2a6c3ba-62b0-4c5c-94c7-b92659958001, e3b2207b-98c9-4ab3-bc25-f3f195402a19, ead11595-f15d-4474-b7e4-d7059758f0ba, 0ed2502f-9571-432e-bc83-1665496e6162, 1b5208a7-5bdd-4adc-9701-e1cf841b6a2c, 29df8fbb-b33f-48c8-b517-8f5b009012ff, 2c34b465-dd80-4d39-9735-cb47f0fa1d77, 32c9bebb-096d-45b0-abe6-9f91418dac98, 46111d97-1f44-4592-94f3-c4dd46ad25a3, 59ca7bc2-4dbe-4c8b-9971-8ac566acbc95, 5d7cab95-4f30-4f56-9d75-067fc8087512, 6bb004e6-1c21-4f39-8833-8171fa9bbd42, 715574ad-a5e1-4d2a-a85e-8601aa59f065, 8d6c8175-c912-4147-98fc-c8b0db67106e, 8d6e433c-4bf5-40ed-8cb0-5d2333084bcd, af1ab747-40e7-4433-a9ca-ca5639c6d7a7, b6203ccc-d67b-4ac8-b5fb-e2c0782ce924, b76c8ae7-d94a-4004-85dc-47f1a85c8539, d90bbe72-d449-4f48-82ab-458565bf4e96, dd9ce14f-edf5-4475-939b-3437b21b6b47, de61ae3d-8a31-4416-8dd6-bf65ab1727de, ed608f0b-a0a3-4848-85bf-7b74470e5c09
+  ton:UQBlp49uVFm29sCbxIfhG16_qRtFGeGO6ADWhgFT6vQqXxrp → 4960cfaf-7ae6-4a23-b119-86f077ed4b25, b6203ccc-d67b-4ac8-b5fb-e2c0782ce924
+  ethereum:0xde6334b9b0b6acef0c6e6581880c4aa02622da9f → 3c62c1ec-5200-4158-a976-beef1f1a3611, 39b7c94a-fbde-4ba3-a100-cd43799bfa70
+  arbitrum:0xde6334b9b0b6acef0c6e6581880c4aa02622da9f → 3c62c1ec-5200-4158-a976-beef1f1a3611, 39b7c94a-fbde-4ba3-a100-cd43799bfa70
+  polygon:0xde6334b9b0b6acef0c6e6581880c4aa02622da9f → 3c62c1ec-5200-4158-a976-beef1f1a3611, 39b7c94a-fbde-4ba3-a100-cd43799bfa70
+  bitcoin:bc1qczffmejvw94pl5lw5qkpdwje3ugpw09cnw0p2n → 3c62c1ec-5200-4158-a976-beef1f1a3611, 39b7c94a-fbde-4ba3-a100-cd43799bfa70
+
+✅ No wallets need normalization. Database is already up to date!
+2025-12-11T15:17:36.521Z finished running /srv/data/staging/rumble-data-shard-wrk/migrations/mongodb/2025-11-26_normalize-wallet-addresses.js
+vabdurrahmani@walletstg2:/srv/data/staging/rumble-data-shard-wrk$ npm run migration -- mongodb run -m ./migrations/mongodb/2025-11-26_normalize-wallet-addresses.js wtype=wrk-data-shard-proc rack=w-1-1 --dry-run
+
+> rumble-data-shard-wrk@0.1.0 migration
+> node scripts/migration-cli.js mongodb run -m ./migrations/mongodb/2025-11-26_normalize-wallet-addresses.js wtype=wrk-data-shard-proc rack=w-1-1 --dry-run
+
+argv {
+  env: 'production',
+  ns: 'm0',
+  root: '/srv/data/staging/rumble-data-shard-wrk',
+  migration: '/srv/data/staging/rumble-data-shard-wrk/migrations/mongodb/2025-11-26_normalize-wallet-addresses.js',
+  m: '/srv/data/staging/rumble-data-shard-wrk/migrations/mongodb/2025-11-26_normalize-wallet-addresses.js',
+  help: false,
+  h: false
+}
+Initializing db context with argv: {
+  env: 'production',
+  ns: 'm0',
+  root: '/srv/data/staging/rumble-data-shard-wrk',
+  migration: '/srv/data/staging/rumble-data-shard-wrk/migrations/mongodb/2025-11-26_normalize-wallet-addresses.js',
+  m: '/srv/data/staging/rumble-data-shard-wrk/migrations/mongodb/2025-11-26_normalize-wallet-addresses.js',
+  help: false,
+  h: false
+} rest: [ 'wtype=wrk-data-shard-proc', 'rack=w-1-1', '--dry-run' ]
+Using db: wdk_shard_wrk_data_shard_proc_w_1_1
+(node:3517844) [DEP0170] DeprecationWarning: The URL srv+mongodb://wallet:ztjzBW5CRnxDlbSW1dp0E8JT7fzykajG@walletmdbstg3:27017,walletmdbstg1:27017,walletmdbstg2:27017/wallet?authSource=wallet&replicaSet=rws0&maxPoolSize=150&socketTimeoutMS=30000&serverSelectionTimeoutMS=30000&connectTimeoutMS=10000 is invalid. Future versions of Node.js will throw an error.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+(node:3517844) [MONGODB DRIVER] Warning: Current Server Discovery and Monitoring engine is deprecated, and will be removed in a future version. To use the new Server Discover and Monitoring engine, pass option { useUnifiedTopology: true } to the MongoClient constructor.
+2025-12-11T15:17:42.848Z started running migration /srv/data/staging/rumble-data-shard-wrk/migrations/mongodb/2025-11-26_normalize-wallet-addresses.js
+================================================================================
+Migration: Normalize Wallet Addresses (MongoDB)
+================================================================================
+Mode: DRY RUN (no changes will be made)
+
+Step 1: Scanning wallets collection...
+
+  Scanned: 114/114 | To normalize: 0
+
+================================================================================
+Summary:
+================================================================================
+Total wallets: 114
+Wallets to normalize: 0
+Wallets unchanged: 114
+Errors: 0
+
+Addresses by chain:
+  ethereum           114 (lowercase)
+  polygon            114 (lowercase)
+  bitcoin            114 (case-sensitive)
+  arbitrum           113 (lowercase)
+  ton                 94 (case-sensitive)
+  spark               61 (lowercase)
+  tron                 1 (case-sensitive)
+  solana               1 (case-sensitive)
+
+⚠️  Normalized address collisions detected (shared by multiple wallets):
+  spark:sp1pgssxqpskk24k3wqw2zz9ax2dg42w3803lus6u87ck4h82wg2za6gkdmxshzyx → 2560d2fd-161a-4f3c-908f-ecec0b814904, 2e8062f8-5083-4f1f-a5c3-ef5895d3e6d6, 362d380d-dba4-4745-b833-2587d188cb7c, 3be4bd75-3214-4da7-95db-9f327d1b11f5, 3d835e20-8000-449b-a420-ef15218d2fa5, 607bfc62-1ba8-4ea6-ac46-d7290fd66135, 762e4661-0785-4480-8801-ea7967eeff1a, 8a5b1d2d-8d83-4208-bab7-ae47de4110ba, 8bb3a6a1-ac34-4aa2-ac6e-97cacab3c34c, 94c7bb48-6f99-4f91-b2de-781c4751f7e2, 9c9f36e3-df92-48dc-93a3-7e7d0299123d, ae1a27ca-1e6d-49d2-beb8-d61559c23322, b79490eb-48eb-43f0-ba04-dd91e2fec849, cc4e74ad-2346-4ad7-a3f0-80fe869f0279, cef568a3-2ba3-42b5-8d8f-86f70d9d72ef, e7533c53-767f-4633-8844-f0e889fea3b4, edcee6af-60f0-4251-a51d-1bbd883b0fd4, f2d0eadc-5fce-4244-b3d5-b7b009613209, 0fe595f6-e0be-444a-a2fc-431fc43455a5, 2c946640-8787-44b6-a11c-363c999f6623, 4046ae87-13da-4e28-8442-6879631909e7, 6ecfcd6b-753b-45a9-ad1d-12119ab47ed7, 7edd3bb2-ff56-4a20-9b00-f2ca38386714, 81956ebd-af29-47b6-a577-417ba221e9bf, 871dc167-7edb-42d2-bd4a-bbacfdf566ad, 8a102542-dcaa-4e32-ad83-9dcdb8e06b2d, 8e7326ba-e455-46db-8b66-534750835da5, 9a86d301-dc68-46ea-877f-22a78639ef79, 9a9113c2-a1d9-4828-b394-574d3706e3f2, b1d0afef-0edf-4e1e-85af-e6551981b47d, dda58942-ef61-454d-b6bb-d9ba4a8f5116, e8770548-5b17-41ec-a3bd-9ae795f10c08, ecda97f6-75e1-4713-8e16-cca41d9c03e9, f8be8980-ac06-4d89-98be-fbfb5a558411, 0aa2ed6f-5e8e-4215-954e-e1898df12a23, 1ec1cd9f-6aca-4b64-9ec6-c00d2d67c6e6, 24b42423-3959-4b37-b06c-e174086b86ad, 3b521d8d-ba1d-4df7-8dfe-dd814c025afd, 4acda333-ecf9-4331-a899-3187b44a7c3a, 60cdabd1-ff00-4d04-8ba5-975badc10015, 76a527f8-351c-4d24-a5c5-bf5c44f56d51, 8bf0693a-2d96-40f1-95a7-0a7a380d7a16, 8cb72f71-3ec2-4d3b-b47f-d5ba64ba7231, 991c0b6b-c86c-4d33-b58f-b1cd2f7c2b86, b8b6b72b-67ad-47dd-ac35-e3c7b499410b, c58461e5-c4ec-4818-86a5-fa31d16e2931, d5037426-9b3e-41ef-b493-ac570e0c9f7e, f696e771-fc46-47c4-a7f5-66c0e3fd7d19, 0a42d7bc-c5ea-4e4b-aead-99e491a20b14, 3ab01a0e-0136-4ce2-b677-b4be982869a9, 3b423db7-77cc-4e67-b264-4b47b6582730, 7244a93f-6aa3-4edd-898b-c5429033f43b, 7597fbee-0ba2-414c-aa73-b2cdd5210d7b, 831d44f7-3e98-4fe6-b916-cb5d2d9b9fb8, 89db1776-592f-4d88-bee3-110229b75d3b, a109493a-8bbb-42e3-b254-572ad79aa1d3, c22facea-a3d7-4324-80ff-389c49375e83, cf72e629-aeda-478b-be99-74c58d4deb81, d30666d6-dabd-45c4-bf16-b4aaa83e56d6, e371d9f2-3b9d-4fbb-bc90-9cc944809057
+  ethereum:0xb2bcb6cffcc6dc6366954ce48d67ecaae8195dce → 2560d2fd-161a-4f3c-908f-ecec0b814904, 4acda333-ecf9-4331-a899-3187b44a7c3a
+  arbitrum:0xb2bcb6cffcc6dc6366954ce48d67ecaae8195dce → 2560d2fd-161a-4f3c-908f-ecec0b814904, 4acda333-ecf9-4331-a899-3187b44a7c3a
+  polygon:0xb2bcb6cffcc6dc6366954ce48d67ecaae8195dce → 2560d2fd-161a-4f3c-908f-ecec0b814904, 4acda333-ecf9-4331-a899-3187b44a7c3a
+  ton:UQAWdhz7xabuJXTrnem1Cek-2O_DWCUWLxQmia81b5HNmNav → 2560d2fd-161a-4f3c-908f-ecec0b814904, 4acda333-ecf9-4331-a899-3187b44a7c3a
+  bitcoin:bc1q804rqhf0pjly9ytdsgn7y94dd8pj7n7vdnrrt6 → 2560d2fd-161a-4f3c-908f-ecec0b814904, 4acda333-ecf9-4331-a899-3187b44a7c3a
+  ethereum:0xec064d22e064d327248b8b0ab6562466686e9088 → 3d835e20-8000-449b-a420-ef15218d2fa5, 8bf0693a-2d96-40f1-95a7-0a7a380d7a16, 0a42d7bc-c5ea-4e4b-aead-99e491a20b14
+  arbitrum:0xec064d22e064d327248b8b0ab6562466686e9088 → 3d835e20-8000-449b-a420-ef15218d2fa5, 8bf0693a-2d96-40f1-95a7-0a7a380d7a16, 0a42d7bc-c5ea-4e4b-aead-99e491a20b14
+  polygon:0xec064d22e064d327248b8b0ab6562466686e9088 → 3d835e20-8000-449b-a420-ef15218d2fa5, 8bf0693a-2d96-40f1-95a7-0a7a380d7a16, 0a42d7bc-c5ea-4e4b-aead-99e491a20b14
+  ton:UQDkAyLhu7xX9Cb8ie7QkFWgusjVv4qDzLXG00Ot38_FdYEI → 3d835e20-8000-449b-a420-ef15218d2fa5, 8bf0693a-2d96-40f1-95a7-0a7a380d7a16, 0a42d7bc-c5ea-4e4b-aead-99e491a20b14
+  ... and 6 more
+
+✅ No wallets need normalization. Database is already up to date!
+2025-12-11T15:17:42.982Z finished running /srv/data/staging/rumble-data-shard-wrk/migrations/mongodb/2025-11-26_normalize-wallet-addresses.js
+vabdurrahmani@walletstg2:/srv/data/staging/rumble-data-shard-wrk$ npm run migration -- mongodb run -m ./migrations/mongodb/2025-11-26_normalize-wallet-addresses.js wtype=wrk-data-shard-proc rack=w-1-2 --dry-run
+
+> rumble-data-shard-wrk@0.1.0 migration
+> node scripts/migration-cli.js mongodb run -m ./migrations/mongodb/2025-11-26_normalize-wallet-addresses.js wtype=wrk-data-shard-proc rack=w-1-2 --dry-run
+
+argv {
+  env: 'production',
+  ns: 'm0',
+  root: '/srv/data/staging/rumble-data-shard-wrk',
+  migration: '/srv/data/staging/rumble-data-shard-wrk/migrations/mongodb/2025-11-26_normalize-wallet-addresses.js',
+  m: '/srv/data/staging/rumble-data-shard-wrk/migrations/mongodb/2025-11-26_normalize-wallet-addresses.js',
+  help: false,
+  h: false
+}
+Initializing db context with argv: {
+  env: 'production',
+  ns: 'm0',
+  root: '/srv/data/staging/rumble-data-shard-wrk',
+  migration: '/srv/data/staging/rumble-data-shard-wrk/migrations/mongodb/2025-11-26_normalize-wallet-addresses.js',
+  m: '/srv/data/staging/rumble-data-shard-wrk/migrations/mongodb/2025-11-26_normalize-wallet-addresses.js',
+  help: false,
+  h: false
+} rest: [ 'wtype=wrk-data-shard-proc', 'rack=w-1-2', '--dry-run' ]
+Using db: wdk_shard_wrk_data_shard_proc_w_1_2
+(node:3517869) [DEP0170] DeprecationWarning: The URL srv+mongodb://wallet:ztjzBW5CRnxDlbSW1dp0E8JT7fzykajG@walletmdbstg3:27017,walletmdbstg1:27017,walletmdbstg2:27017/wallet?authSource=wallet&replicaSet=rws0&maxPoolSize=150&socketTimeoutMS=30000&serverSelectionTimeoutMS=30000&connectTimeoutMS=10000 is invalid. Future versions of Node.js will throw an error.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+(node:3517869) [MONGODB DRIVER] Warning: Current Server Discovery and Monitoring engine is deprecated, and will be removed in a future version. To use the new Server Discover and Monitoring engine, pass option { useUnifiedTopology: true } to the MongoClient constructor.
+2025-12-11T15:17:49.081Z started running migration /srv/data/staging/rumble-data-shard-wrk/migrations/mongodb/2025-11-26_normalize-wallet-addresses.js
+================================================================================
+Migration: Normalize Wallet Addresses (MongoDB)
+================================================================================
+Mode: DRY RUN (no changes will be made)
+
+Step 1: Scanning wallets collection...
+
+
+================================================================================
+Summary:
+================================================================================
+Total wallets: 92
+Wallets to normalize: 0
+Wallets unchanged: 92
+Errors: 0
+
+Addresses by chain:
+  ethereum            92 (lowercase)
+  bitcoin             91 (case-sensitive)
+  polygon             89 (lowercase)
+  arbitrum            87 (lowercase)
+  ton                 71 (case-sensitive)
+  spark               54 (lowercase)
+  tron                 2 (case-sensitive)
+  solana               2 (case-sensitive)
+
+⚠️  Normalized address collisions detected (shared by multiple wallets):
+  spark:sp1pgssxqpskk24k3wqw2zz9ax2dg42w3803lus6u87ck4h82wg2za6gkdmxshzyx → 2009a43f-acda-484c-927f-20a27b62e807, 3936bc71-4a31-46d0-9ddf-40c35da68da9, 46fed443-5242-48e9-a4f9-34074c0d6b5d, 6d0dec1b-e910-45fc-8878-bcbc9e731159, 878f4739-c712-4ff2-9353-03917efb5886, a995f471-df04-408c-958d-624d634c6b18, bb299267-37e4-4f1c-8bc8-507b27044ed5, cc259e3a-842e-452d-932c-f239c7a127fa, fb658dc0-98a3-477b-94b4-143711c47c8c, 12034d76-005e-4204-9fd0-d9e7b143b13c, 22a8799b-889e-4abd-ace8-57faade66d8c, 2624941a-32df-4dec-a203-82ad77de7890, 37d2f0d2-5144-4392-a7c5-2044914fefe7, 82f51a6e-e8cd-4fa8-8425-f899fb428c67, 8d766804-f729-4297-a19d-3551164bfb3a, 991e29bc-1e91-43eb-9621-b14fc8a942ef, c2ef6410-5708-4afb-ae40-f776e973bbd7, d0cfe02f-e0b6-4917-bec7-81a660e676b7, d3eefcea-f097-45d0-8507-2029545d67d6, e2223bd2-2dee-4a9d-9993-74bc66f38c34, 028fa7b2-e463-4e1d-9336-5ec6cc2032b4, 37e3803e-a45d-4c76-aa23-44e8c7cccb56, 39bf65b4-3bab-4c9e-a5a5-ebe2e78f7604, 4159602f-641e-4df8-966b-fea06d5e0c51, 50065ee0-5d49-4c26-b0a5-798fc67933b4, 60a28144-9f82-434a-b884-15f0ec20388e, 68d4da06-0658-4c6c-a1be-30e34416485f, 722095b9-fb1c-49ac-897d-f55c4aa64a5f, 84d51da7-f53f-47af-87a0-0e80784bc2a1, 86441a79-094a-4c66-a7b9-8236ad2b990d, 91c1d209-59e2-47cb-8f62-53e8be431e5f, a04304b1-36a8-4fb4-8ef2-0276ede9ce40, a35fb790-1a99-407b-9990-e2ef7ff8c738, a52ba919-c496-4c4d-996d-3ae6f05b3ec1, a60c2e1d-c317-4ee8-9974-2f491d3d2004, b5af36a0-7d8a-4ff9-9126-fa29a51373e1, bd6b439d-06a8-4bda-b845-656c1bb984de, edb47edc-6afb-4ef5-a2f6-132f0cc8d025, 0d4dce1e-f44c-4def-b3bf-6dbe38787331, 23f7d8e8-0191-40de-a5ad-928bd0d1fd83, 34161ee1-8661-4727-9f25-65604da47dd1, 3575da35-c9c5-410c-ac72-17871b6872ae, 4ed490ee-0447-454d-82cd-866c69845c7d, 53a01966-b776-4f62-909f-dadfa347d514, 68c464f1-0605-4924-8135-9d02fa07eb05, 7b241a63-a58e-4f21-8484-37a8ac41f5fe, 814aa3cc-bbaa-4997-b24d-899b56a9cce8, 92297c0f-67e3-4e21-971d-26d9f5f3d5c5, 9987a4e6-00f0-4fe0-b501-b39afb855c97, c0310ed7-18ee-4612-9a9b-afa8a9636ef1, e673b5ee-9337-4fdb-8526-361fb7561655, e6acff7a-3a32-41cf-83e9-cffcdba5fef3
+  ethereum:0x870585e3af9da7ff5dcd8f897ea0756f60f69cc1 → a2ead51c-e10b-4e22-b9ec-0c2601da2834, b33ac402-95b6-4117-92c3-4a1ec874533c
+  ton:EQDtFpEwcFAEcRe5mLVh2N6C0x-_hJEM7W61_JLnSF74p4q2 → a2ead51c-e10b-4e22-b9ec-0c2601da2834, b33ac402-95b6-4117-92c3-4a1ec874533c, 2386dab1-aed8-4aa5-bad8-584a49d1f410, e6544fd3-c5cd-4716-ac7a-a0e104407f25
+  bitcoin:bc1q8kn8l7rk0zmyldw7ch82lelhh85jq80vy8g9tt → a2ead51c-e10b-4e22-b9ec-0c2601da2834, b33ac402-95b6-4117-92c3-4a1ec874533c, 2386dab1-aed8-4aa5-bad8-584a49d1f410, e6544fd3-c5cd-4716-ac7a-a0e104407f25
+  tron:TM6UGtvSntHetyteAjitGi5cvcEixirvFh → a2ead51c-e10b-4e22-b9ec-0c2601da2834, b33ac402-95b6-4117-92c3-4a1ec874533c
+  polygon:0xa8b52f02108aa5f4b675bdcc973760022d7c6020 → a2ead51c-e10b-4e22-b9ec-0c2601da2834, b33ac402-95b6-4117-92c3-4a1ec874533c
+  solana:4r33xEKAD2cNMrC9NyJy8nb4XmruUKebZ6LZZm65PVUZ → a2ead51c-e10b-4e22-b9ec-0c2601da2834, b33ac402-95b6-4117-92c3-4a1ec874533c
+  spark:sprt1pgssyuuuhnrrdjswal5c3s3rafw9w3y5dd4cjy3duxlf7hjzkp0rqx6dj6mrhu → a2ead51c-e10b-4e22-b9ec-0c2601da2834, b33ac402-95b6-4117-92c3-4a1ec874533c
+  ethereum:0x56eddb7aa87536c09ccc2793473599fd21a8b17f → 2386dab1-aed8-4aa5-bad8-584a49d1f410, e6544fd3-c5cd-4716-ac7a-a0e104407f25
+  ethereum:0xe795ebbf0e9c7df00fc434adb2bd62da00c9b894 → 8e9519bc-e8de-4f1d-bffc-0098c00a6a55, ed3bab17-4353-4184-b3ac-c7351a136157
+  ... and 7 more
+
+✅ No wallets need normalization. Database is already up to date!
+2025-12-11T15:17:49.180Z finished running /srv/data/staging/rumble-data-shard-wrk/migrations/mongodb/2025-11-26_normalize-wallet-addresses.js
+
+
+npm run migration -- mongodb run -m ./migrations/mongodb/2025-11-26_normalize-wallet-addresses.js wtype=wrk-data-shard-proc rack=w-2-0 --dry-run
+
+> rumble-data-shard-wrk@0.1.0 migration
+> node scripts/migration-cli.js mongodb run -m ./migrations/mongodb/2025-11-26_normalize-wallet-addresses.js wtype=wrk-data-shard-proc rack=w-2-0 --dry-run
+
+argv {
+  env: 'production',
+  ns: 'm0',
+  root: '/srv/data/staging/rumble-data-shard-wrk',
+  migration: '/srv/data/staging/rumble-data-shard-wrk/migrations/mongodb/2025-11-26_normalize-wallet-addresses.js',
+  m: '/srv/data/staging/rumble-data-shard-wrk/migrations/mongodb/2025-11-26_normalize-wallet-addresses.js',
+  help: false,
+  h: false
+}
+Initializing db context with argv: {
+  env: 'production',
+  ns: 'm0',
+  root: '/srv/data/staging/rumble-data-shard-wrk',
+  migration: '/srv/data/staging/rumble-data-shard-wrk/migrations/mongodb/2025-11-26_normalize-wallet-addresses.js',
+  m: '/srv/data/staging/rumble-data-shard-wrk/migrations/mongodb/2025-11-26_normalize-wallet-addresses.js',
+  help: false,
+  h: false
+} rest: [ 'wtype=wrk-data-shard-proc', 'rack=w-2-0', '--dry-run' ]
+Using db: wdk_shard_wrk_data_shard_proc_w_2_0
+(node:1191545) [DEP0170] DeprecationWarning: The URL srv+mongodb://wallet:ztjzBW5CRnxDlbSW1dp0E8JT7fzykajG@walletmdbstg3:27017,walletmdbstg1:27017,walletmdbstg2:27017/wallet?authSource=wallet&replicaSet=rws0 is invalid. Future versions of Node.js will throw an error.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+(node:1191545) [MONGODB DRIVER] Warning: Current Server Discovery and Monitoring engine is deprecated, and will be removed in a future version. To use the new Server Discover and Monitoring engine, pass option { useUnifiedTopology: true } to the MongoClient constructor.
+2025-12-11T15:19:25.654Z started running migration /srv/data/staging/rumble-data-shard-wrk/migrations/mongodb/2025-11-26_normalize-wallet-addresses.js
+================================================================================
+Migration: Normalize Wallet Addresses (MongoDB)
+================================================================================
+Mode: DRY RUN (no changes will be made)
+
+Step 1: Scanning wallets collection...
+
+
+================================================================================
+Summary:
+================================================================================
+Total wallets: 73
+Wallets to normalize: 0
+Wallets unchanged: 73
+Errors: 0
+
+Addresses by chain:
+  ethereum            73 (lowercase)
+  arbitrum            72 (lowercase)
+  polygon             72 (lowercase)
+  bitcoin             72 (case-sensitive)
+  ton                 65 (case-sensitive)
+  spark               41 (lowercase)
+
+⚠️  Normalized address collisions detected (shared by multiple wallets):
+  spark:sp1pgssxqpskk24k3wqw2zz9ax2dg42w3803lus6u87ck4h82wg2za6gkdmxshzyx → 070331c6-b02d-41d0-bca1-04c674e2cb64, 08f0c4ca-9dfb-4a25-aed7-8dbfb5012d9b, 0b495df5-b51a-4e8f-a37f-73e4951030ab, 4cd4ca8e-3423-4b27-9f5d-73d237848dce, 6cc0fc97-cac3-4b53-a39f-e6cb09280ea7, 709ed941-0d48-4984-ab6f-b5c9d7957fea, 742c525a-9d2b-40d8-bd2a-f3f301747e8b, 7a996562-20a2-421f-827a-e1837ccdb983, 7f3de58b-ff4a-4b64-9baf-fdce34e82d7c, 93caffa4-2ae0-45e7-9939-3e203fda63c0, b0ae8c76-b1f0-43f2-b10c-a1793e9540f2, f3758638-1cd5-4ef2-ac4e-68e910af838c, ffc8640e-57fd-42e8-8493-56bf5444b302, 2e15a963-ef36-4943-b0f8-6e59476c01bf, 2f6d3f70-d843-46ec-9177-65766f6edb56, 3794a911-31d5-4883-bfe2-8a7d0964d9a2, 5de3bd07-c249-4875-9af4-3d2f8851d1b8, 61dafe41-a5be-4571-a6ba-1457464797a6, 6d92315a-5ffb-444a-9b2d-960db97de865, 95b05151-c7fa-4b6e-adb2-8b03449440a3, b2aa148a-5feb-412a-8721-8d2cd1accd1e, c05985fb-a568-49ed-a4ec-3b562c2363d2, c2f20010-e958-42d8-9405-0d1388325d6c, ffa9526d-218d-42cd-8aae-ce6bd221330b, 2e6c94e5-41b1-41e3-baa8-85b91b9ea448, 41e7c6eb-bf93-4f46-a453-e45e6b3d2d95, 5b69e8c1-46d3-4c78-93d1-c3d243c30c51, 5c789ec9-198e-4c74-9d51-52c63fc7c618, 63ef623a-bbc2-4fee-a98f-ac3f744f2526, 6aa8d8ef-35ca-4ffc-a5bc-b85ec0bdccc1, a260da13-a779-4641-b869-dbad8d4a00c5, af33e52d-2351-48d9-bb8a-3e59372c1abd, 205e3332-0aec-4dd6-b75d-10084d63fc8f, 351cf233-8704-413f-b074-df4885a47785, 6d53102d-5e9f-4a4c-ad46-aa1c3b3df4b0, 7167709a-2dd2-4934-a617-4adf839afaf6, 7d135f7c-d205-4256-81fc-33d64cece6c0, a2b7c9d0-381b-4a2d-a6c0-973beca6fdbd, b03d1fb2-872e-43c2-ab5f-150055be9866, d3e95da7-7904-4e2b-98df-a7b4cf00d299, ffeaff26-7e68-4b55-ac24-9c74d9dc77c0
+  ethereum:0x915d40559bfe41cd443d326b809d525abe045328 → 7a675713-e866-41d3-b3f7-258810bc12ee, 5a70cdc3-b1a6-4ee5-b2b9-44640f7eeca4
+  arbitrum:0x915d40559bfe41cd443d326b809d525abe045328 → 7a675713-e866-41d3-b3f7-258810bc12ee, 5a70cdc3-b1a6-4ee5-b2b9-44640f7eeca4
+  polygon:0x915d40559bfe41cd443d326b809d525abe045328 → 7a675713-e866-41d3-b3f7-258810bc12ee, 5a70cdc3-b1a6-4ee5-b2b9-44640f7eeca4
+  bitcoin:bc1quhzs9lp8u7lawscryr6lffgfl3ems56l8w5f9m → 7a675713-e866-41d3-b3f7-258810bc12ee, 5a70cdc3-b1a6-4ee5-b2b9-44640f7eeca4
+
+✅ No wallets need normalization. Database is already up to date!
+2025-12-11T15:19:25.663Z finished running /srv/data/staging/rumble-data-shard-wrk/migrations/mongodb/2025-11-26_normalize-wallet-addresses.js
+vabdurrahmani@walletstg3:/srv/data/staging/rumble-data-shard-wrk$ npm run migration -- mongodb run -m ./migrations/mongodb/2025-11-26_normalize-wallet-addresses.js wtype=wrk-data-shard-proc rack=w-2-1 --dry-run
+
+> rumble-data-shard-wrk@0.1.0 migration
+> node scripts/migration-cli.js mongodb run -m ./migrations/mongodb/2025-11-26_normalize-wallet-addresses.js wtype=wrk-data-shard-proc rack=w-2-1 --dry-run
+
+argv {
+  env: 'production',
+  ns: 'm0',
+  root: '/srv/data/staging/rumble-data-shard-wrk',
+  migration: '/srv/data/staging/rumble-data-shard-wrk/migrations/mongodb/2025-11-26_normalize-wallet-addresses.js',
+  m: '/srv/data/staging/rumble-data-shard-wrk/migrations/mongodb/2025-11-26_normalize-wallet-addresses.js',
+  help: false,
+  h: false
+}
+Initializing db context with argv: {
+  env: 'production',
+  ns: 'm0',
+  root: '/srv/data/staging/rumble-data-shard-wrk',
+  migration: '/srv/data/staging/rumble-data-shard-wrk/migrations/mongodb/2025-11-26_normalize-wallet-addresses.js',
+  m: '/srv/data/staging/rumble-data-shard-wrk/migrations/mongodb/2025-11-26_normalize-wallet-addresses.js',
+  help: false,
+  h: false
+} rest: [ 'wtype=wrk-data-shard-proc', 'rack=w-2-1', '--dry-run' ]
+Using db: wdk_shard_wrk_data_shard_proc_w_2_1
+(node:1191571) [DEP0170] DeprecationWarning: The URL srv+mongodb://wallet:ztjzBW5CRnxDlbSW1dp0E8JT7fzykajG@walletmdbstg3:27017,walletmdbstg1:27017,walletmdbstg2:27017/wallet?authSource=wallet&replicaSet=rws0 is invalid. Future versions of Node.js will throw an error.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+(node:1191571) [MONGODB DRIVER] Warning: Current Server Discovery and Monitoring engine is deprecated, and will be removed in a future version. To use the new Server Discover and Monitoring engine, pass option { useUnifiedTopology: true } to the MongoClient constructor.
+2025-12-11T15:19:33.726Z started running migration /srv/data/staging/rumble-data-shard-wrk/migrations/mongodb/2025-11-26_normalize-wallet-addresses.js
+================================================================================
+Migration: Normalize Wallet Addresses (MongoDB)
+================================================================================
+Mode: DRY RUN (no changes will be made)
+
+Step 1: Scanning wallets collection...
+
+  Scanned: 113/113 | To normalize: 0
+
+================================================================================
+Summary:
+================================================================================
+Total wallets: 113
+Wallets to normalize: 0
+Wallets unchanged: 113
+Errors: 0
+
+Addresses by chain:
+  ethereum           113 (lowercase)
+  arbitrum           113 (lowercase)
+  polygon            113 (lowercase)
+  bitcoin            113 (case-sensitive)
+  ton                101 (case-sensitive)
+  spark               56 (lowercase)
+
+⚠️  Normalized address collisions detected (shared by multiple wallets):
+  spark:sp1pgssxqpskk24k3wqw2zz9ax2dg42w3803lus6u87ck4h82wg2za6gkdmxshzyx → 05f8a69a-0773-48da-b6fd-213d4984cec0, 0d0fd9d7-f962-46a3-955a-4d675dc40bb1, 126318da-fe91-415e-b10e-f895e89be9a1, 1aa29671-db5a-49f6-accb-57a37543f69e, 417da536-df91-4fa9-acbe-a2315d20dac8, 44ce9ab6-17da-40a1-b94a-da962e9c24b7, 507cd9d0-5f27-4613-b43d-be5f0a1167c2, 5d8c6266-9406-4e33-a62b-317efab3b805, 5ea10057-486f-4314-a75e-27c8ae0e5e50, 6af1a441-25b3-4f8b-aad6-89318ea09b15, 6d3ff6b6-14b5-4eaf-9ec5-bb1c6572b5e0, 7639c519-366d-4701-86ae-dae6efa971e8, 7e2d6cbc-60cd-41ff-9eea-5e6bb5e49a5d, 909eb0c3-43af-4676-a3ae-abed7ad4e6d8, 96cd53de-965c-438a-a88b-59cdd26c6794, b2e8cd16-6e29-43c0-98c6-1be2fd872ed5, b6fc465f-7f23-453e-aa58-6e7d7a1b59f2, be1c34bc-2f93-4908-a9db-0dd3bac8cb71, c05eeabd-30b0-463c-b100-4af77e01a93a, ce09d750-aae0-4a19-93d8-7ced196594fd, 05bfeb74-f70c-4a81-9241-39566fe25a14, 10d49b3e-55c3-4fec-836a-5680c542f397, 15d02a74-5cad-4826-aac8-e341036220b9, 31c77fef-9ed9-40c2-b54b-f93ec6e59b7b, 4b82725b-1bef-41fd-9c50-d73f6e84d700, 4ec5a0ce-f0e7-4151-bbf8-4692115ed811, 72ff9ad9-7f01-433c-9a65-56f229c7dddd, b98696e8-02e9-444e-a60a-42c4539d575a, d7f012fd-e5f8-4dc9-9efb-9c7348c0d641, d9a08371-163c-4588-b5ef-ca67a3afa76c, f1b3b0a2-b779-4e82-bcc1-e8ed68c8e5ce, f4d95820-6f70-4979-8d25-c41a221bf4a2, fabe20fa-059f-4f9f-90da-3610ebe60d3f, 34af9df5-44a4-4bc1-a01a-2f689eaa3080, 6127421c-af5f-44f4-a64c-76a4f1ff96f2, 876151c3-88d2-4051-afd9-57a5da854e80, 891093dd-a3ec-4b94-bb3b-989a5731afe1, b213b023-db5c-47ed-84e0-ad0da365ea3b, b5d7458a-7e13-4bb8-9348-1fcd469ff16c, d4acb05c-5b87-42f2-9f78-5beddeb6701f, ed88c423-112c-4a29-86d4-cc97beefa2ba, ef770fba-7344-49ba-ad03-d04ac7bb9213, fb06dd99-0e30-403d-ab2b-711431f9d5c7, 1f756ecd-b811-41d3-815f-61e9098c29ba, 2e2c7d8d-f7c5-42b5-82a7-d4368b349002, 3690380c-007a-4911-987d-b848f778cfc9, 39f880e3-5632-4636-92ef-3f9a4d2ed78c, 493d2daf-b8fc-44c1-b405-59f1e58e7f73, 4e6ef3dc-6d46-4445-9b93-5d02014a8d95, a2288f46-c91c-42cb-8f39-4c9992565cc6, b251a5e8-e504-4253-84f0-b4c72d942f7d, e10b890a-9d95-423a-beba-b7e7da51f97d, e1fa18f8-0adf-4c54-b0cc-bc6cf12bdbb9, f749fbfd-60b7-43e3-b02a-77ef92143297, f756b664-bc77-4bc5-8c6a-6dee5feda4b1, fce4251d-f536-4ad1-b0bc-631a09bd0d5f
+  ton:UQBlp49uVFm29sCbxIfhG16_qRtFGeGO6ADWhgFT6vQqXxrp → 4b82725b-1bef-41fd-9c50-d73f6e84d700, fabe20fa-059f-4f9f-90da-3610ebe60d3f
+  ethereum:0xd5ccaa44681fe3afd553b11b291e02ed2f647db7 → 876151c3-88d2-4051-afd9-57a5da854e80, ef770fba-7344-49ba-ad03-d04ac7bb9213
+  arbitrum:0xd5ccaa44681fe3afd553b11b291e02ed2f647db7 → 876151c3-88d2-4051-afd9-57a5da854e80, ef770fba-7344-49ba-ad03-d04ac7bb9213
+  polygon:0xd5ccaa44681fe3afd553b11b291e02ed2f647db7 → 876151c3-88d2-4051-afd9-57a5da854e80, ef770fba-7344-49ba-ad03-d04ac7bb9213
+  ton:UQBV2hCnnRqLPR5lyMX0nJl1yMiN2x6B7S6tFxC_flU297Ua → 876151c3-88d2-4051-afd9-57a5da854e80, ef770fba-7344-49ba-ad03-d04ac7bb9213
+  bitcoin:bc1qe4vs5ez3crx7fagduh0g48ugj0qyfp52vc2emd → 876151c3-88d2-4051-afd9-57a5da854e80, ef770fba-7344-49ba-ad03-d04ac7bb9213
+
+✅ No wallets need normalization. Database is already up to date!
+2025-12-11T15:19:33.737Z finished running /srv/data/staging/rumble-data-shard-wrk/migrations/mongodb/2025-11-26_normalize-wallet-addresses.js
+vabdurrahmani@walletstg3:/srv/data/staging/rumble-data-shard-wrk$ npm run migration -- mongodb run -m ./migrations/mongodb/2025-11-26_normalize-wallet-addresses.js wtype=wrk-data-shard-proc rack=w-2-2 --dry-run
+
+> rumble-data-shard-wrk@0.1.0 migration
+> node scripts/migration-cli.js mongodb run -m ./migrations/mongodb/2025-11-26_normalize-wallet-addresses.js wtype=wrk-data-shard-proc rack=w-2-2 --dry-run
+
+argv {
+  env: 'production',
+  ns: 'm0',
+  root: '/srv/data/staging/rumble-data-shard-wrk',
+  migration: '/srv/data/staging/rumble-data-shard-wrk/migrations/mongodb/2025-11-26_normalize-wallet-addresses.js',
+  m: '/srv/data/staging/rumble-data-shard-wrk/migrations/mongodb/2025-11-26_normalize-wallet-addresses.js',
+  help: false,
+  h: false
+}
+Initializing db context with argv: {
+  env: 'production',
+  ns: 'm0',
+  root: '/srv/data/staging/rumble-data-shard-wrk',
+  migration: '/srv/data/staging/rumble-data-shard-wrk/migrations/mongodb/2025-11-26_normalize-wallet-addresses.js',
+  m: '/srv/data/staging/rumble-data-shard-wrk/migrations/mongodb/2025-11-26_normalize-wallet-addresses.js',
+  help: false,
+  h: false
+} rest: [ 'wtype=wrk-data-shard-proc', 'rack=w-2-2', '--dry-run' ]
+Using db: wdk_shard_wrk_data_shard_proc_w_2_2
+(node:1191597) [DEP0170] DeprecationWarning: The URL srv+mongodb://wallet:ztjzBW5CRnxDlbSW1dp0E8JT7fzykajG@walletmdbstg3:27017,walletmdbstg1:27017,walletmdbstg2:27017/wallet?authSource=wallet&replicaSet=rws0 is invalid. Future versions of Node.js will throw an error.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+(node:1191597) [MONGODB DRIVER] Warning: Current Server Discovery and Monitoring engine is deprecated, and will be removed in a future version. To use the new Server Discover and Monitoring engine, pass option { useUnifiedTopology: true } to the MongoClient constructor.
+2025-12-11T15:19:41.151Z started running migration /srv/data/staging/rumble-data-shard-wrk/migrations/mongodb/2025-11-26_normalize-wallet-addresses.js
+================================================================================
+Migration: Normalize Wallet Addresses (MongoDB)
+================================================================================
+Mode: DRY RUN (no changes will be made)
+
+Step 1: Scanning wallets collection...
+
+
+================================================================================
+Summary:
+================================================================================
+Total wallets: 40
+Wallets to normalize: 0
+Wallets unchanged: 40
+Errors: 0
+
+Addresses by chain:
+  ethereum            40 (lowercase)
+  bitcoin             40 (case-sensitive)
+  polygon             39 (lowercase)
+  arbitrum            38 (lowercase)
+  ton                 36 (case-sensitive)
+  spark               22 (lowercase)
+  tron                 1 (case-sensitive)
+  solana               1 (case-sensitive)
+
+⚠️  Normalized address collisions detected (shared by multiple wallets):
+  spark:sp1pgssxqpskk24k3wqw2zz9ax2dg42w3803lus6u87ck4h82wg2za6gkdmxshzyx → 7dc7b6d4-f6b7-4332-b333-ab5135b7d43d, cc885269-ed30-4d14-a20c-c3a8d03383ab, d83c7b90-7244-412b-abda-5acebcd5a02a, eb30f0bf-bf19-404a-bf21-c3939be6731d, 08f7aba8-ccb1-4c1b-ad38-46d6f99a0fc5, 20d3ef2d-c1ea-4e2e-b051-9af97bf789c6, 33666b4b-6ae3-4079-b37c-ecaae340e1e9, 67c03e54-d0b5-4fdc-9827-1d5721af9786, c4085adb-0870-4fd1-b043-506e631a89cf, c7c623d3-5813-4ec5-94a6-dd664930f131, c8332999-70c2-4f48-bdee-b5cc637d9582, c9734a2d-afbe-40cf-b32d-7b62d00af609, 21ecacbc-0808-4a2b-aa4c-74f6cf276aa1, 25bacf8f-cb67-4126-838c-bd1b693ef51d, 2a38cc7f-6a9a-46ff-9d84-da9d9fe396bb, 4c251bb4-2dff-4fbb-84fb-866c96af05ed, 4d029160-157c-47fd-9059-d7fb4d36741a, 623c872d-2ec0-4b63-9917-afeed5ad9bd0, 76276e28-4616-4cf9-ba1a-caa277bc222a, c2964263-8dec-44a8-b2ca-5e397f4c1f7c, fbde6145-0b96-4db6-98e6-28b30296b73c
+  ton:EQDtFpEwcFAEcRe5mLVh2N6C0x-_hJEM7W61_JLnSF74p4q2 → 996db0b4-1241-485e-8595-8aced6888017, 3313aa09-672c-4a21-a4f0-8a2b747da410
+  bitcoin:bc1q8kn8l7rk0zmyldw7ch82lelhh85jq80vy8g9tt → 996db0b4-1241-485e-8595-8aced6888017, 3313aa09-672c-4a21-a4f0-8a2b747da410
+
+✅ No wallets need normalization. Database is already up to date!
+2025-12-11T15:19:41.159Z finished running /srv/data/staging/rumble-data-shard-wrk/migrations/mongodb/2025-11-26_normalize-wallet-addresses.js

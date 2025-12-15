@@ -1,0 +1,2 @@
+- Read the truth file \_docs/\_\_\_TRUTH.md for context.
+- Read the ticket and execute \_docs/tasks/Debug_notification_not_showing_after_swap/ticket.md
