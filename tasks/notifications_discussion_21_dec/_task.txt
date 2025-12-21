@@ -1,0 +1,62 @@
+## Context
+
+* These folders discuss the notification issues we have having:
+_docs/tasks/notification_not_showing_after_swap
+_docs/tasks/notifications_not_showing_debug
+_docs/tasks/notifications_observed_Duplicate_swap
+
+* They are of mixed order (don't know what's before what).
+
+* A few code fixes have been applied, yet the problem persist. 
+
+* This was my analysis to the team: _docs/tasks/notifications_discussion_21_dec/my_analysis.md
+
+* I raided this PR as part of the fix: https://github.com/tetherto/rumble-ork-wrk/pull/68 (read the description and code).
+
+## Discussion
+
+Now the team is discussing my analysis and PR with me: 
+
+Vigan:
+thanks Alex for clarifications, on BE side I agree on using latest device id only but not sure which one it would be, e.g. first/last entry in array?
+regarding cleanup of old tokens not sure how we can do that and how feasible it would be, any idea?
+
+Alex (me):
+"which one it would be, e.g. first/last entry in array?"
+We can use the last entry.
+New devices are push()ed to the end of the array. The last entry is the most recently registered.
+Also we can add registeredAt to device records. The current array approach is fragile because:
+  - Updated devices stay in their original position (via Object.assign)
+  - Without a timestamp, "latest" is ambiguous
+"regarding cleanup of old tokens not sure how we can do that and how feasible it would be, any idea?"
+Very feasible IMO.
+Approaches:
+Reactive cleanup (recommended). FCM already tells when tokens are invalid. We can capture failed tokens and delete them.
+Login-based cleanup: when user logs in from a device, we call purgeDevices() first (already exists), then register the current device. This ensures 1-to-1 mapping.
+TTL-based cleanup: We can add lastNotifiedAt to devices, update on successful send, run a periodic job to delete devices not notified in X days.
+
+Mo:
+Our goal is, if the user has multiple devices, then push notification should work on all of them properly.
+My understanding is to achieve that, we need to store only one valid FCM token per device.  Can you please advise what's the device data needed to ensure the uniqueness of one valid FCM per device? Is it deviceId or something else?
+Regarding cleaning, we need to decide first what's needed from the device to ensure uniqueness of token per device. After that we can discuss how to clean.
+
+
+Matteo:
+Hey @Mo Elsabry giving my view in case it could be helpful to anyone (feel free to ignore):
+FCM id tokens are unique for an app installation, but can change under different circumnstances (like app reinstall - not always, google periodically rotating etc)
+the app at every startup should send the FCM id to backend (also onRefreshToken from firebase) the backend should upsert the list inserting new id
+having expired tokens is not a problem in the backend, but in strange testing scenarios upserting can lead to duplicate active id tokens
+To make it really bullet proof you could store in the BE the id token with an immutable identifier, such as as identifierForVendor  in iOS - and every login override that map
+
+Vigan:
+ok so on BE side we should send it to every id in the list, and app side should find ways to have at most 1 active fcm token per device
+
+## Your Task
+
+* Read the context to understand the issue. 
+* Read the discussion (important to understand the details of the opinions).
+* Give me a concise recap of:
+- What's the issue
+- What's eventually wanted by the team
+- Propose a decision on what we need to do in backend and frontend. It must not be technical. It should be for the team to understand (some of them are not coders). Comply with what Matteo and Vigan want the most.
+* Put your output in a file in this folder. 
