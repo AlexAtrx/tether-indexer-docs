@@ -1,0 +1,30 @@
+## Context
+
+### History to read
+
+* These 2 folders are about a wallet balance issue: 
+_docs/tasks/Wallet Balance Oscillation After Transactions
+_docs/tasks/Wallet Balance task balance flickers
+
+### Slack message is shared with the team:
+
+"
+* TL;DR:
+Balances can flip because each request may hit different upstream providers/peers that aren’t at the same block height. When cached and live requests mix, you see alternating “old vs new” values until the upstream sources converge.
+
+* The fix impacts all of:
+wdk-indexer-wrk-base
+wdk-indexer-wrk-evm
+wdk-indexer-wrk-btc
+wdk-indexer-wrk-solana
+wdk-indexer-wrk-ton
+wdk-indexer-wrk-tron
+
+* Just sharing before the PRs.
+"
+
+## Task
+
+* Read the history and understand it, especially the analysis and findings 
+* Validate and evaluate what my Slack sharing 
+* Give me a plan for what PRs I should raise 

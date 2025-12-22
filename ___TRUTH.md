@@ -1,6 +1,6 @@
 # WDK Indexer - Engineering Truth
 
-Last Updated: 2025-12-19
+Last Updated: 2025-12-22
 Scope: `_INDEXER` workspace (wdk-indexer-app-node, wdk-ork-wrk, wdk-data-shard-wrk, per-chain indexers, rumble-* extensions)
 
 ---
@@ -51,6 +51,7 @@ Note: docs/tasks reference `usdt0/xaut0` topics for Plasma/Sepolia, while curren
 - API key management: create/list/revoke/sweep + blocked owners.
 - Trace ID propagation across HTTP and internal RPC (`x-trace-id`).
 - Optional Redis event engine (`eventEngine=redis`) for push pipeline between indexer and data-shard (not set in shipped configs).
+- Deterministic provider/peer selection for balance reads: `callWithSeed()` in RpcBaseManager routes requests to stable providers based on address hash; data-shard uses seeded peer selection via `_rpcCall(seed)`. Prevents balance oscillation across multi-peer/multi-provider deployments.
 
 ---
 
@@ -64,7 +65,7 @@ Note: docs/tasks reference `usdt0/xaut0` topics for Plasma/Sepolia, while curren
 
 ## 6. Challenges / Weak Points
 
-- Balance oscillation: non-deterministic provider selection + mixed cache states across peers; `cache=false` bypasses Redis read/write to avoid poisoning.
+- Cache bypass: `cache=false` bypasses Redis read/write; shared Redis across app-node workers is required to prevent per-worker divergence.
 - Duplicate transfer/swap notifications: inserts/updates can re-emit; dedupe exists but not end-to-end.
 - Address uniqueness: ork normalizes input, but data-shard `getWalletByAddress` relies on lowercasing; migrations needed for existing dupes.
 - AA hash mapping: userOp hash vs bundle hash causes duplicate history/webhooks.
@@ -87,7 +88,6 @@ Note: docs/tasks reference `usdt0/xaut0` topics for Plasma/Sepolia, while curren
 ## 8. Industry-Standard Gaps (Documented Backlog)
 
 - Secret management + internal auth (Vault/env, mTLS/JWT).
-- Deterministic provider selection + shared cache strategy to prevent balance flicker.
 - Idempotent push/webhook pipeline for transfers/swaps.
 - Observability: provider-tagged errors + alerting.
 - Load/stress testing (5k users ticket).
@@ -106,7 +106,6 @@ Note: docs/tasks reference `usdt0/xaut0` topics for Plasma/Sepolia, while curren
 
 - Address uniqueness migration + normalization consistency.
 - Fix duplicate notifications end-to-end (swap/transfer).
-- Resolve balance oscillation (provider selection + caching).
 - Decide and fix root cause for `Pool was force destroyed`.
 - Apply net config loading in base worker if desired (`_loadFacConf` changes).
 - Configure alerts + update BTC tests.
