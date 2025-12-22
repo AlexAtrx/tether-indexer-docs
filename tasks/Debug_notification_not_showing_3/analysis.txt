@@ -1,0 +1,76 @@
+  Analysis Summary
+
+  Confidence Level: ~85%
+
+  The analysis is well-supported by code, but I lack visibility into the mobile app registration flow and production data to fully verify the duplicate/missing device scenarios.
+
+  ---
+  Root Causes Confirmed
+
+  1. Device ID Registration - No timestamp tracking
+  Looking at api.shard.data.wrk.js:22-42, devices are stored as a plain array with no registeredAt or lastUsed timestamp:
+  const existingDevice = devices.find(d => d.deviceId === deviceData.deviceId)
+  if (existingDevice) {
+    Object.assign(existingDevice, deviceData)  // Updates in place (keeps array position)
+  } else {
+    devices.push(deviceData)  // New devices pushed to END
+  }
+
+  2. Backend sends to ALL tokens
+  In proc.shard.data.wrk.js:386-392:
+  const devices = await this._getUserDevices(req.toUserId)
+  const tokens = [...new Set(devices.map(d => d.fcmToken || d.deviceId).filter(Boolean))]
+  All tokens are sent to with no filtering for "active" or "latest."
+
+  3. No cleanup of expired FCM tokens
+  notification.util.js:53-56 logs FCM failures but doesn't remove invalid tokens:
+  if (!resp.success) {
+    this.logger.debug(`Error sending notification to ${tokens[idx]}: ...`)
+  }
+
+  ---
+  Answers for the Lead Dev
+
+  Q1: "Which device ID - first/last entry in array?"
+
+  Use the LAST entry - new devices are push()ed to the end of the array, so the last entry is the most recently registered.
+
+  However, I recommend also adding a registeredAt timestamp to device records. The current array-position approach is fragile because:
+  - Updated devices stay in their original position (via Object.assign)
+  - Without a timestamp, "latest" is ambiguous
+
+  Quick fix: devices[devices.length - 1] → most recently added device.
+
+  Better fix: Store registeredAt: Date.now() on device registration, then select devices.sort((a, b) => b.registeredAt - a.registeredAt)[0].
+
+  ---
+  Q2: "How to cleanup old tokens - how feasible?"
+
+  Very feasible. Two practical approaches:
+
+  Option A: Reactive cleanup (recommended)
+  FCM already tells you when tokens are invalid. Modify notification.util.js to return failed tokens, then delete them:
+  // In sendNotification(), after sendEachForMulticast:
+  const invalidTokens = []
+  response.responses.forEach((resp, idx) => {
+    if (!resp.success && resp.error?.code === 'messaging/registration-token-not-registered') {
+      invalidTokens.push(tokens[idx])
+    }
+  })
+  return { response, invalidTokens }  // Caller removes these from DB
+
+  Option B: Login-based cleanup
+  When user logs in from a device, call purgeDevices() first (already exists in API), then register the current device. This ensures one-to-one mapping.
+
+  Option C: TTL-based cleanup
+  Add lastNotifiedAt to devices, update on successful send, run a periodic job to delete devices not notified in X days.
+
+  ---
+  Summary Table
+
+  | Issue                        | Confirmed | Solution                                            |
+  |------------------------------|-----------|-----------------------------------------------------|
+  | Multiple FCM tokens per user | ✅        | Send to latest device only, OR cleanup old tokens   |
+  | No timestamp on devices      | ✅        | Add registeredAt field                              |
+  | Expired tokens not cleaned   | ✅        | Parse FCM errors and delete invalid tokens          |
+  | Zero tokens (v2 regression)  | Likely    | Verify mobile v2 calls POST /device-ids after login |

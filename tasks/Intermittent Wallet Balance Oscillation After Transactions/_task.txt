@@ -1,0 +1,35 @@
+## Context
+
+### Ticket
+
+Bug: Intermittent Wallet Balance Oscillation After Transactions
+
+Users continue to experience inconsistent responses from api/v1/wallets/balances, where the endpoint intermittently returns pre-transaction and post-transaction states. The issue was observed again: two balance snapshots taken one minute apart show oscillation, although the related transaction occurred at 19:13:38. Similar fluctuations persisted for ~30 minutes after the transaction.
+A previous fix was deployed, but since the root cause couldn’t be reproduced locally at the time, the behavior appears to persist.
+Scope:
+Investigate underlying cause of state oscillation.
+Establish a reliable method to reproduce the issue locally.
+Apply a permanent fix.
+Acceptance Criteria:
+Identifiable root cause with reproducible scenario.
+Consistent post-transaction balance state returned by the endpoint.
+Tests added to prevent regression.
+
+### Discussion
+
+Hello team, in the past we had a problem with api/v1/wallets/balances endpoint where it was oscillating between pre-transaction and post-transaction states. I managed to catch such case again. the balance screens are taken 1 minute apart and the transaction timestamp is 19:13:38.
+this happened many times in the application and stopped after about half an hour from the transaction. can this be investigated or fixed?
+
+(read all the screenshots of the API client tests)
+
+### Previous Task
+
+This was already fixed in the past, but the issue was not reproducible locally at the time. And now it is happening again. This is about it _docs/tasks/task_balance_flickers_task
+
+## Task
+
+- Go throw the past task.
+- Understand the ticket and the disuccsion. 
+- Go through the entire code and try to find the root cause.
+- Explain how to reproduce the issue locally if possible.
+- Put your findings in a file in this folder.
