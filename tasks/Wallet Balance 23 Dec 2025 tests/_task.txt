@@ -1,0 +1,5 @@
+This is a Bruno docs for the APIs of Rumble wallet backend rumble-docs/api
+
+Go through the docs and give me which APIs I should call in order to test the fix done in this task _docs/tasks/Wallet Balance 22 Dec 2025
+
+Give me the simplest path. 
