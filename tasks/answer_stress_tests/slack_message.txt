@@ -1,0 +1,7 @@
+## Context
+
+Read the truth file and answer the question
+
+_docs/tasks/answer_stress_tests/slack_message.txt
+
+Give me a very short answer.

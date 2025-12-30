@@ -1,0 +1,10 @@
+Hey guys, as I want to run stress tests against the staging environment. There are a few things important decisions that I am making that I'd like to share and get your feedback and modify my solution in case you have a better different approach that you'd recommend.
+
+
+1. User authentication happens from rumble auth servers. Therefore creating test users is difficult. My solution: Enable test authentication during this period on the staging environment. In this test authentication mechanism, we'll be able to provide user id as part of the request.
+
+
+2. Wallet addresses are created based on random hex strings. Therefore, there won't be many transactions for these addresses. Solution: Keep it as it is. We can define separate stress test suite for stress testing wallet addresses with many transactions.
+
+
+What do you guys think?
