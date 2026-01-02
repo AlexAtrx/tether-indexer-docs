@@ -1,0 +1,161 @@
+Dev1 says
+
+"
+how is it possible that the same user gets assigned to different shards when doing /connect? this leads to inconsistent responses by /wallets of course
+"
+
+Dev2 says:
+"
+On the repo wdk-ork-wrk, I'm reading
+
+```
+wdk-ork-wrk
+⚠️ Database Migrations Required Before Deployment
+Run all pending migrations before starting the worker. Autobase lookups use exact string matching - skipping migrations causes address lookup failures and allows duplicate wallet creation.
+```
+
+hopefully we didn't skip a migration on staging
+"
+
+Dev2: 
+"
+wait but I can see from the first log you're logging with user moceridario1241243124124  - assigned to data shard 0 2
+and in the second log you're logging with newonedairo data shard 1 1
+"
+
+Dev1:
+"
+i have multiple emulators running
+
+so maybe pasted wrong logs
+
+but I am facing strange behaviours
+
+will retry and send logs
+"
+
+Dev 1:
+"
+we'll check if we have this issue because of missed migrations on staging
+"
+
+Tester:
+"
+I have one question, I got the response for one of my account in the staging , where the channel id is null, and channel type is unrelated, is it ok?
+
+```
+{
+  "wallets": [
+    {
+      "id": "c0310ed7-18ee-4612-9a9b-afa8a9636ef1",
+      "type": "unrelated",
+      "userId": "FzIBq-fWOSY",
+      "enabled": true,
+      "addresses": {
+        "ethereum": "0x77d4813ee313cd81bdae8354a4ad7d29eae10739",
+        "arbitrum": "0x77d4813ee313cd81bdae8354a4ad7d29eae10739",
+        "polygon": "0x77d4813ee313cd81bdae8354a4ad7d29eae10739",
+        "ton": "UQCyFWN1XwtCJGX9f73_rAohT5XnLUkdzjGCEpQPGlMGj2Zr",
+        "bitcoin": "bc1q9r9ezfm4820zcal8965e6lre7dh23cqx2smj5q",
+        "spark": "sp1pgssxqpskk24k3wqw2zz9ax2dg42w3803lus6u87ck4h82wg2za6gkdmxshzyx"
+      },
+      "createdAt": 1759305488642,
+      "updatedAt": 1759305488642,
+      "channelId": null,
+      "name": "gigaahhnn wallet"
+    },
+    {
+      "id": "bb299267-37e4-4f1c-8bc8-507b27044ed5",
+      "type": "user",
+      "userId": "FzIBq-fWOSY",
+      "enabled": true,
+      "addresses": {
+        "ethereum": "0x5853489cd714e52be99fdfd69f0b9d3823939753",
+        "arbitrum": "0x5853489cd714e52be99fdfd69f0b9d3823939753",
+        "polygon": "0x5853489cd714e52be99fdfd69f0b9d3823939753",
+        "ton": "UQAnTjldeVTOlZo4G_aoV7SkLHXXKWvbZG1PzR9tH_GFFYwY",
+        "bitcoin": "bc1qle6frtr33sjgnqlv30lspudy5x9f8txgzdrsae",
+        "spark": "sp1pgssxqpskk24k3wqw2zz9ax2dg42w3803lus6u87ck4h82wg2za6gkdmxshzyx"
+      },
+      "createdAt": 1759305488626,
+      "updatedAt": 1759306146162,
+      "channelId": null,
+      "name": "gigaahhnn tip jar"
+    },
+    {
+      "id": "4ed490ee-0447-454d-82cd-866c69845c7d",
+      "type": "channel",
+      "userId": "FzIBq-fWOSY",
+      "enabled": true,
+      "addresses": {
+        "ethereum": "0xb9fac45846192c3958f40f360bb110a456d25c17",
+        "arbitrum": "0xb9fac45846192c3958f40f360bb110a456d25c17",
+        "polygon": "0xb9fac45846192c3958f40f360bb110a456d25c17",
+        "ton": "UQCMVSHwQas4rB9tGG7Y-feJLp_7oXa_ApWTlJboL3YIv7kM",
+        "bitcoin": "bc1qjajs4eqzmtqu6z6ypxkyyl7mf7xuvjntlf7kz2",
+        "spark": "sp1pgssxqpskk24k3wqw2zz9ax2dg42w3803lus6u87ck4h82wg2za6gkdmxshzyx"
+      },
+      "createdAt": 1759306142530,
+      "updatedAt": 1759306146188,
+      "channelId": "U1AahZzvtPM",
+      "name": "gfgfdgfdgfggfgfg tip jar"
+    },
+    {
+      "id": "84d51da7-f53f-47af-87a0-0e80784bc2a1",
+      "type": "channel",
+      "userId": "FzIBq-fWOSY",
+      "enabled": true,
+      "addresses": {
+        "ethereum": "0x94147eee10dd4e2cf673a72d1985114a21dac9c5",
+        "arbitrum": "0x94147eee10dd4e2cf673a72d1985114a21dac9c5",
+        "polygon": "0x94147eee10dd4e2cf673a72d1985114a21dac9c5",
+        "ton": "UQDT-Z5IQAE8GAjpWOvm0ByOM9kXbxd4CC2gC2L5LuCn-E1g",
+        "bitcoin": "bc1qftstelmx65t4hkkd6ea7pw5exv36c2r0y2cvr2",
+        "spark": "sp1pgssxqpskk24k3wqw2zz9ax2dg42w3803lus6u87ck4h82wg2za6gkdmxshzyx"
+      },
+      "createdAt": 1759306100056,
+      "updatedAt": 1759306146157,
+      "channelId": "HVNr3_Ljx-A",
+      "name": "etretr tip jar"
+    },
+    {
+      "id": "da4f4992-5a38-4e45-943a-d8f13c91b4e0",
+      "addresses": {
+        "ethereum": "0xa26a7d9f73f26f4a1803a12f28160968003edf6a",
+        "arbitrum": "0xa26a7d9f73f26f4a1803a12f28160968003edf6a",
+        "polygon": "0xa26a7d9f73f26f4a1803a12f28160968003edf6a",
+        "bitcoin": "bc1q960ysrm7axw5n0qr9tzv6mrznaysdg2dm88ws7"
+      },
+      "channelId": "10fasQ9Kmnw",
+      "createdAt": 1764260185828,
+      "enabled": true,
+      "name": "newrrrr tip jar",
+      "type": "channel",
+      "updatedAt": 1764260185828,
+      "userId": "FzIBq-fWOSY"
+    },
+    {
+      "id": "b2aad811-2c22-4215-8746-19d6937b57d6",
+      "addresses": {
+        "ethereum": "0x5eda2beed1e8cf03984af7bd9861cd33dc1ee132",
+        "arbitrum": "0x5eda2beed1e8cf03984af7bd9861cd33dc1ee132",
+        "polygon": "0x5eda2beed1e8cf03984af7bd9861cd33dc1ee132",
+        "bitcoin": "bc1qj7y9yvsjntdnjrm7w5e7fjnz0j05l9cj8ehlme"
+      },
+      "channelId": "KBqrGfddrqw",
+      "createdAt": 1764263898260,
+      "enabled": true,
+      "name": "newssseww tip jar",
+      "type": "channel",
+      "updatedAt": 1764263898260,
+      "userId": "FzIBq-fWOSY"
+    }
+  ]
+}
+```
+"
+
+Dev2:
+"
+channelId only appears in channel wallets, it should be correct, maybe @Alex Atrash can double check but I think it's an expected behaviour
+"

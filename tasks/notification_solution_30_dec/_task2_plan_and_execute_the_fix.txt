@@ -1,0 +1,23 @@
+## Context 
+
+- Read task 1: _docs/tasks/notification_solution_30_dec/_task1_find_out.txt
+- Read its results: _docs/tasks/notification_solution_30_dec/_task1_find_out_results.txt
+
+## Final proposed solution for the issue:
+
+- Read_docs/tasks/notification_solution_30_dec/proposed_solution.txt
+
+## Notes
+
+- If you add an encrypted device info string, it would still go in deviceId which is already accepted by the API POST /api/v1/device-ids
+- The front end (mobiel app) may use 'import { getUniqueId } from 'react-native-device-info';' in getting the device info.
+
+## Task
+
+- Undertake the context and the fix for the issue.
+- Understand the APIs effected and the flow of the notification system.
+- Create a plan for the fix.
+- Undertake the fix for the issue in the local repositories.
+    - Create a common branch name for all involved repositories.
+    - Do not commit the fixes yet.
+- Test the fix with unit tests and integration tests if possible.

@@ -1,9 +1,0 @@
-## Context
-
-The issue is discussed in these tasks: 
-_docs/tasks/notifications_discussion_21_dec
-_docs/tasks/notifications_observed_Duplicate_swap
-_docs/tasks/notifications_not_showing_debug
-
-### Final solution
-

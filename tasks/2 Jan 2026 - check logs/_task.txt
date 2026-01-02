@@ -1,0 +1,16 @@
+## Introduction
+
+This is a ticket to be handled in this `INDEXER` project. 
+
+A canonical reference file for this project exists at: _docs/___TRUTH.md
+
+ONLY consider this folder (_INDEXER) for viewing code and adding changes to it. Do not create or clone a new repo outside this folder.
+
+## Context
+
+Slack discussion: _docs/tasks/2 Jan 2026 - check logs/slack-discussion.txt
+
+## Task
+
+Given that you are @Alex Atrash in the discussion, debug and find out the reason of the issue. 
+Place your findings in a file in this folder.
