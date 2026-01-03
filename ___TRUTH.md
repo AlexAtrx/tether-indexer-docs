@@ -1,115 +1,116 @@
 # WDK Indexer - Engineering Truth
 
-Last Updated: 2025-12-22
-Scope: `_INDEXER` workspace (wdk-indexer-app-node, wdk-ork-wrk, wdk-data-shard-wrk, per-chain indexers, rumble-* extensions)
+Last Updated: 2026-01-02
+Scope: `_INDEXER` workspace (wdk-indexer-app-node, wdk-ork-wrk, wdk-data-shard-wrk, per-chain indexers, rumble-* extensions, base libs)
 
 ---
 
 ## 1. Architecture (Key Decisions)
 
-- Topology: `wdk-indexer-app-node` (HTTP) -> `wdk-ork-wrk` (routing) -> `wdk-data-shard-wrk` (data) -> per-chain indexers.
-- Transport: Hyperswarm/HyperDHT mesh with shared `topicConf.capability` + `topicConf.crypto.key`.
-- Topics:
-  - Ork uses `@wdk/ork`; data-shard uses `@wdk/data-shard`.
-  - Indexers announce `chain:token` topics (e.g., `ethereum:usdt`).
-- Worker pairs: Proc (writer) and API (reader); Proc prints RPC key, API requires `--proc-rpc`.
-- Storage: `dbEngine` selects HyperDB or MongoDB. HyperDB schemas are append-only and require version bumps + migrations.
-- Autobase: used for API keys (app-node) and lookups (ork).
-- Redis: required by app-node for caching + rate limiting (shared Redis across instances).
-- LRU caches: shard lookups (ork) and FX price (data-shard).
-- FX rates: default via Bitfinex public API (configurable).
+- Topology: app-node -> ork -> data-shard -> per-chain indexers (matches `_docs/wdk-indexer-local-diagram.mmd`).
+- Transport: Hyperswarm/HyperDHT mesh; all workers share `topicConf.capability` and `topicConf.crypto.key`.
+- Topics: `@wdk/ork`, `@wdk/data-shard` (Rumble uses `@rumble/*`); indexers announce `chain:token` topics.
+- Proc/API pairing: Proc prints RPC key; API uses `--proc-rpc` to access its Proc.
+- Storage: HyperDB (append-only, migration/versioned schema) or MongoDB for indexers and data-shard.
+- Autobase: ork for lookups/uniqueness; wdk-indexer-app-node for API keys.
+- Redis: hard dependency for `wdk-app-node` caching/rate limiting; optional event engine (Redis streams) for indexer -> data-shard transfer pipeline; used for rate limiting in wdk-indexer-app-node.
+- FX rates: data-shard fetches Bitfinex batch FX and caches in LRU (1 min default).
+- Metrics: indexer base supports Pushgateway metrics and sync lag monitoring when enabled.
 
 ---
 
-## 2. Components
+## 2. Components (What They Do)
 
-- `wdk-indexer-app-node`: HTTP API, API key lifecycle, rate limiting, Swagger; built on `wdk-app-node`.
-- `wdk-ork-wrk`: wallet CRUD, address normalization, shard routing, Autobase lookups.
-- `wdk-data-shard-wrk`: wallet storage, balances/transfers aggregation, FX conversion.
-- `wdk-indexer-wrk-{evm,btc,solana,ton,tron,spark}`: chain indexers.
-- `tether-wrk-base` / `wdk-indexer-wrk-base`: shared worker scaffolding + Hyperswarm RPC.
-
----
-
-## 3. Chain & Token Coverage (From Configs)
-
-- EVM: Ethereum, Arbitrum, Polygon, Plasma, Sepolia with USDT/XAUT configs; ERC-4337 + bundler/paymaster config present.
-- Bitcoin: BTC (UTXO normalization to standard format).
-- Solana: SOL + USDT (SPL) via Bitquery provider.
-- TON: TON + USDT/XAUT (Jetton configs).
-- Tron: TRX + USDT (TRC20) with gas-free provider config.
-- Spark: BTC with LNURL/UMA support.
-
-Note: docs/tasks reference `usdt0/xaut0` topics for Plasma/Sepolia, while current configs use `usdt/xaut`.
+- `wdk-indexer-app-node`: REST API for balances/transfers (batch limits), API key lifecycle (Autobase), rate limiting.
+- `wdk-app-node`: HTTP gateway for wallet CRUD/balances with Redis cache (30s TTL) and `cache=false` bypass; supports JWT/noAuth.
+- `wdk-ork-wrk`: wallet CRUD, address normalization/uniqueness checks, shard routing, Autobase lookups with LRU cache.
+- `wdk-data-shard-wrk`: wallet storage, balance/transfer aggregation, FX conversion, scheduled sync jobs; Redis stream consumer when `eventEngine=redis`.
+- `wdk-indexer-wrk-*`: per-chain indexers (proc/API) emitting normalized transfers; BTC converts UTXO to standard from/to format.
+- `tether-wrk-base` / `wdk-indexer-wrk-base`: worker scaffolding, Hyperswarm RPC, RPC circuit breaker/failover ordering.
 
 ---
 
-## 4. Delivered Features
+## 3. Supported Chains/Tokens (Code/Config vs Docs)
 
-- Wallet creation/update, address normalization, and lookups via Autobase.
-- Balances and transfers per wallet/user/token, plus batch endpoints.
-- API key management: create/list/revoke/sweep + blocked owners.
-- Trace ID propagation across HTTP and internal RPC (`x-trace-id`).
-- Optional Redis event engine (`eventEngine=redis`) for push pipeline between indexer and data-shard (not set in shipped configs).
-- Deterministic provider/peer selection for balance reads: `callWithSeed()` in RpcBaseManager routes requests to stable providers based on address hash; data-shard uses seeded peer selection via `_rpcCall(seed)`. Prevents balance oscillation across multi-peer/multi-provider deployments.
+- Worker repos + configs exist for:
+  - EVM: Ethereum, Arbitrum, Polygon, Plasma, Sepolia (USDt, XAUt where configured)
+  - Bitcoin: BTC
+  - Solana: SOL + SPL (USDT)
+  - TON: TON + Jetton (USDT, XAUT)
+  - Tron: TRX + USDT
+  - Spark: BTC (Spark network)
+- Docs (`wdk-docs/tools/indexer-api`) list: Ethereum, TON, TRON, Arbitrum, Sepolia, Plasma, Polygon, Bitcoin, Spark (no Solana).
+- Token naming mismatch: some configs use `usdt/xaut`, others use `usdt0/xaut0` (e.g., `wdk-indexer-app-node/config/common.json` vs examples/docs).
 
 ---
 
-## 5. Rumble Extension Layer
+## 4. Delivered Features (Indexer/WDK)
 
-- `rumble-app-node`: SSO/passkey proxies, MoonPay, notifications API, device management.
-- `rumble-ork-wrk`: notification routing + LRU idempotency for user-initiated notifications.
-- `rumble-data-shard-wrk`: FCM push + webhooks; notification types include transfers, swaps, topups, cashouts, login.
+- HTTP endpoints for balances/transfers, including batch endpoints and per-route rate limits.
+- Wallet creation/update, address lookups, user/wallet balance aggregation.
+- API key issuance, revoke, and inactive-key sweep (wdk-indexer-app-node).
+- Redis-backed caching with explicit `cache=false` bypass to avoid cache poisoning.
+- Optional Redis stream pipeline for indexer -> data-shard transfer push.
+- Circuit breaker + failover ordering for RPC providers (RpcBaseManager) used by most chain clients.
+- FX valuation via Bitfinex batch endpoint.
+
+---
+
+## 5. Rumble Extensions
+
+- `rumble-app-node`: auth + device management + notifications + MoonPay + passkey/SSO proxy endpoints.
+- `rumble-ork-wrk`: notification routing with LRU idempotency for manual types (`SWAP_STARTED`, `TOPUP_STARTED`, `CASHOUT_STARTED`).
+- `rumble-data-shard-wrk`: FCM pushes + signed Rumble webhooks; transfer dedupe cache; gasless retry config.
 
 ---
 
 ## 6. Challenges / Weak Points
 
-- Cache bypass: `cache=false` bypasses Redis read/write; shared Redis across app-node workers is required to prevent per-worker divergence.
-- Duplicate transfer/swap notifications: inserts/updates can re-emit; dedupe exists but not end-to-end.
-- Address uniqueness: ork normalizes input, but data-shard `getWalletByAddress` relies on lowercasing; migrations needed for existing dupes.
-- AA hash mapping: userOp hash vs bundle hash causes duplicate history/webhooks.
-- `[HRPC_ERR]=Pool was force destroyed`: docs conflict (Hyperswarm pool race vs Mongo pool destruction); root cause unresolved.
-- `config/facs/net.config.json` is not loaded by `tether-wrk-base`; netOpts (poolLinger/timeout) are ignored unless code changes are applied.
-- Candide API usage spikes (1M/5 days) and provider errors; monitoring/alerts needed.
-- Data-shard "latest transfers" ticket still open.
+- Balance oscillation: data-shard selects indexer peers randomly; chain clients use round-robin providers. Docs describe deterministic `callWithSeed`/seeded peer selection, but current code still uses `rpcManager.call` + `jTopicRequest` without seeds.
+- `cache=false` bypasses Redis read/write by design, so mixed cached/live reads expose provider/peer drift (30s TTL).
+- Duplicate/missing notifications: transfer-based notifications fire on every upsert and can be sent before DB commit; no end-to-end idempotency for automatic transfers; device registration is not deterministic and invalid token cleanup is incomplete (per docs/tasks).
+- Address uniqueness: ork normalizes addresses and checks duplicates, but migrations are required to backfill existing data; data-shard `getWalletByAddress` falls back to lowercase.
+- `[HRPC_ERR]=Pool was force destroyed`: docs disagree on root cause (Hyperswarm pool vs Mongo pool). `netOpts` appear in `wdk-data-shard-wrk/config/common.json`, but `tether-wrk-base` does not load net fac config today.
+- Circuit breaker behavior in staging is questioned (tasks show repeated errors from a failed provider despite circuit breaker).
+- Provider quota spikes (Candide) and missing alerts/monitoring remain open.
 
 ---
 
-## 7. Security Threats
+## 7. Security Threats / Risks
 
-- Secrets committed in `config/common.json` (topicConf keys, JWT/SSO secrets, rumble server token).
-- Internal RPC uses shared secrets only; no mTLS/JWT between services.
-- API keys delivered via plaintext email; webhooks are not signed.
-- Example configs omit Mongo/Redis auth/TLS.
+- Secrets committed in repo config files (`topicConf` keys, API key/JWT/rumble tokens).
+- Internal RPC trust relies on shared `topicConf` secrets only (no mTLS/JWT between workers).
+- API keys are emailed in plaintext by `wdk-indexer-app-node` when configured.
+- Dependency audit found no SHA1HULUD packages, but recommends pinning versions and auditing install scripts/transitive deps.
 
 ---
 
 ## 8. Industry-Standard Gaps (Documented Backlog)
 
-- Secret management + internal auth (Vault/env, mTLS/JWT).
-- Idempotent push/webhook pipeline for transfers/swaps.
-- Observability: provider-tagged errors + alerting.
-- Load/stress testing (5k users ticket).
+- Deterministic provider and peer selection for balance reads (stop oscillation).
+- End-to-end idempotency for transfer notifications/webhooks.
+- Observability: provider-tagged errors + alerting (RPC/Candide).
+- Load/stress testing at 5k+ users; keep BTC tests updated.
+- Secret management and internal auth hardening.
 
 ---
 
 ## 9. Good Add-Ons (Documented Ideas)
 
-- Proxy endpoints for BTC/TON RPC.
-- Add provider name in error logs.
-- Align Plasma/Sepolia topic/token naming (`usdt0/xaut0` vs `usdt/xaut`).
+- Proxy endpoints for BTC/TON RPC to centralize provider usage.
+- Align token naming (`usdt` vs `usdt0`) across configs/docs/topics.
+- Push-based transaction sync (broadcast vs router service) to replace polling; needs load tests.
 
 ---
 
-## 10. Active TODOs (Tickets/Tasks)
+## 10. Active TODOs (from tasks/minutes)
 
-- Address uniqueness migration + normalization consistency.
-- Fix duplicate notifications end-to-end (swap/transfer).
-- Decide and fix root cause for `Pool was force destroyed`.
-- Apply net config loading in base worker if desired (`_loadFacConf` changes).
-- Configure alerts + update BTC tests.
-- Stress test Rumble backend (5k users).
+- Address normalization migrations for ork/data-shard and duplicate cleanup.
+- Fix duplicate notifications and device registration determinism.
+- Resolve pool destruction errors and decide net config loading/DHT error handling.
+- Investigate circuit breaker behavior on staging.
+- Add monitoring/alerts; update BTC tests; run stress tests.
+- Clarify ERC-4337 failed-transaction handling (userOp vs bundle hash).
 
 ---
 
@@ -117,6 +118,6 @@ Note: docs/tasks reference `usdt0/xaut0` topics for Plasma/Sepolia, while curren
 
 - Architecture diagram: `_docs/wdk-indexer-local-diagram.mmd`
 - Meeting minutes: `_docs/_minutes/*.md`
-- Task documentation: `_docs/tasks/`
-- Slack discussions: `_docs/_slack/*.md`
+- Tasks: `_docs/tasks/`
+- Slack notes: `_docs/_slack/*.md`
 - Security audit: `_docs/tasks/task_dependencies_issue/security_audit_report.md`
