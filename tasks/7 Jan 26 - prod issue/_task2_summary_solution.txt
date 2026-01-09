@@ -1,0 +1,5 @@
+This is task 1, which is about analyzing an issue: _docs/tasks/7 Jan 26 - prod issue/_task1_analyze.txt
+
+This is the final finding after doing all the analysis: _docs/tasks/7 Jan 26 - prod issue/finding.md
+
+Go through the task briefly and go through the finding very accurately. Understand the findings in the code base very accurately. Write a short MD file that is to be shared on Slack with the other team members. The file should be without code. It should explain the problem and it should propose the solution of the problem. Keep it somewhat concise. Keep the language clear even for project manager who is not very technical. The file should be named _task2_summary_solution.md

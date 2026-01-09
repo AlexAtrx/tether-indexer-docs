@@ -1,0 +1,15 @@
+### Title
+
+Investigate Jan 5 Prod issue and propose a fix
+
+### Description
+
+Read slack thread _docs/tasks/7 Jan 26 - prod issue/slack.txt
+
+new wallet creation on prod was not working - users registering with a new app did get a blocking error / couldn't access their wallet
+
+this error affected production for a period of ~4.5h and was identified by the Rumble QA Team
+
+please see the thread with logs and pre-investigation
+
+NOTE: when we switch to mongo as main solution, on this part of the code we won't get this issue but if people want to run autobase they will get this issue, and as we still have autobase live it's worth fixing it - cc Vigan, your opinion is welcome here

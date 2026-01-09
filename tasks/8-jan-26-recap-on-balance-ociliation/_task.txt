@@ -1,0 +1,48 @@
+## Context
+
+1-
+These are repositories raised by me some time ago to solve an important problem:
+https://github.com/tetherto/wdk-indexer-wrk-base/pull/63
+https://github.com/tetherto/wdk-indexer-wrk-evm/pull/62
+https://github.com/tetherto/wdk-indexer-wrk-btc/pull/64
+https://github.com/tetherto/wdk-indexer-wrk-solana/pull/50
+https://github.com/tetherto/wdk-indexer-wrk-ton/pull/60
+https://github.com/tetherto/wdk-indexer-wrk-tron/pull/56
+https://github.com/tetherto/wdk-data-shard-wrk/pull/138
+https://github.com/tetherto/rumble-docs/pull/34
+
+2-
+This folder contains the original ticket and slug discussion about the ticket itself. The ticket includes some PNG screenshots of some logs. It is important to read the ticket and understand it:
+_docs/tasks/8-jan-26-recap-on-balance-ociliation/ticket
+
+3-
+This is the most important part of the contest that I want you to understand. A senior developer is commenting on those PRs, objecting some design solutions and explaining his reasons:
+---
+Added some comments for:
+https://github.com/tetherto/wdk-indexer-wrk-btc/pull/64
+https://github.com/tetherto/wdk-indexer-wrk-ton/pull/60
+https://github.com/tetherto/wdk-indexer-wrk-tron/pull/56
+However, sorry @Alex Atrash because you've already done tons of work on this PR. But this PR adds changes that I think may result in making our more brittle. Why?
+We have multiple indexers for chain+ccy. In this set of PRs, we are using address list as seeds to always ensure that we call the same indexer. This has a few drawbacks
+If this indexer goes down, then we won't call a different indexer that provides the same functionality.
+Generating seed from addresses is fine in case we are fetching 1 wallet addresses. But if we fetch different wallets, then we'd still have the balance oscillation behavior.
+Therefore I am not 100% sure if adding this functionality fulfills the benefits against the added cost.
+---
+
+4-
+These are the past findings, debuggings and discussions about the very same issue. You can scan through them if you want without to focus on the details very much:
+_docs/tasks/Wallet Balance 22 Dec 2025
+_docs/tasks/Wallet Balance 23 Dec 2025
+_docs/tasks/Wallet Balance 23 Dec 2025 tests
+_docs/tasks/Wallet Balance 24 Dec 2025 explain done
+_docs/tasks/Wallet Balance Oscillation After Transactions
+_docs/tasks/Wallet Balance task balance flickers
+
+## What to do
+
+First of all, each of these PRs belongs to a repository that is here in this indexer directory. I have already checked out the proper branch for you to be able to directly read code in the local repositories. Get into each repository from those PRs, check the code, and understand the solution proposed by me. For more clarity, use GitHub commands to pull the PRs shared above, so you can read the PR description and understand my solution.
+
+Once you are done with that, check the comments of the senior developer and check the links that he is sharing as the comments and find out if he does make sense in his objection or he doesn't make sense. Don't do any code change, only explain his opinion and tell me if he does make sense or not.
+
+Put your answer and finding in this directory, in a .md file:
+_docs/tasks/8-jan-26-recap-on-balance-ociliation

@@ -1,0 +1,6 @@
+Avto:
+
+Hello team, in the past we had a problem with api/v1/wallets/balances endpoint where it was oscillating between pre-transaction and post-transaction states. I managed to catch such case again. the balance screens are taken 1 minute apart and the transaction timestamp is 19:13:38.
+this happened many times in the application and stopped after about half an hour from the transaction. can this be investigated or fixed?
+
+(check the .png files in this directory as screenshots)

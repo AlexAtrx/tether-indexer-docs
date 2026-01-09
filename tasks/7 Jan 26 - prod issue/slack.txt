@@ -1,0 +1,65 @@
+Weird issue on prod, Vigan and I were called by Rumble, we went on a call with Andrei, the issue was that, after a full system restart, new wallet creation on prod was not working (new accounts), this error affected production for a period of ~4.5h and was identified by the Rumble QA Team - continues in thread
+
+--
+2026-01-05T22:27:35: {"level":50,"time":1767652055009,"pid":17261,"hostname":"walletprd1","name":"wrk:http:wrk-node-http:17261","traceId":"app-d6319c2e-e735-4add-a66b-cc9b88180403","err":{"type":"Error","message":"[HRPC_ERR]=The first argument must be of type string or an instance of Buffer, ArrayBuffer, or Array or an Array-like Object. Received undefined","stack":"Error: [HRPC_ERR]=The first argument must be of type string or an instance of Buffer, ArrayBuffer, or Array or an Array-like Object. Received undefined\n    at NetFacility.handleInputError (/srv/data/production/rumble-app-node/node_modules/hp-svc-facs-net/index.js:58:11)\n    at NetFacility.jRequest (/srv/data/production/rumble-app-node/node_modules/hp-svc-facs-net/index.js:84:10)\n    at async Object.resolveDataShard (/srv/data/production/rumble-app-node/node_modules/@tetherto/wdk-app-node/workers/lib/services/ork.js:32:14)\n    at async Object.handler (/srv/data/production/rumble-app-node/node_modules/@tetherto/wdk-app-node/workers/lib/server.js:39:22)"},"msg":"unhandled route error"}
+---
+
+https://github.com/tetherto/wdk-app-node/blob/31a9efef3cc76e61d7eb22ce232563c60830b554/workers/lib/server.js#L39
+
+const data = await service.ork.resolveDataShard(ctx, req)
+
+https://github.com/tetherto/wdk-app-node/blob/31a9efef3cc76e61d7eb22ce232563c60830b554/workers/lib/server.js#L39
+
+const data = await service.ork.resolveDataShard(ctx, req)
+
+something got wrong in this code probably at ork initialization
+https://github.com/tetherto/wdk-ork-wrk/blob/ed0b3e5b35ee5c689efa37f88fed5cfaf2a55a93/workers/lib/data.shard.util.js#L61-L72
+
+---
+  Call Chain
+
+  rumble-app-node/workers/lib/services/ork.js:
+  resolveDataShard() (line 29-33)
+      → rpcCall() (line 18-27)
+          → resolveOrkRpcKey() (line 8-16)
+              → returns undefined when orks array is empty
+          → ctx.net_r0.jRequest(undefined, ...) ← ERROR HERE
+---
+
+---
+The Bug in resolveOrkRpcKey (ork.js:8-16)
+
+  const resolveOrkRpcKey = (ctx, userId) => {
+    if (!userId) {
+      return ctx.orkIdx.next()  // Throws ERR_EMPTY if no orks
+    }
+
+    const orks = ctx.orkIdx.getItems()
+    const i = (CRC32.str(userId) >>> 0) % orks.length  // If length=0, i=NaN
+    return orks[i]  // orks[NaN] = undefined ← ROOT CAUSE
+  }
+
+  When:
+  ctx.orkIdx.getItems() returns an empty array
+
+  Then:
+  - (CRC32.str(userId) >>> 0) % 0 evaluates to NaN
+  - orks[NaN] returns undefined
+  - jRequest(undefined, ...) throws the error
+---
+
+https://tether-to.slack.com/archives/C090AUH3V6K/p1767654885442909?thread_ts=1767653519.583279&cid=C090AUH3V6K
+
+---
+
+we should probably have a check that either throws an error or some sort of retry logic maybe
+
+    if (orks.length === 0) {
+      throw new Error('ERR_NO_ORKS_AVAILABLE')
+    }
+
+---
+
+I'm not sure, this needs to be validated, created a ticket for it
+
+https://app.asana.com/1/45238840754660/project/1210540875949204/task/1212669064251424?focus=true
