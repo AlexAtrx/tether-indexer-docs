@@ -1,0 +1,14 @@
+We have this production issue and analysis done as explained in this folder: _docs/tasks/7 Jan 26 - prod issue
+
+Go through the issue, the findings and the analysis to understand what the issue is. 
+
+I have got a good approval of the solution I am proposing by the team members. Based on that, I have created this ticket: _docs/tasks/7 Jan 26 - prod issue/ticket.txt
+
+however, a very good objection by a senior developer is pushing back on this analysis and on the proposal to fix. What he says is: 
+
+--
+The suggestion makes sense to me as well. But I am wondering why no orks available yet remained the state for 4.5 hours. Also, were only wallet creation requests were effected or all other requests as well? Also, when I run the rumble-app-node locally without any ork workers, then the application just fails to start and exists with error: Error: ERR_TOPIC_LOOKUP_EMPTY
+---
+
+I think what we says makes sense. 
+Go through the entire issue including the logs and the suggested solution, and the ticket and focus on his comments and tell me if his pushback valid or not, and whether my analysis is wrong or not.

@@ -1,0 +1,19 @@
+1- Read the recap _docs/tasks/8-jan-26-recap-on-balance-ociliation
+
+2- Understand the PRs for the design change or fix:
+https://github.com/tetherto/wdk-indexer-wrk-base/pull/63
+https://github.com/tetherto/wdk-indexer-wrk-evm/pull/62
+https://github.com/tetherto/wdk-indexer-wrk-btc/pull/64
+https://github.com/tetherto/wdk-indexer-wrk-solana/pull/50
+https://github.com/tetherto/wdk-indexer-wrk-ton/pull/60
+https://github.com/tetherto/wdk-indexer-wrk-tron/pull/56
+https://github.com/tetherto/wdk-data-shard-wrk/pull/138
+https://github.com/tetherto/rumble-docs/pull/34
+
+3- Read is the Slack chat: _docs/tasks/11-jan-26-recap-on-balance-ociliation/slack.txt
+
+4- Conclude the best decision to be taken for this fix:
+- park the whole thing since decide is not accepted?
+- upgrade the current design to address concerns?
+or
+- cancel the solution and live with the balance oscillation since it's intermittent and always temporary?

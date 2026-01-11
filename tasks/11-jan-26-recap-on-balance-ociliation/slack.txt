@@ -1,0 +1,26 @@
+Usman:
+
+Added some comments for:
+https://github.com/tetherto/wdk-indexer-wrk-btc/pull/64
+https://github.com/tetherto/wdk-indexer-wrk-ton/pull/60
+https://github.com/tetherto/wdk-indexer-wrk-tron/pull/56
+However, sorry @Alex Atrash because you've already done tons of work on this PR. But this PR adds changes that I think may result in making our more brittle. Why?
+We have multiple indexers for chain+ccy. In this set of PRs, we are using address list as seeds to always ensure that we call the same indexer. This has a few drawbacks
+If this indexer goes down, then we won't call a different indexer that provides the same functionality.
+Generating seed from addresses is fine in case we are fetching 1 wallet addresses. But if we fetch different wallets, then we'd still have the balance oscillation behavior.
+Therefore I am not 100% sure if adding this functionality fulfills the benefits against the added cost. @Alex Atrash let me know what you think. 
+
+
+Me:
+I agree the seeded peer selection changes failover behavior, but I'm not sure about the "more brittle" overall, because it is intentionally a targeted tradeoff.
+This is how:
+The seeded peer path in wdk-data-shard-wrk/workers/lib/blockchain.svc.js is deterministic by design, so yes, it doesn’t fail over today, but that’s intentional to stop oscillation. If we want failover, I can add an explicit fallback (e.g., on failure, try the next key or fall back to jTopicRequest).
+Also, the 'different wallets' point doesn’t negate the fix. getBalanceMulti seeds on the sorted address list, so identical calls stay stable. Different lists can hash to different peers, but that’s still strictly better than random selection per request, whihc we have.
+The provider‑level determinism (callWithSeed) already fixes the biggest source of oscillation, and the peer‑level determinism is optional if we confirm only one peer per topic in prod.
+
+
+Vigan:
+feedback from my side:
+wdk-data-shard -> here we always try same deterministic service per seed until lookup cache expires (15 min), this can cause 15min downtime
+wdk-indexer-wrk-base -> here we try first deterministic call and on failure we fallback to circuit breaker. This might lead to overloading more one service that others and original approach relies on round rubin + health check so IMO it's more optimal on load balancing
+
