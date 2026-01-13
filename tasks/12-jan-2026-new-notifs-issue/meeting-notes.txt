@@ -1,0 +1,7 @@
+## Notification Issue
+
+- Two QR tip flows: “live rant” includes payload, triggers chat webhook; “channel/user” lacks payload
+- Backend receives notification for both, but chat event only fires for payload‑full QR
+- Missing payload causes webhook validation to pass but skips chat notification
+- Recent fix adds guard to discard null payloads early and log them for later alignment
+- No Firebase/mobile push involvement – issue is in‑app chat notification path

@@ -1,0 +1,18 @@
+## Context
+
+We have a new notification issue that is happening in production.
+
+You can start understanding it by reading the meeting discussion and the meeting notes:
+_docs/tasks/12-jan-2026-new-notifs-issue/slack-discussion.txt
+_docs/tasks/12-jan-2026-new-notifs-issue/meeting-notes.txt
+
+Also, it is important to understand the team's interaction on Slack about this issue:
+_docs/tasks/12-jan-2026-new-notifs-issue/slack-discussion.txt
+
+And this is the ticket created for the issue: 
+_docs/tasks/12-jan-2026-new-notifs-issue/ticket.txt
+
+## Task
+
+1- Since this is a production issue, it is happening on the main branch on the repos. You need to check out the main branch in order to see the real code running in production.
+2- I analyze and find the root cause of the problem and put the results in a file in this directory.

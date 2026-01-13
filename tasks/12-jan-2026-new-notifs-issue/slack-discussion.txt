@@ -1,0 +1,100 @@
+Francesco:
+
+Prod Issue to be investigated - high prio - notifications not getting sent to rumble server (edited) 
+George from Noxxton: Hey @Francesco C., @Usman Khan, Andrei mentioned today that tips sent to the users without rants aren't appearing in live stream chat. For context, we have two flows:
+
+Scanning QR from live stream page (also called rant), which includes payload  - appears in the chat
+Sending tip directly to the user (with the rumble app tip functionality) - doesn't appear in the chat
+
+In #2, this is the example payload we send to backend. What can be the reason this doesn't appear as a notification in the live chat?
+
+POST https://wallet-9p1aan4nff.rmbl.ws/api/v1/notifications
+
+json
+{
+  "type": "TOKEN_TRANSFER",
+  "to": "4e5d9878-28b2-4932-a7a7-e1d0efcb5839",
+  "from": "63d93b4d-cc6e-4ee8-b2f3-c73f38e01b74",
+  "blockchain": "arbitrum",
+  "token": "usdt",
+  "amount": "0.11",
+  "transactionReceiptId": "0x1a4bb63c058fdb47d0317201c4585fc53177844e60b8b89ec072123857004b4c",
+  "dt": "u",
+  "id": "4r9UJ-g3XEs"
+}
+
+I have looked into the logs and I found
+
+we have some logs without payload, dt and id
+2026-01-09T15:24:09:
+
+2026-01-09T15:22:57: {"level":30,"time":1767972177122,"pid":16864,"hostname":"walletprd2","name":"wrk:http:wrk-node-http:16864","traceId":"03af8786-c9a5-42c8-9bf6-fe66a3852a85","msg":"sendNotification payload = {\"type\":\"TOKEN_TRANSFER\",\"toAddress\":\"0xc7d1efd26db4192a02c477d6e8c99bf4f8b9563e\",\"from\":\"b77b0d07-0917-429f-9ede-592d35547ed7\",\"blockchain\":\"arbitrum\",\"token\":\"usdt\",\"amount\":0.89,\"transactionReceiptId\":\"0xc8a02bdc0ce24627505bde84b72f28a6bfe3bdd84814af83522cd3c15a994815\"}"}
+
+and then I found this piece of code
+
+https://github.com/tetherto/rumble-ork-wrk/blob/a1ba36a9318b64fc8c8e2aa59e07f428920c5e3b/workers/api.ork.wrk.js#L233
+
+(check the code of the above line)
+
+meaning that we never process this / never send a webhook to rumble server, am I right?
+
+is this ok as this is is not containing user id?
+
+fiy here are the logs of a rant, and let me know if I need to extract more logs for this, thank you
+
+Logs: _docs/tasks/12-jan-2026-new-notifs-issue/logs
+
+---
+
+Vigan:
+
+adding here sample tip and rant requests from prod that I've tested wiht latest app on Friday
+
+```
+
+{
+  "transactionHash": "0x7a308b328962cc979b75b994f705d36b8028051f9dbca678fe5e17e3f7d4bbb0",
+  "amount": 1,
+  "blockchain": "ethereum",
+  "dt": "c",
+  "from": "1430acdf-7366-4687-b2e5-921da8ee554e",
+  "fromUserId": "WqleMYZ8D3E",
+  "id": "w80slFUQB78",
+  "isTransactionReceipt": true,
+  "payload": "Vl7sWjZ6Svrn2arTZo29v42peh6GXDD7h2OpX7SLoWIMmw5SjQW6wQy7Fr7RzNdJFucmg5VCmw",
+  "to": "0f486f72-2f06-4dbf-83e2-ae0f118ea72d",
+  "toUserId": "AmLRl_X3G5c",
+  "token": "usdt",
+  "transactionReceiptId": "0x7a308b328962cc979b75b994f705d36b8028051f9dbca678fe5e17e3f7d4bbb0",
+  "type": "rant"
+}
+
+
+{
+  "_id": {
+    "$oid": "69619794c3f5f60b6749845e"
+  },
+  "transactionHash": "0xadf7e0ce6dce54620e09cb31f8c2e9acdb605f5e05a113f96a1abae0a1a9e9d1",
+  "amount": 0.5,
+  "blockchain": "ethereum",
+  "dt": "u",
+  "from": "1430acdf-7366-4687-b2e5-921da8ee554e",
+  "fromUserId": "WqleMYZ8D3E",
+  "id": "kBo-ynX4dvc",
+  "isTransactionReceipt": true,
+  "to": "d8f53e4b-1fad-495f-b313-00017eaeb3d7",
+  "toUserId": "kBo-ynX4dvc",
+  "token": "usdt",
+  "transactionReceiptId": "0xadf7e0ce6dce54620e09cb31f8c2e9acdb605f5e05a113f96a1abae0a1a9e9d1",
+  "type": "tip",
+  "retryAt": 1768003490750,
+  "retryCount": 1
+}
+```
+
+from initial look I see dt an id being present for both cases
+
+I think this could be related to frontend side how we send tips
+
+> Sending tip directly to the user (with the rumble app tip functionality) - doesn't appear in the chat
+hmm I've tested scanning rumble website tip icon when I've tested it, not sure how it works in mobile app or if it has checking other users in mobile app directly
