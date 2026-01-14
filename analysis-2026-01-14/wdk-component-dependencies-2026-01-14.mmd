@@ -1,0 +1,137 @@
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#2d3748'}}}%%
+
+graph TB
+    subgraph Legend["Legend"]
+        L1[/"npm dependency"/]
+        L2["extends/inherits"]
+        L3{{"shared facility"}}
+    end
+
+    subgraph Core_Libs["Core Libraries (npm packages)"]
+        direction TB
+        BFX_BOOT["bfx-svc-boot-js<br/>Service bootstrap CLI"]
+        BFX_FACS["@bitfinex/bfx-facs-*<br/>Redis, MongoDB, LRU<br/>Scheduler, HTTP"]
+
+        subgraph Tether_Base["Tether Base Libraries"]
+            TWB["tether-wrk-base<br/>Base worker class"]
+            TWOB["tether-wrk-ork-base<br/>Orchestrator base"]
+        end
+
+        subgraph HP_Facs["Holepunch Facilities"]
+            HP_STORE["hp-svc-facs-store<br/>Corestore wrapper"]
+            HP_NET["hp-svc-facs-net<br/>Hyperswarm RPC"]
+        end
+
+        subgraph SVC_Facs["Service Facilities"]
+            SVC_HTTP["svc-facs-httpd<br/>Fastify wrapper"]
+            SVC_LOG["svc-facs-logging<br/>Pino + Hyperswarm"]
+        end
+    end
+
+    subgraph WDK_Services["WDK Services"]
+        direction TB
+
+        subgraph App_Nodes["HTTP Application Nodes"]
+            WDK_APP["wdk-app-node<br/>Wallet REST API"]
+            WDK_IDX_APP["wdk-indexer-app-node<br/>Indexer REST API"]
+        end
+
+        subgraph Workers["Worker Services"]
+            WDK_ORK["wdk-ork-wrk<br/>Routing + Sharding"]
+            WDK_SHARD["wdk-data-shard-wrk<br/>Wallet Data Storage"]
+            WDK_PROC["wdk-indexer-processor-wrk<br/>TX Stream Router"]
+        end
+
+        subgraph Indexers["Chain Indexers"]
+            WDK_IDX_BASE["wdk-indexer-wrk-base<br/>Base indexer scaffold"]
+            WDK_IDX_EVM["wdk-indexer-wrk-evm"]
+            WDK_IDX_BTC["wdk-indexer-wrk-btc"]
+            WDK_IDX_SOL["wdk-indexer-wrk-solana"]
+            WDK_IDX_TON["wdk-indexer-wrk-ton"]
+            WDK_IDX_TRON["wdk-indexer-wrk-tron"]
+            WDK_IDX_SPARK["wdk-indexer-wrk-spark"]
+        end
+    end
+
+    subgraph Rumble_Extensions["Rumble Extensions"]
+        direction TB
+        RMB_APP["rumble-app-node<br/>+ SSO, MoonPay, Swaps"]
+        RMB_ORK["rumble-ork-wrk<br/>+ Notifications"]
+        RMB_SHARD["rumble-data-shard-wrk<br/>+ FCM, Webhooks"]
+    end
+
+    subgraph SDK["WDK SDK (Client-side)"]
+        WDK_CORE["wdk-core<br/>Wallet orchestrator"]
+        WDK_WALLET_EVM["wdk-wallet-evm"]
+        WDK_WALLET_BTC["wdk-wallet-btc"]
+        WDK_WALLET_SOL["wdk-wallet-solana"]
+        WDK_WALLET_TON["wdk-wallet-ton"]
+        WDK_WALLET_TRON["wdk-wallet-tron"]
+        WDK_WALLET_SPARK["wdk-wallet-spark"]
+    end
+
+    subgraph DevOps["DevOps & Docs"]
+        WDK_DEVOPS["wdk-devops<br/>wdk-be-deploy CLI<br/>HAProxy auth proxy"]
+        WDK_DOCS["wdk-docs<br/>GitBook documentation"]
+        WDK_DOCKER["_wdk_docker_network<br/>Docker Compose"]
+    end
+
+    %% Core dependency chains
+    BFX_BOOT --> TWB
+    BFX_FACS --> TWB
+    HP_STORE --> TWB
+    HP_NET --> TWB
+    SVC_LOG --> TWB
+
+    TWB --> TWOB
+    TWB --> WDK_APP
+    TWB --> WDK_ORK
+    TWB --> WDK_SHARD
+    TWB --> WDK_PROC
+    TWB --> WDK_IDX_BASE
+
+    TWOB --> WDK_ORK
+
+    SVC_HTTP --> WDK_APP
+    SVC_HTTP --> WDK_IDX_APP
+
+    %% Indexer inheritance
+    WDK_IDX_BASE --> WDK_IDX_EVM
+    WDK_IDX_BASE --> WDK_IDX_BTC
+    WDK_IDX_BASE --> WDK_IDX_SOL
+    WDK_IDX_BASE --> WDK_IDX_TON
+    WDK_IDX_BASE --> WDK_IDX_TRON
+    WDK_IDX_BASE --> WDK_IDX_SPARK
+
+    %% Rumble extensions
+    WDK_APP --> RMB_APP
+    WDK_ORK --> RMB_ORK
+    WDK_SHARD --> RMB_SHARD
+
+    %% SDK structure
+    WDK_CORE --> WDK_WALLET_EVM
+    WDK_CORE --> WDK_WALLET_BTC
+    WDK_CORE --> WDK_WALLET_SOL
+    WDK_CORE --> WDK_WALLET_TON
+    WDK_CORE --> WDK_WALLET_TRON
+    WDK_CORE --> WDK_WALLET_SPARK
+
+    %% Runtime dependencies (dashed)
+    WDK_APP -.->|"RPC calls"| WDK_ORK
+    WDK_IDX_APP -.->|"RPC calls"| WDK_IDX_EVM
+    WDK_ORK -.->|"RPC calls"| WDK_SHARD
+    WDK_SHARD -.->|"RPC calls"| WDK_IDX_EVM
+    WDK_PROC -.->|"Redis streams"| WDK_SHARD
+
+    %% Styling
+    classDef coreLib fill:#4a5568,stroke:#2d3748,color:#fff
+    classDef wdkService fill:#3182ce,stroke:#2c5282,color:#fff
+    classDef rumble fill:#ed64a6,stroke:#d53f8c,color:#fff
+    classDef sdk fill:#38a169,stroke:#276749,color:#fff
+    classDef devops fill:#718096,stroke:#4a5568,color:#fff
+
+    class BFX_BOOT,BFX_FACS,TWB,TWOB,HP_STORE,HP_NET,SVC_HTTP,SVC_LOG coreLib
+    class WDK_APP,WDK_IDX_APP,WDK_ORK,WDK_SHARD,WDK_PROC,WDK_IDX_BASE,WDK_IDX_EVM,WDK_IDX_BTC,WDK_IDX_SOL,WDK_IDX_TON,WDK_IDX_TRON,WDK_IDX_SPARK wdkService
+    class RMB_APP,RMB_ORK,RMB_SHARD rumble
+    class WDK_CORE,WDK_WALLET_EVM,WDK_WALLET_BTC,WDK_WALLET_SOL,WDK_WALLET_TON,WDK_WALLET_TRON,WDK_WALLET_SPARK sdk
+    class WDK_DEVOPS,WDK_DOCS,WDK_DOCKER devops

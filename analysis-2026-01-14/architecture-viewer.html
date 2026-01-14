@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WDK Indexer Architecture - 2026-01-14</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #1a1a2e;
+            color: #eee;
+            min-height: 100vh;
+        }
+        h1 {
+            text-align: center;
+            color: #4fd1c5;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #718096;
+            margin-bottom: 30px;
+        }
+        .tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .tab {
+            padding: 12px 24px;
+            background: #2d3748;
+            border: none;
+            color: #a0aec0;
+            cursor: pointer;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .tab:hover {
+            background: #4a5568;
+        }
+        .tab.active {
+            background: #4fd1c5;
+            color: #1a1a2e;
+            font-weight: 600;
+        }
+        .diagram-container {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            overflow-x: auto;
+            min-height: 600px;
+        }
+        .mermaid {
+            display: flex;
+            justify-content: center;
+        }
+        .hidden {
+            display: none;
+        }
+        .legend {
+            margin-top: 20px;
+            padding: 15px;
+            background: #2d3748;
+            border-radius: 8px;
+        }
+        .legend h3 {
+            margin-top: 0;
+            color: #4fd1c5;
+        }
+        .legend-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #718096;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h1>WDK Indexer Architecture</h1>
+    <p class="subtitle">Analysis Date: January 14, 2026 | Based on Complete Codebase Review</p>
+
+    <div class="tabs">
+        <button class="tab active" onclick="showDiagram('architecture')">System Architecture</button>
+        <button class="tab" onclick="showDiagram('dataflow')">Data Flow</button>
+        <button class="tab" onclick="showDiagram('dependencies')">Dependencies</button>
+    </div>
+
+    <div id="architecture" class="diagram-container">
+        <pre class="mermaid">
+flowchart TB
+    subgraph Clients["External Clients"]
+        SDK["WDK SDK<br/>(wdk-core)"]
+        WEBUI["Web/Mobile App"]
+        ADMIN["Admin"]
+    end
+
+    subgraph HTTP["HTTP Gateway Layer"]
+        direction LR
+        APP["wdk-app-node<br/>:3000 JWT"]
+        IDX["wdk-indexer-app-node<br/>:3000 API Key"]
+        RMB["rumble-app-node<br/>:3000 SSO"]
+    end
+
+    subgraph ORK["Orchestration Layer"]
+        ORK_WRK["wdk-ork-wrk<br/>@wdk/ork<br/>Shard Router + Autobase"]
+        RMB_ORK["rumble-ork-wrk<br/>+ Notifications"]
+    end
+
+    subgraph SHARD["Data Shard Layer"]
+        SHARD_PROC["wdk-data-shard-wrk<br/>Proc (Writer)"]
+        SHARD_API["wdk-data-shard-wrk<br/>API (Reader)"]
+        RMB_SHARD["rumble-data-shard-wrk<br/>+ FCM + Webhooks"]
+    end
+
+    subgraph PROCESSOR["TX Processor"]
+        PROC["wdk-indexer-processor-wrk<br/>Redis Stream Router"]
+    end
+
+    subgraph INDEXERS["Chain Indexers"]
+        BASE["wdk-indexer-wrk-base<br/>Schema + Circuit Breaker"]
+        EVM["EVM<br/>ETH/ARB/POLY"]
+        BTC["Bitcoin"]
+        SOL["Solana"]
+        TON["TON"]
+        TRON["TRON"]
+        SPARK["Spark"]
+    end
+
+    subgraph STORAGE["Storage"]
+        MONGO[("MongoDB<br/>Replica Set")]
+        HYPER[("HyperDB<br/>Autobase")]
+        REDIS[("Redis<br/>Cache/Streams")]
+    end
+
+    subgraph RPC["Blockchain RPCs"]
+        ETH_RPC["Infura/Ankr/Cloudflare"]
+        BTC_RPC["Bitcoin Core/Quicknode"]
+        TON_RPC["TonCenter/Ankr"]
+        TRON_RPC["TronGrid"]
+        SOL_RPC["Alchemy/Bitquery"]
+    end
+
+    Clients --> HTTP
+    APP --> ORK_WRK
+    IDX --> INDEXERS
+    RMB --> RMB_ORK
+
+    ORK_WRK --> SHARD_API
+    RMB_ORK --> RMB_SHARD
+    SHARD_API --> SHARD_PROC
+    SHARD_API --> INDEXERS
+
+    PROC --> REDIS
+    PROC --> SHARD_PROC
+
+    BASE --> EVM & BTC & SOL & TON & TRON & SPARK
+
+    EVM --> ETH_RPC
+    BTC --> BTC_RPC
+    TON --> TON_RPC
+    TRON --> TRON_RPC
+    SOL --> SOL_RPC
+
+    INDEXERS --> MONGO
+    INDEXERS --> HYPER
+    SHARD --> MONGO
+    ORK --> HYPER
+    HTTP --> REDIS
+        </pre>
+    </div>
+
+    <div id="dataflow" class="diagram-container hidden">
+        <pre class="mermaid">
+sequenceDiagram
+    autonumber
+    participant C as Client
+    participant A as wdk-app-node
+    participant O as wdk-ork-wrk
+    participant S as wdk-data-shard
+    participant I as Chain Indexer
+    participant R as Blockchain RPC
+
+    Note over C,R: Balance Query Flow
+    C->>A: GET /api/v1/wallets/:id/balance
+    A->>A: Check Redis cache
+    alt Cache Miss
+        A->>O: RPC: getWalletBalance
+        O->>O: LRU lookup shard
+        O->>S: RPC: getWalletBalance
+        loop Each chain/token
+            S->>I: RPC: getBalance
+            I->>R: eth_getBalance
+            R-->>I: balance
+            I-->>S: balance
+        end
+        S->>S: Aggregate + FX
+        S-->>O: balances
+        O-->>A: balance
+        A->>A: Cache 30s
+    end
+    A-->>C: 200 {balance}
+
+    Note over C,R: TX Indexing Flow
+    loop Sync interval
+        I->>R: Get blocks/txs
+        R-->>I: Block data
+        I->>I: Filter transfers
+        I->>I: Store to DB
+        I->>I: Publish to Redis
+    end
+        </pre>
+    </div>
+
+    <div id="dependencies" class="diagram-container hidden">
+        <pre class="mermaid">
+graph TB
+    subgraph Core["Core Libraries"]
+        BFX["bfx-svc-boot-js"]
+        TWB["tether-wrk-base"]
+        HP["hp-svc-facs-store"]
+    end
+
+    subgraph Services["WDK Services"]
+        APP["wdk-app-node"]
+        IDX_APP["wdk-indexer-app-node"]
+        ORK["wdk-ork-wrk"]
+        SHARD["wdk-data-shard-wrk"]
+        BASE["wdk-indexer-wrk-base"]
+    end
+
+    subgraph Indexers["Chain Indexers"]
+        EVM["wdk-indexer-wrk-evm"]
+        BTC["wdk-indexer-wrk-btc"]
+        SOL["wdk-indexer-wrk-solana"]
+        TON["wdk-indexer-wrk-ton"]
+        TRON["wdk-indexer-wrk-tron"]
+        SPARK["wdk-indexer-wrk-spark"]
+    end
+
+    subgraph Rumble["Rumble Extensions"]
+        R_APP["rumble-app-node"]
+        R_ORK["rumble-ork-wrk"]
+        R_SHARD["rumble-data-shard-wrk"]
+    end
+
+    BFX --> TWB
+    HP --> TWB
+    TWB --> APP & ORK & SHARD & BASE
+    BASE --> EVM & BTC & SOL & TON & TRON & SPARK
+    APP --> R_APP
+    ORK --> R_ORK
+    SHARD --> R_SHARD
+        </pre>
+    </div>
+
+    <div class="legend">
+        <h3>Color Legend</h3>
+        <div class="legend-items">
+            <div class="legend-item">
+                <div class="legend-color" style="background: #3182ce;"></div>
+                <span>HTTP Gateway</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #38a169;"></div>
+                <span>Orchestration</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #d69e2e;"></div>
+                <span>Data Shard</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #e53e3e;"></div>
+                <span>Indexers</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #805ad5;"></div>
+                <span>Storage</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #ed64a6;"></div>
+                <span>Rumble Extensions</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Generated by Claude AI Architecture Analysis | Based on review of 25+ repositories</p>
+        <p>Files: wdk-indexer-architecture-2026-01-14.mmd | wdk-data-flow-2026-01-14.mmd | wdk-component-dependencies-2026-01-14.mmd</p>
+    </div>
+
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'base',
+            themeVariables: {
+                primaryColor: '#4fd1c5',
+                primaryTextColor: '#1a1a2e',
+                primaryBorderColor: '#2d3748',
+                lineColor: '#718096',
+                secondaryColor: '#4a5568',
+                tertiaryColor: '#2d3748'
+            },
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis'
+            },
+            sequence: {
+                useMaxWidth: true,
+                wrap: true
+            }
+        });
+
+        function showDiagram(id) {
+            // Hide all diagrams
+            document.querySelectorAll('.diagram-container').forEach(el => {
+                el.classList.add('hidden');
+            });
+            // Show selected
+            document.getElementById(id).classList.remove('hidden');
+            // Update tabs
+            document.querySelectorAll('.tab').forEach(el => {
+                el.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>

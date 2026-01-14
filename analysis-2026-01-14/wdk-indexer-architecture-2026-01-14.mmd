@@ -1,0 +1,249 @@
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#2d3748', 'primaryTextColor': '#fff', 'primaryBorderColor': '#4a5568', 'lineColor': '#718096', 'secondaryColor': '#4a5568', 'tertiaryColor': '#1a202c'}}}%%
+
+flowchart TB
+    %% Title
+    subgraph Title[" "]
+        direction LR
+        T["WDK Indexer Architecture - 2026-01-14<br/>Based on Actual Codebase Analysis"]
+    end
+
+    %% External Clients Layer
+    subgraph Clients["External Clients"]
+        direction LR
+        SDK["WDK SDK<br/>(wdk-core)<br/>Multi-chain wallet"]
+        WEBUI["Web/Mobile App<br/>REST Client"]
+        ADMIN["Admin Dashboard"]
+    end
+
+    %% HTTP Gateway Layer
+    subgraph HTTP_Layer["HTTP Gateway Layer"]
+        direction LR
+
+        subgraph WDK_APP["wdk-app-node<br/>Port 3000"]
+            APP_REST["REST API<br/>/api/v1/*<br/>JWT Auth"]
+            APP_CACHE["Redis Cache<br/>30s TTL"]
+            APP_RL["Rate Limiter<br/>100 wallets/24h"]
+        end
+
+        subgraph IDX_APP["wdk-indexer-app-node<br/>Port 3000"]
+            IDX_REST["REST API<br/>/api/v1/{chain}/{token}/*<br/>API Key Auth"]
+            IDX_SWAGGER["Swagger UI<br/>/docs"]
+            IDX_AUTOBASE["Autobase<br/>API Keys Store"]
+        end
+
+        subgraph RMB_APP["rumble-app-node<br/>Port 3000"]
+            RMB_SSO["SSO Proxy<br/>Passkey Auth"]
+            RMB_MOONPAY["MoonPay<br/>Integration"]
+            RMB_SWAPS["Swaps API"]
+            RMB_NOTIF["Notifications<br/>Endpoint"]
+        end
+    end
+
+    %% Orchestration Layer
+    subgraph ORK_Layer["Orchestration Layer (Hyperswarm RPC)"]
+        direction LR
+
+        subgraph ORK["wdk-ork-wrk<br/>Topic: @wdk/ork"]
+            ORK_ROUTE["Shard Router<br/>Round-Robin"]
+            ORK_AUTO["Autobase<br/>User/Wallet Lookups"]
+            ORK_LRU["LRU Cache<br/>10k entries, 15min"]
+        end
+
+        subgraph RMB_ORK["rumble-ork-wrk"]
+            RMB_ORK_NOTIF["Notification<br/>Router"]
+            RMB_ORK_IDEMP["Idempotency<br/>LRU 5k/10min"]
+            RMB_ORK_AGG["Cross-Shard<br/>Aggregator"]
+        end
+    end
+
+    %% Data Shard Layer
+    subgraph SHARD_Layer["Data Shard Layer (Hyperswarm RPC)"]
+        direction TB
+
+        subgraph SHARD["wdk-data-shard-wrk<br/>Topic: @wdk/data-shard"]
+            subgraph SHARD_PROC["Proc Worker (Writer)"]
+                SP_WALLET["Wallet CRUD"]
+                SP_SYNC["Sync Jobs<br/>Balances: 6h<br/>Transfers: 5min"]
+                SP_STREAM["Redis Stream<br/>Consumer"]
+            end
+            subgraph SHARD_API["API Worker (Reader)"]
+                SA_QUERY["Balance/Transfer<br/>Queries"]
+                SA_PRICE["Bitfinex FX<br/>Price Calculator"]
+                SA_REPL["HyperDB<br/>Replica"]
+            end
+        end
+
+        subgraph RMB_SHARD["rumble-data-shard-wrk"]
+            RS_FCM["Firebase FCM<br/>Push Notifications"]
+            RS_DEVICE["Device Registry"]
+            RS_WEBHOOK["TX Webhooks<br/>Background Job"]
+        end
+    end
+
+    %% Indexer Processor Layer
+    subgraph PROCESSOR_Layer["Transaction Processor"]
+        PROC["wdk-indexer-processor-wrk<br/>Redis Stream Router"]
+        PROC_AUTO["Autobase<br/>Address Lookups"]
+    end
+
+    %% Chain Indexer Layer
+    subgraph INDEXER_Layer["Chain Indexers (Per Blockchain)"]
+        direction TB
+
+        subgraph BASE["wdk-indexer-wrk-base"]
+            BASE_SCHEMA["HyperDB Schema<br/>transfers, blocks"]
+            BASE_RPC["RpcBaseManager<br/>Circuit Breaker"]
+            BASE_METRICS["Prometheus<br/>Metrics"]
+        end
+
+        subgraph CHAINS["Chain Workers"]
+            direction LR
+
+            subgraph EVM["wdk-indexer-wrk-evm"]
+                EVM_PROC["Proc: wrk-evm-indexer-proc<br/>wrk-erc20-indexer-proc"]
+                EVM_API["API: wrk-evm-indexer-api<br/>wrk-erc20-indexer-api"]
+                EVM_4337["ERC-4337<br/>Gasless Support"]
+            end
+
+            subgraph BTC["wdk-indexer-wrk-btc"]
+                BTC_PROC["Proc: wrk-btc-indexer-proc"]
+                BTC_API["API: wrk-btc-indexer-api"]
+                BTC_UTXO["UTXO Conversion"]
+            end
+
+            subgraph SOL["wdk-indexer-wrk-solana"]
+                SOL_PROC["Proc: wrk-solana-indexer-proc<br/>wrk-spl-indexer-proc"]
+                SOL_API["API: wrk-solana-indexer-api"]
+                SOL_BQ["Bitquery<br/>Integration"]
+            end
+
+            subgraph TON_IDX["wdk-indexer-wrk-ton"]
+                TON_PROC["Proc: wrk-ton-indexer-proc<br/>wrk-jet-indexer-proc"]
+                TON_API["API: wrk-ton-indexer-api"]
+                TON_GAS["TON Gasless"]
+            end
+
+            subgraph TRON_IDX["wdk-indexer-wrk-tron"]
+                TRON_PROC["Proc: wrk-tron-indexer-proc<br/>wrk-trc20-indexer-proc"]
+                TRON_API["API: wrk-tron-indexer-api"]
+                TRON_GAS["TRON Gasfree"]
+            end
+
+            subgraph SPARK["wdk-indexer-wrk-spark"]
+                SPARK_PROC["Proc: wrk-spark-indexer-proc"]
+                SPARK_API["API: wrk-spark-indexer-api"]
+                SPARK_TS["Timestamp-based<br/>Indexing"]
+            end
+        end
+    end
+
+    %% Storage Layer
+    subgraph STORAGE_Layer["Storage Layer"]
+        direction LR
+
+        subgraph MONGO["MongoDB Replica Set"]
+            MONGO_P["mongo1:27017<br/>Primary"]
+            MONGO_S1["mongo2:27017<br/>Secondary"]
+            MONGO_S2["mongo3:27017<br/>Secondary"]
+        end
+
+        subgraph HYPER["HyperDB/Hyperbee"]
+            HYPER_AUTO["Autobase<br/>Append-only Log"]
+            HYPER_BEE["Hyperbee<br/>KV Store"]
+        end
+
+        REDIS[("Redis<br/>Caching, Streams<br/>Rate Limiting")]
+    end
+
+    %% External RPC Providers
+    subgraph RPC_Layer["Blockchain RPC Providers"]
+        direction LR
+        ETH_RPC["Ethereum<br/>Infura, Cloudflare<br/>Ankr, PublicNode"]
+        BTC_RPC["Bitcoin<br/>Bitcoin Core<br/>Quicknode, Blockbook"]
+        SOL_RPC["Solana<br/>Alchemy<br/>Bitquery API"]
+        TON_RPC["TON<br/>TonCenter V3<br/>Quicknode, Ankr"]
+        TRON_RPC["TRON<br/>TronGrid<br/>GasFree API"]
+        SPARK_RPC["Spark<br/>Sparkscan API"]
+    end
+
+    %% External Services
+    subgraph EXTERNAL["External Services"]
+        direction LR
+        BITFINEX["Bitfinex<br/>FX Rates"]
+        FIREBASE["Firebase<br/>FCM Push"]
+        MOONPAY_SVC["MoonPay<br/>Fiat On/Off"]
+        SWAP_SVC["Swap Services<br/>Velora, StonFi"]
+        RUMBLE_SRV["Rumble Server<br/>Webhooks"]
+    end
+
+    %% Connections - Client to HTTP
+    SDK --> APP_REST
+    WEBUI --> APP_REST
+    WEBUI --> IDX_REST
+    WEBUI --> RMB_SSO
+    ADMIN --> RMB_APP
+
+    %% HTTP to ORK
+    APP_REST --> ORK_ROUTE
+    APP_REST --> APP_CACHE
+    IDX_REST --> CHAINS
+    RMB_APP --> RMB_ORK
+
+    %% ORK to Data Shard
+    ORK_ROUTE --> SHARD_API
+    ORK_AUTO --> HYPER_AUTO
+    ORK_LRU -.-> REDIS
+    RMB_ORK --> RMB_SHARD
+
+    %% Data Shard internals
+    SHARD_API --> SHARD_PROC
+    SA_QUERY --> CHAINS
+    SA_PRICE --> BITFINEX
+    SP_STREAM --> REDIS
+    SP_SYNC --> CHAINS
+
+    %% Rumble Shard
+    RS_FCM --> FIREBASE
+    RS_WEBHOOK --> RUMBLE_SRV
+    RMB_MOONPAY --> MOONPAY_SVC
+    RMB_SWAPS --> SWAP_SVC
+
+    %% Processor
+    PROC --> REDIS
+    PROC --> SHARD_PROC
+    PROC_AUTO --> HYPER_AUTO
+
+    %% Indexer to Storage
+    BASE --> HYPER
+    BASE --> MONGO
+
+    %% Chain to RPC
+    EVM --> ETH_RPC
+    BTC --> BTC_RPC
+    SOL --> SOL_RPC
+    TON_IDX --> TON_RPC
+    TRON_IDX --> TRON_RPC
+    SPARK --> SPARK_RPC
+
+    %% Storage connections
+    SHARD_PROC --> MONGO
+    SHARD_PROC --> HYPER
+
+    %% Styling
+    classDef httpLayer fill:#3182ce,stroke:#2c5282,color:#fff
+    classDef orkLayer fill:#38a169,stroke:#276749,color:#fff
+    classDef shardLayer fill:#d69e2e,stroke:#b7791f,color:#fff
+    classDef indexerLayer fill:#e53e3e,stroke:#c53030,color:#fff
+    classDef storageLayer fill:#805ad5,stroke:#6b46c1,color:#fff
+    classDef externalLayer fill:#718096,stroke:#4a5568,color:#fff
+    classDef rumbleLayer fill:#ed64a6,stroke:#d53f8c,color:#fff
+
+    class WDK_APP,IDX_APP httpLayer
+    class RMB_APP rumbleLayer
+    class ORK orkLayer
+    class RMB_ORK rumbleLayer
+    class SHARD shardLayer
+    class RMB_SHARD rumbleLayer
+    class BASE,EVM,BTC,SOL,TON_IDX,TRON_IDX,SPARK indexerLayer
+    class MONGO,HYPER,REDIS storageLayer
+    class ETH_RPC,BTC_RPC,SOL_RPC,TON_RPC,TRON_RPC,SPARK_RPC,BITFINEX,FIREBASE,MOONPAY_SVC,SWAP_SVC,RUMBLE_SRV externalLayer
