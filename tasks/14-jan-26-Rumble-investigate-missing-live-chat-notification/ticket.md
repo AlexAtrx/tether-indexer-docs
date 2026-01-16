@@ -1,0 +1,20 @@
+## Ticket
+
+Rumble: Investigate missing live chat notification
+
+The core of the issue is that when the mobile app is sending us a request like this
+POST https://wallet-9p1aan4nff.rmbl.ws/api/v1/notifications
+
+{
+"type": "TOKEN_TRANSFER",
+"to": "4e5d9878-28b2-4932-a7a7-e1d0efcb5839",
+"from": "63d93b4d-cc6e-4ee8-b2f3-c73f38e01b74",
+"blockchain": "arbitrum",
+"token": "usdt",
+"amount": "0.11",
+"transactionReceiptId": "0x1a4bb63c058fdb47d0317201c4585fc53177844e60b8b89ec072123857004b4c",
+"dt": "u",
+"id": "4r9UJ-g3XEs"
+}
+as a result of the QR code scan and transaction after that we don't send Rumble any webhook (or anyway if we send the flow is broken and they can't pop up the live chat notification for the user).
+We need to investigate on this issue and have a short meeting or a disussion in slack when the root cause has been identified - before proceeding with the fix.

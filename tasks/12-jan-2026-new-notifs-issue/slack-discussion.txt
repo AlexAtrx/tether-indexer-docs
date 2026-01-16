@@ -98,3 +98,20 @@ I think this could be related to frontend side how we send tips
 
 > Sending tip directly to the user (with the rumble app tip functionality) - doesn't appear in the chat
 hmm I've tested scanning rumble website tip icon when I've tested it, not sure how it works in mobile app or if it has checking other users in mobile app directly
+
+Alex:
+I think I got the root issue.
+From the main branch in rumble-ork-wrk, rumble-app-node, and rumble-data-shard-wrk (production), the following is the case:
+The direct user tip flow sends TOKEN_TRANSFER notifications without payload, dt, or id.
+The backend only creates a tx webhook hen payload+transactionHash (rant) or transactionHash+dt+id (tip) are present.
+Because the direct tip request lacks those fields, no webhook is stored or dispatched to Rumble, so the live chat notification never appears.
+
+Based on the above, the fix can be:
+Update the mobile app so it always sends the missing details needed.
+Add a warning on the server when those details are missing, but don’t block the request yet.
+Add an optional switch so callers can demand a full chat notification and get a clear error if the details are missing.
+
+Francesco:
+can you ask George to confirm and ask him if there is a reason why he's not passing these fields by any chance in the mobile app? (edited) 
+
+
