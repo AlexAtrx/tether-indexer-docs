@@ -1,0 +1,38 @@
+[Send] BTC transactions are logged with incorrect amounts
+
+Description:
+After sending a BTC transactions, the app logs “Sent” transactions with incorrect BTC amounts in the transaction history. The recorded amounts do not match the actual sent amount.
+
+User: Kartofili / 123qweASD! 
+Source address: bc1q4ykyew79sc2fy6vjpyz2ze3g25rsjfwvqmu4zq
+Email: 21rumbler@gmail.com
+
+Steps to Reproduce: 
+Open the app and navigate to BTC Holdings.
+Send BTC to a valid address.
+Observe the Ongoing transactions list.
+Wait until transactions are marked Completed.
+Return to BTC Holdings → Latest Transactions.
+
+Actual Result:
+Each entry shows different BTC amounts (e.g. 0.00008501 BTC, 0.00006537 BTC, 0.00012201 BTC).
+The sum and breakdown are unclear and do not transparently represent the original transaction.
+BTC Holdings balance changes, but cannot be clearly reconciled with listed transactions.
+
+Expected Result:
+Displayed amounts should accurately reflect:
+Sent amount 
+Network fee
+
+Device: Phone 13 IOS 26.1
+Version: v1.2.0 (286)
+
+Check:
+_docs/_tasks/_tx_mobile_amount_issue-22-jan-2026/screenshots/Holdings + Transactions.png
+_docs/_tasks/_tx_mobile_amount_issue-22-jan-2026/screenshots/Received transactions.png
+
+I also got this case from sender side the amount is incorrec, but from reciever's side the amount is correct. There is 2 transaction the senders shows the higher's one.
+Check:
+_docs/_tasks/_tx_mobile_amount_issue-22-jan-2026/screenshots/gohar1.png
+_docs/_tasks/_tx_mobile_amount_issue-22-jan-2026/screenshots/gohar2.png
+_docs/_tasks/_tx_mobile_amount_issue-22-jan-2026/screenshots/gohar3.png
