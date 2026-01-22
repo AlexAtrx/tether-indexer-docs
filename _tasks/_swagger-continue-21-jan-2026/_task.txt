@@ -1,0 +1,24 @@
+## Context
+
+The original task that has to do with docs for the Rumble API: _docs/tasks/Rumble-Add-Swagger-docs-to-Rumble-App-15-Jan-26
+
+These are two PRs reused to implement the swagger on the APIs:
+
+https://github.com/tetherto/rumble-app-node/pull/120
+https://github.com/tetherto/wdk-app-node/pull/55
+
+They have multiple comments for reviews and some refactors have been done by me and some more comments maybe are still not addressed. 
+
+The color branches of these two PRs are already checked out here locally.
+
+In the meeting today, we had some discussions about how Swagger is implemented on those APIs and what exactly the concerns are on the changes that I have made on these two PRs. 
+
+This is notes about the discussion we had: _docs/tasks/_swagger-continue-21-jan-2026/meeting-notes.md
+
+## Task
+
+Check these two PRs which correspond to the local code in the local repos. 
+Understand how SOG is implemented from the diff. 
+Look into the meeting notes to understand exactly what the concern or the requirement is.
+Tell me if the contents of this meeting do make sense and there is a middle ground or a solution that can be satisfactory for the developers and at the same time meet the documentation need of the APIs.
+Do not add any change at the moment. Just tell me your evaluation.

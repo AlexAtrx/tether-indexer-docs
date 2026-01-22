@@ -1,0 +1,16 @@
+⏺ Notification req include payload and transactionHash:                                                                                                                                                               
+                                                                                                                                                                                                                      
+This log line (from rumble-ork-wrk/workers/api.ork.wrk.js:248) shows exactly what the mobile app sent:                                                                                                              
+
+
+This log line is needed from Grafana to be traced live while I'm doing a front end test: "Notification req include payload and transactionHash"
+
+So basically it is:
+Notification req include payload and transactionHash: <payload_value> - <tx_hash> - <isReceipt>                                                                                                                     
+                                                                                                                                                                                                                    
+- If payload exists: Notification req include payload and transactionHash: eyJ... - 0xabc... - true                                                                                                                 
+- If payload is missing: Notification req include payload and transactionHash: undefined - 0xabc... - true                                                                                                          
+                                                                                                                                                                                                                    
+This is the definitive line - it shows the raw values before the backend decides whether to create a RANT or TIP webhook.
+
+Help me finding this log, live, in staging environemnt in Grafan. You have full permission and access.

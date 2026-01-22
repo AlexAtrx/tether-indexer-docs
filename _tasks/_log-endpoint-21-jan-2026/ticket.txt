@@ -1,0 +1,6 @@
+Rumble: Create an endpoint for the frontend to send logs we can collect
+
+We want to create an endpoint for the frontend to send logs to
+
+this needs to be only for authenticated users, so it needs to be behind Rumble user authentication
+
