@@ -1,0 +1,18 @@
+A product owner is asking:
+
+---
+Hi, In V3, when we call this API to retrieve the tipJars of the a creator there are some addresses missing. Here's the exact call and response
+
+[8:34 PM]  DEBUG  [2026-01-23T20:32:53.467Z] [api/WalletAPI] Response {"status": 200, "url": "https://wallet-8s4anfsr6it9.rmbl.ws/api/v1/users/JX6cVVcJMbw/tip-jar"}
+
+ DEBUG  [2026-01-23T20:32:53.471Z] [api/WalletAPI] Response data {"accountIndex": 1, "addresses": {"arbitrum": "0xcab97ec54befe7aa3473599b9eb39ea1ddff4a02", "bitcoin": "bc1pqju3zud7nhcatjky7anjlkjg9c78nq5mqecjflx2t63hw7fwz9wsqa7w03", "ethereum": "0xcab97ec54befe7aa3473599b9eb39ea1ddff4a02"}, "createdAt": 1768040644322, "enabled": true, "id": "28f92a59-4905-4eb6-a542-5a92da733ab1", "name": "motest3", "type": "user", "updatedAt": 1768474572474, "userId": "JX6cVVcJMbw"}
+We are missing: Polygon, Plasma, Lightning.
+
+Can someone please explain what's the behaviour of this API? The team have no documentation and nothing to follow to set our expectations
+
+Also, when the user scan a QR code of a live chat, What's the API that the app should call to send notification on the live chat?
+---
+
+Find the API he's talking about. Aalyze everything you can see in the code base. And find the 100% accurate answer for the product owner.
+
+Think hard about this and take your time.
