@@ -1,0 +1,136 @@
+## Context
+
+I have this ASANA a ticket.
+
+------------------
+Test staging app for RANT and TIP with backend log tracing
+
+Run a test using staging mobile app wallet:
+send tip and trace payload, id, ld, etc in the backend 
+check propagation of data `
+------------------
+
+which is based on this discussion:
+
+------------------
+Me:
+I just finished a live test of TIP and RANT with @Gohar Grigoryan
+Out of the box findings:
+The app does indeed send no payload (I could see it in the life log). Still, the undefined payload does not prevent the webhook from being triggered, so either having no payload is not the problem or the log is misleading :thinking_face:
+We figured another –potential– issue: If a user initiates a RANT (that is a chat comment), and another user scans the barcode on the screen and makes the payment, the RANT money that the channel receives is from the first user who initiated the RANT, not from the user who paid the money :open_mouth: Could be a bug, or maybe it's meant to be? I'm not sure.
+Bottom line: the reason of the RANTS/TIPS sometimes not showing are still unknown. I'm gathering the new logs and will investigate more.
+@Gohar Grigoryan can you please confirm which type of messages doesn't show? Is it the RANT or TIP or both? (edited) 
+
+Gohar Grigoryan
+  Wednesday at 2:18 PM
+the issue which was related to Sending Tip when sending from the app,
+but yesterday’s incident was  related to the Rant (edited) 
+
+Gohar Grigoryan
+  Wednesday at 2:23 PM
+It is very strange
+2:24
+last week when I checked on staging it didn’t work but now it works on staging and on prod
+
+Alex Atrash
+  Wednesday at 2:28 PM
+OK, thanks @Gohar Grigoryan!
+@Francesco C. did we release anything that fixes it? If not, I have a theory to share.
+
+Francesco C.
+  Wednesday at 2:33 PM
+no, we didn't (edited) 
+2:34
+prod is currently the version of ~ Nov 12th (edited) 
+Alex Atrash
+  Wednesday at 2:38 PM
+@Francesco C. thanks
+Gohar Grigoryan
+  Wednesday at 4:20 PM
+I asked QA from Rumble to reproduce the issue, and she couldn’t
+Alex Atrash
+  Wednesday at 4:20 PM
+thanks @Gohar Grigoryan
+Gohar Grigoryan
+  Wednesday at 4:21 PM
+But it is not good
+Alex Atrash
+  Wednesday at 4:23 PM
+I know :slightly_smiling_face: it might be some race conditions that happen intermittently.
+For now I'm pushing for a new validation based on some logs that I have.
+We will discuss them tomorrow.
+------------------
+
+And the ticket yielded to these PRs:
+------------------
+https://github.com/tetherto/rumble-app-node/pull/125
+https://github.com/tetherto/rumble-ork-wrk/pull/86
+------------------
+
+Along with these PRs, I have shared these analysis with the team:
+------------------
+Analysis
+From logs
+Log:Notification req include payload and transactionHash: undefined - 0x... - true/false
+includes only payload and transactionHash. The fields dt and id are missing.
+What happens if dt or id are missing
+Rumble worker only calls _addTxWebhook when:
+RANT: payload + transactionHash + dt + id
+TIP: transactionHash + dt + id
+If dt or id is missing, _addTxWebhook is skipped and no tx webhook is stored.
+Rumble data shrd worker only sends the Rumble webhook for stored tx webhooks.
+Result: missing dt or id => no webhook to Rumble => no live chat entry.
+Practical solution - in the PR:point_up:
+Make dt and id  required in TOKEN_TRANSFER.
+------------------
+
+And then we all engaged in this chat:
+------------------
+
+george
+Hey Alex, can you share few examples? I’m curious if toWallet field is present
+
+Alex Atrash
+Sure, examples from logs:
+{"type":"TOKEN_TRANSFER","to":"de3b18c7-...","from":"66e0b8b3-...","blockchain":"polygon","token":"usdt","amount":0.2,"transactionReceiptId":"0x866b...","dt":"c"}
+:point_up: Has to, has dt, missing id
+{"type":"TOKEN_TRANSFER","toAddress":"0x0f7f...","from":"fa112c9b-...","blockchain":"polygon","token":"usdt","amount":0.96,"transactionReceiptId":"0x0b62..."}
+:point_up: Has toAddress, missing both dt and id
+{"type":"TOKEN_TRANSFER","toAddress":"bc1qlu...","from":"3fa33753-...","blockchain":"bitcoin","token":"btc","amount":0.00052323,"transactionHash":"e959..."}
+:point_up: Has toAddress, missing both dt and id (edited) 
+9:16
+These logs come from wrk-node-http (the HTTP layer that logs sendNotification payload = ...), which captures the full incoming request.
+
+george
+Thank you, can you please share an example with payload present, but dt and id missing?  (edited) 
+
+Alex Atrash
+
+I couldn’t find any example where payload is present while dt and id are missing.
+All lines with payload also include both dt and id.
+So we have these 3 cases:
+Case: Send to address -  NO payload, NO dt, NO id, YES to/toAddress
+Case: Scan user/channel QR (TIP) - NO payload, NO / YES dt, NO / YES id, YES to
+Case: Scan live rant QR (RANT) - YES payload, YES dt, YES dt, YES to
+Conclusion:
+RANTs (with payload) always have all fields.
+The missing dt/id issue only affects TIPs and external transfers.
+Note: This is in logs I got from admin - I have no access to prod logs. (edited) 
+
+george
+  Saturday at 2:50 PM
+Thank you Alex, that makes sense.
+Small correction on second case - The presence of to doesn't mean it’s necessarily QR scan. It can be a send to address as well. We do a reverse wallet lookup by address when sending to address and if wallet is found, pass to field.
+Therefore I think the above logs doesn't suggest that dt and id are missing on any of the QR scans.
+This is also what Rumble is asking for, e.g. a notification where dt and id were passed without payload
+------------------
+
+## Task
+
+Understand the task very well and understand the chat, particularly the concern of George, which is the last comment along with his other questions. 
+
+Go through the PRs and understand the code differences.
+
+This text has been done in different tasks here. Check different directories for the same sort of discussion and see the progress and the tasks that are performed.
+
+Thank you very well and give me your conclusion from the latest George argument. Particularly tell me in simple and clear what exactly he means and what he said the last. And tell me what is the impact of his explanation of what the mobile app is doing exactly. And tell me if the PRs that I have raised would make the front end break in this case. And based on all that, tell me what is the best course of action in order to solve this issue. Don't cut shortcuts and do half-baked solutions just to get things done. If things cannot be done in one go, explain to me what should be done in phases. I don't expect things to be very complex but just in case.

@@ -1,0 +1,42 @@
+Phase 1: Revert/Hold the PRs
+
+1. Do NOT merge PR #125 - Making dt/id required for all TOKEN_TRANSFER will break "send to address" functionality.
+2. Review PR #86 - Adding dt/id checks to the RANT path is reasonable since RANTs (with payload) should always have these fields.
+
+Phase 2: Get the Right Evidence
+
+Ask Rumble/George for:
+
+- A confirmed failing case where a user scanned a QR, the app sent dt/id, but the tip/rant didn't appear.
+- Get the exact transactionHash or request timestamp so you can trace it through all backend logs.
+
+Phase 3: Trace the Complete Flow
+
+For a confirmed failing case, trace:
+
+1. wrk-node-http - Did it receive the request with dt/id?
+2. rumble-ork-wrk - Did \_addTxWebhook get called?
+3. rumble-data-shard-wrk - Was the tx webhook stored? Was transfer:confirmed event received?
+4. Rumble webhook - Was it sent? What was the response?
+
+Phase 4: Consider Alternative Fixes
+
+If the issue is downstream (after fields are present):
+
+- Add better logging at each step of the webhook flow
+- Check transaction confirmation timing (does the tx complete before the webhook job runs?)
+- Check Rumble-side ingestion (do they drop malformed payloads?)
+
+---
+
+Simple Summary
+┌─────────────────────────────────────────────────┬────────────────────────────────────┬─────────────────────────────────────────┐
+│ George's Point                                  │ Your Current Understanding         │ Reality                                 │
+├─────────────────────────────────────────────────┼────────────────────────────────────┼─────────────────────────────────────────┤
+│ Missing dt/id logs are from "send to address"   │ These might be broken QR scans     │ They are NOT QR scans; they're expected │
+├─────────────────────────────────────────────────┼────────────────────────────────────┼─────────────────────────────────────────┤
+│ QR scans do send dt/id                          │ Mobile app might be missing fields │ Mobile app is correct for QR scans      │
+├─────────────────────────────────────────────────┼────────────────────────────────────┼─────────────────────────────────────────┤
+│ Need evidence of QR failure with correct fields │ The logs show the problem          │ The logs don't show QR failures         │
+└─────────────────────────────────────────────────┴────────────────────────────────────┴─────────────────────────────────────────┘
+Bottom line: Your PRs solve a problem that doesn't exist (QR scans missing fields) while breaking functionality that works correctly (send to address). You need to find evidence of the actual failure case before proposing a fix.
