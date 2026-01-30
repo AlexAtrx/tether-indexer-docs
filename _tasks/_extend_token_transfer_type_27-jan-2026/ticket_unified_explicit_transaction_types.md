@@ -19,13 +19,14 @@ Replace the implicit field-based inference system for tips and rants with explic
 The notification API uses a single `type: "TOKEN_TRANSFER"` for all transfer operations. The backend infers the actual intent by examining optional fields:
 
 **File:** `rumble-ork-wrk/workers/api.ork.wrk.js` (lines 250-272)
+
 ```javascript
 if (payload.payload && payload.transactionHash) {
   // Treated as RANT
-  type: WEBHOOK_TYPES.RANT
+  type: WEBHOOK_TYPES.RANT;
 } else if (payload.transactionHash && payload.dt && payload.id) {
   // Treated as TIP
-  type: WEBHOOK_TYPES.TIP
+  type: WEBHOOK_TYPES.TIP;
 }
 // Otherwise: silently ignored for webhook purposes
 ```
@@ -37,6 +38,7 @@ if (payload.payload && payload.transactionHash) {
 2. **No Validation**: The API accepts the request as successful even when critical fields are missing. The mobile team believes the request worked, but downstream effects never happen.
 
 3. **Debugging Nightmare**: When tips don't appear in chat, there's no way to determine if the issue was:
+
    - Missing fields from the client
    - Backend processing failure
    - Webhook delivery failure
@@ -48,16 +50,16 @@ if (payload.payload && payload.transactionHash) {
 
 Investigation revealed the exact failure path:
 
-| Step | What Happens |
-|------|--------------|
-| 1 | Mobile sends `TOKEN_TRANSFER` missing `dt` or `id` |
-| 2 | `api.ork.wrk.js` condition fails silently (line 261) |
-| 3 | `_addTxWebhook()` is never called |
-| 4 | No webhook stored in database |
-| 5 | `_processTxWebhooksJob()` has nothing to process |
-| 6 | Rumble server never receives notification |
-| 7 | Chat message never appears |
-| 8 | Mobile client shows success (transaction completed on-chain) |
+| Step | What Happens                                                 |
+| ---- | ------------------------------------------------------------ |
+| 1    | Mobile sends `TOKEN_TRANSFER` missing `dt` or `id`           |
+| 2    | `api.ork.wrk.js` condition fails silently (line 261)         |
+| 3    | `_addTxWebhook()` is never called                            |
+| 4    | No webhook stored in database                                |
+| 5    | `_processTxWebhooksJob()` has nothing to process             |
+| 6    | Rumble server never receives notification                    |
+| 7    | Chat message never appears                                   |
+| 8    | Mobile client shows success (transaction completed on-chain) |
 
 ---
 
@@ -65,11 +67,11 @@ Investigation revealed the exact failure path:
 
 ### New API Contract
 
-| Type | Purpose | Required Fields | Validation |
-|------|---------|-----------------|------------|
-| `TOKEN_TRANSFER` | Regular wallet-to-wallet transfers | `blockchain`, `token`, `amount`, `from`, `to`/`toAddress`, `transactionHash`/`transactionReceiptId` | Existing |
-| `TOKEN_TRANSFER_RANT` | Rant (tip with message) to channel | All TOKEN_TRANSFER fields + `payload`, `dt`, `id` | **Strict — returns 400 if missing** |
-| `TOKEN_TRANSFER_TIP` | Tip (no message) to channel | All TOKEN_TRANSFER fields + `dt`, `id` | **Strict — returns 400 if missing** |
+| Type                  | Purpose                            | Required Fields                                                                                     | Validation                          |
+| --------------------- | ---------------------------------- | --------------------------------------------------------------------------------------------------- | ----------------------------------- |
+| `TOKEN_TRANSFER`      | Regular wallet-to-wallet transfers | `blockchain`, `token`, `amount`, `from`, `to`/`toAddress`, `transactionHash`/`transactionReceiptId` | Existing                            |
+| `TOKEN_TRANSFER_RANT` | Rant (tip with message) to channel | All TOKEN_TRANSFER fields + `payload`, `dt`, `id`                                                   | **Strict — returns 400 if missing** |
+| `TOKEN_TRANSFER_TIP`  | Tip (no message) to channel        | All TOKEN_TRANSFER fields + `dt`, `id`                                                              | **Strict — returns 400 if missing** |
 
 ### Key Behavior Changes
 
@@ -98,24 +100,24 @@ Rumble Server (external, receives webhooks)
 
 ### Files Requiring Changes
 
-| Service | File | Change Type |
-|---------|------|-------------|
-| **rumble-app-node** | `workers/lib/utils/constants.js` | Add new types |
-| **rumble-app-node** | `workers/lib/server.js` | Update schema validation |
-| **rumble-ork-wrk** | `workers/lib/constants.js` | Add new types |
-| **rumble-ork-wrk** | `workers/api.ork.wrk.js` | New validation logic |
-| **rumble-data-shard-wrk** | `workers/lib/utils/constants.js` | Add new types |
-| **rumble-data-shard-wrk** | `workers/lib/utils/notification.util.js` | Add new types |
-| **rumble-data-shard-wrk** | `workers/proc.shard.data.wrk.js` | Update processing logic |
+| Service                   | File                                     | Change Type              |
+| ------------------------- | ---------------------------------------- | ------------------------ |
+| **rumble-app-node**       | `workers/lib/utils/constants.js`         | Add new types            |
+| **rumble-app-node**       | `workers/lib/server.js`                  | Update schema validation |
+| **rumble-ork-wrk**        | `workers/lib/constants.js`               | Add new types            |
+| **rumble-ork-wrk**        | `workers/api.ork.wrk.js`                 | New validation logic     |
+| **rumble-data-shard-wrk** | `workers/lib/utils/constants.js`         | Add new types            |
+| **rumble-data-shard-wrk** | `workers/lib/utils/notification.util.js` | Add new types            |
+| **rumble-data-shard-wrk** | `workers/proc.shard.data.wrk.js`         | Update processing logic  |
 
 ### Test Files Requiring Updates
 
-| Service | File |
-|---------|------|
-| **rumble-app-node** | `tests/http.node.wrk.intg.test.js` |
-| **rumble-ork-wrk** | `tests/unit/api.ork.wrk.unit.js` |
-| **rumble-data-shard-wrk** | `tests/proc.shard.data.wrk.unit.test.js` |
-| **rumble-data-shard-wrk** | `tests/lib/notification.util.unit.test.js` |
+| Service                   | File                                         |
+| ------------------------- | -------------------------------------------- |
+| **rumble-app-node**       | `tests/http.node.wrk.intg.test.js`           |
+| **rumble-ork-wrk**        | `tests/unit/api.ork.wrk.unit.js`             |
+| **rumble-data-shard-wrk** | `tests/proc.shard.data.wrk.unit.test.js`     |
+| **rumble-data-shard-wrk** | `tests/lib/notification.util.unit.test.js`   |
 | **rumble-data-shard-wrk** | `tests/lib/notification-dedupe.util.test.js` |
 
 ---
@@ -128,17 +130,17 @@ Rumble Server (external, receives webhooks)
 
 ```javascript
 const NOTIFICATION_TYPES = Object.freeze({
-  TOKEN_TRANSFER: 'TOKEN_TRANSFER',
-  TOKEN_TRANSFER_RANT: 'TOKEN_TRANSFER_RANT',     // NEW
-  TOKEN_TRANSFER_TIP: 'TOKEN_TRANSFER_TIP',       // NEW
-  TOKEN_TRANSFER_COMPLETED: 'TOKEN_TRANSFER_COMPLETED',
-  SWAP_STARTED: 'SWAP_STARTED',
-  TOPUP_STARTED: 'TOPUP_STARTED',
-  TOPUP_COMPLETED: 'TOPUP_COMPLETED',
-  CASHOUT_STARTED: 'CASHOUT_STARTED',
-  CASHOUT_COMPLETED: 'CASHOUT_COMPLETED',
-  LOGIN: 'LOGIN'
-})
+  TOKEN_TRANSFER: "TOKEN_TRANSFER",
+  TOKEN_TRANSFER_RANT: "TOKEN_TRANSFER_RANT", // NEW
+  TOKEN_TRANSFER_TIP: "TOKEN_TRANSFER_TIP", // NEW
+  TOKEN_TRANSFER_COMPLETED: "TOKEN_TRANSFER_COMPLETED",
+  SWAP_STARTED: "SWAP_STARTED",
+  TOPUP_STARTED: "TOPUP_STARTED",
+  TOPUP_COMPLETED: "TOPUP_COMPLETED",
+  CASHOUT_STARTED: "CASHOUT_STARTED",
+  CASHOUT_COMPLETED: "CASHOUT_COMPLETED",
+  LOGIN: "LOGIN",
+});
 ```
 
 #### rumble-ork-wrk/workers/lib/constants.js
@@ -152,6 +154,7 @@ No changes needed — `WEBHOOK_TYPES` (RANT/TIP) remain as internal types.
 #### rumble-data-shard-wrk/workers/lib/utils/notification.util.js
 
 Add to `NOTIFICATION_TYPES`:
+
 ```javascript
 TOKEN_TRANSFER_RANT: 'TOKEN_TRANSFER_RANT',
 TOKEN_TRANSFER_TIP: 'TOKEN_TRANSFER_TIP',
@@ -169,39 +172,74 @@ Add new conditional validation blocks:
 allOf: [
   // Existing TOKEN_TRANSFER validation
   {
-    if: { properties: { type: { const: constants.NOTIFICATION_TYPES.TOKEN_TRANSFER } } },
+    if: {
+      properties: {
+        type: { const: constants.NOTIFICATION_TYPES.TOKEN_TRANSFER },
+      },
+    },
     then: {
-      required: ['blockchain', 'token', 'amount', 'from'],
+      required: ["blockchain", "token", "amount", "from"],
       allOf: [
-        { anyOf: [{ required: ['to'] }, { required: ['toAddress'] }] },
-        { anyOf: [{ required: ['transactionHash'] }, { required: ['transactionReceiptId'] }] }
-      ]
-    }
+        { anyOf: [{ required: ["to"] }, { required: ["toAddress"] }] },
+        {
+          anyOf: [
+            { required: ["transactionHash"] },
+            { required: ["transactionReceiptId"] },
+          ],
+        },
+      ],
+    },
   },
   // NEW: TOKEN_TRANSFER_RANT validation
   {
-    if: { properties: { type: { const: constants.NOTIFICATION_TYPES.TOKEN_TRANSFER_RANT } } },
+    if: {
+      properties: {
+        type: { const: constants.NOTIFICATION_TYPES.TOKEN_TRANSFER_RANT },
+      },
+    },
     then: {
-      required: ['blockchain', 'token', 'amount', 'from', 'payload', 'dt', 'id'],
+      required: [
+        "blockchain",
+        "token",
+        "amount",
+        "from",
+        "payload",
+        "dt",
+        "id",
+      ],
       allOf: [
-        { anyOf: [{ required: ['to'] }, { required: ['toAddress'] }] },
-        { anyOf: [{ required: ['transactionHash'] }, { required: ['transactionReceiptId'] }] }
-      ]
-    }
+        { anyOf: [{ required: ["to"] }, { required: ["toAddress"] }] },
+        {
+          anyOf: [
+            { required: ["transactionHash"] },
+            { required: ["transactionReceiptId"] },
+          ],
+        },
+      ],
+    },
   },
   // NEW: TOKEN_TRANSFER_TIP validation
   {
-    if: { properties: { type: { const: constants.NOTIFICATION_TYPES.TOKEN_TRANSFER_TIP } } },
+    if: {
+      properties: {
+        type: { const: constants.NOTIFICATION_TYPES.TOKEN_TRANSFER_TIP },
+      },
+    },
     then: {
-      required: ['blockchain', 'token', 'amount', 'from', 'dt', 'id'],
+      required: ["blockchain", "token", "amount", "from", "dt", "id"],
       allOf: [
-        { anyOf: [{ required: ['to'] }, { required: ['toAddress'] }] },
-        { anyOf: [{ required: ['transactionHash'] }, { required: ['transactionReceiptId'] }] }
-      ]
-    }
+        { anyOf: [{ required: ["to"] }, { required: ["toAddress"] }] },
+        {
+          anyOf: [
+            { required: ["transactionHash"] },
+            { required: ["transactionReceiptId"] },
+          ],
+        },
+      ],
+    },
   },
   // ... existing validations for other types
-]
+];
 ```
 
 **Key Point**: Fastify schema validation will automatically return HTTP 400 with a descriptive error if required fields are missing.
@@ -266,6 +304,7 @@ async sendNotification (req) {
 ```
 
 **Key Changes:**
+
 - Remove field-based inference (`if (payload.payload && payload.transactionHash)`)
 - Use explicit type checks
 - Schema validation guarantees required fields are present
@@ -287,7 +326,9 @@ The `_processTxWebhooksJob()` (lines 287-329) and `storeTxWebhook()` (lines 384-
 
 ```javascript
 // In storeTxWebhook, optionally store originalType for debugging
-this.logger.info(`Store webhook: type=${type}, originalNotificationType=${req.originalNotificationType}`)
+this.logger.info(
+  `Store webhook: type=${type}, originalNotificationType=${req.originalNotificationType}`,
+);
 ```
 
 ---
@@ -296,12 +337,12 @@ this.logger.info(`Store webhook: type=${type}, originalNotificationType=${req.or
 
 Define clear error messages for validation failures:
 
-| Scenario | HTTP Status | Error Message |
-|----------|-------------|---------------|
-| Missing `payload` for RANT | 400 | `body must have required property 'payload'` |
-| Missing `dt` for RANT/TIP | 400 | `body must have required property 'dt'` |
-| Missing `id` for RANT/TIP | 400 | `body must have required property 'id'` |
-| Invalid `type` | 400 | `body/type must be equal to one of the allowed values` |
+| Scenario                   | HTTP Status | Error Message                                          |
+| -------------------------- | ----------- | ------------------------------------------------------ |
+| Missing `payload` for RANT | 400         | `body must have required property 'payload'`           |
+| Missing `dt` for RANT/TIP  | 400         | `body must have required property 'dt'`                |
+| Missing `id` for RANT/TIP  | 400         | `body must have required property 'id'`                |
+| Invalid `type`             | 400         | `body/type must be equal to one of the allowed values` |
 
 Fastify's schema validation provides these automatically.
 
@@ -340,6 +381,7 @@ None required. Existing webhooks in the database will continue to process correc
 #### rumble-ork-wrk/tests/unit/api.ork.wrk.unit.js
 
 Add test cases:
+
 - `TOKEN_TRANSFER_RANT` with all fields → webhook created with type RANT
 - `TOKEN_TRANSFER_TIP` with all fields → webhook created with type TIP
 - `TOKEN_TRANSFER` (regular) → no webhook created
@@ -354,6 +396,7 @@ Existing tests should pass since internal webhook processing is unchanged.
 #### rumble-app-node/tests/http.node.wrk.intg.test.js
 
 Add test cases:
+
 - `TOKEN_TRANSFER_RANT` with all required fields → 200 OK
 - `TOKEN_TRANSFER_RANT` missing `payload` → 400 Bad Request
 - `TOKEN_TRANSFER_RANT` missing `dt` → 400 Bad Request
@@ -384,6 +427,7 @@ Add test cases:
 Since this is a breaking change deployed together:
 
 1. **Deploy backend services** (all at once):
+
    - rumble-app-node
    - rumble-ork-wrk
    - rumble-data-shard-wrk
@@ -396,6 +440,7 @@ Since this is a breaking change deployed together:
 ### Rollback Plan
 
 If issues arise:
+
 1. Rollback all backend services to v1
 2. Mobile apps fall back to previous version
 3. Investigate and fix before re-attempting
@@ -430,6 +475,7 @@ Update API documentation to reflect:
 Send a rant (tip with message) to a Rumble channel.
 
 **Required fields:**
+
 - `type`: `"TOKEN_TRANSFER_RANT"`
 - `blockchain`: Chain identifier (e.g., `"ethereum"`)
 - `token`: Token identifier (e.g., `"USDT"`)
@@ -446,6 +492,7 @@ Send a rant (tip with message) to a Rumble channel.
 Send a tip (no message) to a Rumble channel.
 
 **Required fields:**
+
 - `type`: `"TOKEN_TRANSFER_TIP"`
 - `blockchain`: Chain identifier
 - `token`: Token identifier
@@ -461,6 +508,7 @@ Send a tip (no message) to a Rumble channel.
 Send a regular wallet-to-wallet transfer (no Rumble chat integration).
 
 **Required fields:**
+
 - `type`: `"TOKEN_TRANSFER"`
 - `blockchain`: Chain identifier
 - `token`: Token identifier
@@ -473,13 +521,13 @@ Send a regular wallet-to-wallet transfer (no Rumble chat integration).
 
 ## Summary of Breaking Changes
 
-| Change | v1 Behavior | v2 Behavior |
-|--------|-------------|-------------|
-| RANT detection | Inferred from `payload` + `transactionHash` | Requires `type: TOKEN_TRANSFER_RANT` |
-| TIP detection | Inferred from `dt` + `id` + `transactionHash` | Requires `type: TOKEN_TRANSFER_TIP` |
-| Missing fields | Silent skip, request succeeds | HTTP 400 error returned |
-| `TOKEN_TRANSFER` with rant fields | Creates RANT webhook | Does NOT create webhook |
-| `TOKEN_TRANSFER` with tip fields | Creates TIP webhook | Does NOT create webhook |
+| Change                            | v1 Behavior                                   | v2 Behavior                          |
+| --------------------------------- | --------------------------------------------- | ------------------------------------ |
+| RANT detection                    | Inferred from `payload` + `transactionHash`   | Requires `type: TOKEN_TRANSFER_RANT` |
+| TIP detection                     | Inferred from `dt` + `id` + `transactionHash` | Requires `type: TOKEN_TRANSFER_TIP`  |
+| Missing fields                    | Silent skip, request succeeds                 | HTTP 400 error returned              |
+| `TOKEN_TRANSFER` with rant fields | Creates RANT webhook                          | Does NOT create webhook              |
+| `TOKEN_TRANSFER` with tip fields  | Creates TIP webhook                           | Does NOT create webhook              |
 
 ---
 
@@ -488,3 +536,7 @@ Send a regular wallet-to-wallet transfer (no Rumble chat integration).
 - Problem investigation: `_docs/_tasks/_rumble-tip-test-21-jan-2026/`
 - Solution proposal: `_docs/_tasks/_rumble-tip-test-21-jan-2026/solution-suggestion.md`
 - Backend findings: `_docs/_tasks/_rumble-tip-test-21-jan-2026/backend-findings.md`
+
+## Imortant
+
+Since as you know the API has versions, e.g. /api/v1/connect, etc, I want the changes you have introduced in this ticket to be on V2 on all the APIs. Because we want to give the front end an opportunity and a time to shift to V2 whenever they want in order to avoid backwater breaking changes. Review everything you have done and make sure that the changes you made are on the v2 version and v1 version is intact and still functioning the old way.

@@ -1,0 +1,12 @@
+Ticket
+
+----
+WDK & Rumble TX History endpoints: Show Reverted/Failed flags
+
+Rumble V1 Request - WDK + Rumble TX History endpoints - Show Reverted/Failed flags
+
+Show the failed/reverted transaction as failed in transaction history
+
+This ticket needs to be refined - A developer should pick it up and make sure that for all chains we get the correct failed/reverted/errored status from the transaction via getTransaction (on evm) RPC endpoint and equivalent for the other chains. 
+
+Please ping Francesco when the refinement has been done and let's double check and agree on the implementation - note that for Spark we may want to check with Dario or someone from the spark team.

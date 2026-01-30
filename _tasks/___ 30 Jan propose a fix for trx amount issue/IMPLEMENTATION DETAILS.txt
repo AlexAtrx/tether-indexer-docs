@@ -1,0 +1,131 @@
+These are implementation details for this ticket: https://app.asana.com/1/45238840754660/project/1210540875949204/task/1213042008023666?focus=true
+
+  IMPLEMENTATION DETAILS
+  ----------------------
+
+  ### PART 1: BTC Indexer - Label Change Outputs
+
+  File: wdk-indexer-wrk-btc/workers/lib/providers/rpc.provider.js
+  Location: _parseTx() method, lines 149-173
+
+  Current code:
+  ```javascript
+  return tx.vout.map((vout, i) => {
+    // ... existing code ...
+    return {
+      blockchain: this.conf.chain,
+      blockNumber: BigInt(blockNumber),
+      transactionHash: tx.txid.toLowerCase(),
+      transactionIndex: transactionIndex >= 0 ? transactionIndex : 0,
+      transferIndex: i,
+      from,
+      to,
+      token: this.conf.token,
+      amount: vout.value.toString(),
+      timestamp: +timestamp * 1000
+    }
+  })
+
+  Change to:
+  return tx.vout.map((vout, i) => {
+    // ... existing code ...
+
+    // Detect change output: when 'to' equals 'from', it's change returning to sender
+    const isChange = from && to && from.toLowerCase() === to.toLowerCase()
+
+    return {
+      blockchain: this.conf.chain,
+      blockNumber: BigInt(blockNumber),
+      transactionHash: tx.txid.toLowerCase(),
+      transactionIndex: transactionIndex >= 0 ? transactionIndex : 0,
+      transferIndex: i,
+      from,
+      to,
+      token: this.conf.token,
+      amount: vout.value.toString(),
+      timestamp: +timestamp * 1000,
+      label: isChange ? 'change' : 'payment'
+    }
+  })
+
+  PART 2: Rumble Data Shard - Filter Change Outputs
+
+  File: wdk-data-shard-wrk/workers/api.shard.data.wrk.js
+  Location: Around line 488-506 (transfer streaming loop)
+
+  Add filtering logic to exclude change outputs for "sent" transactions:
+
+  for await (const tx of stream) {
+    if (done) break
+
+    const isSent = walletAddress.includes(tx.from)
+
+    // Skip change outputs for sent transactions (Rumble-specific)
+    if (isSent && tx.label === 'change') {
+      continue
+    }
+
+    const txWithCalculatedFields = {
+      type: isSent ? 'sent' : 'received',
+      ...tx
+    }
+    // ... rest of existing code
+  }
+
+  PART 3 (Optional): Add Fee Tracking
+
+  To show users the full transaction picture, calculate and store fee:
+
+  In BTC indexer _parseTx(), calculate fee for the first output (or a dedicated fee record):
+
+  // Calculate fee: sum(inputs) - sum(outputs)
+  const totalInputs = tx.vin.reduce((sum, vin) => {
+    return sum + (vin.prevout?.value || 0)
+  }, 0)
+  const totalOutputs = tx.vout.reduce((sum, vout) => sum + vout.value, 0)
+  const fee = totalInputs - totalOutputs
+
+  // Add to the first non-change output (the actual payment)
+  return tx.vout.map((vout, i) => {
+    const isChange = from && to && from.toLowerCase() === to.toLowerCase()
+    const isFirstPayment = !isChange && !addedFee
+
+    return {
+      // ... existing fields ...
+      label: isChange ? 'change' : 'payment',
+      feeAmount: isFirstPayment ? fee.toString() : undefined,
+      feeCcy: isFirstPayment ? 'BTC' : undefined
+    }
+  })
+
+  ACCEPTANCE CRITERIA
+
+  [ ] BTC change outputs are labeled with label: 'change' at indexing time
+  [ ] Rumble mobile app shows single "Sent" entry per BTC transaction
+  [ ] Displayed amount matches actual amount sent to recipient (not change)
+  [ ] (Optional) Fee amount is displayed on sent transactions
+  [ ] Existing transfers not affected (backward compatible)
+  [ ] Other consumers of indexer data can still access change outputs if needed
+
+  TESTING SCENARIOS
+
+  1. Send BTC to external address → Should show 1 "Sent" entry with correct amount
+  2. Receive BTC → Should show 1 "Received" entry (unchanged behavior)
+  3. Self-send (all to own addresses) → Behavior TBD (discuss with team)
+  4. Multiple outputs to different recipients → Each recipient shows as separate entry
+
+  FILES TO MODIFY
+
+  1. wdk-indexer-wrk-btc/workers/lib/providers/rpc.provider.js (label change outputs)
+  2. wdk-data-shard-wrk/workers/api.shard.data.wrk.js (filter change for Rumble)
+
+  COORDINATION REQUIRED
+
+  - Confirm with Francesco before implementation
+  - Consider if similar logic needed for other UTXO chains (e.g., Spark - check with Dario)
+
+  NOTES
+
+  - The label field already exists in WalletTransferEntity - no schema migration needed
+  - This fix is backward compatible; existing unlabeled transfers continue to work
+  - Indexer remains generic; filtering is Rumble-specific in data shard layer
