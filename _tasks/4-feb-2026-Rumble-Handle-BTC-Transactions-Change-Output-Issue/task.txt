@@ -1,0 +1,10 @@
+## Context
+
+Ticket: _docs/_tasks/4-feb-2026-Rumble-Handle-BTC-Transactions-Change-Output-Issue/ticket.txt
+
+More info that could be relevant (not sure): _docs/_tasks/__ trx history api
+
+## Task
+
+- Investigate the issue and analyze the code 
+- Estimate the probability of the truthfulness of your analysis (aka how sure are you your reasoning in concrete - do NOT please me; just just the truth.)

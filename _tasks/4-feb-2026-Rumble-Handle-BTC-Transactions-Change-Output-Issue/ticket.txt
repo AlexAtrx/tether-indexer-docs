@@ -1,0 +1,25 @@
+Rumble - Handle BTC Transactions Change Output Issue
+
+SUMMARY
+BTC "Sent" transactions display incorrect amounts because change outputs are shown as separate transactions. Users see multiple confusing entries instead of one clear transaction with the actual sent amount.
+
+ROOT CAUSE
+1. BTC indexer creates one transfer record per output (including change).
+2. Data shard labels all transfers as "sent" if `from` matches wallet, even when `to` is also the wallet (change returning to sender)
+3. No distinction between "payment to recipient" and "change back to self"
+
+SOLUTION
+PART 1: Label change outputs at indexing time (generic for all consumers)
+PART 2: Filter change outputs at Rumble data shard (Rumble-specific)
+PART 3: Add fee tracking fields (optional but recommended)
+
+NOTE: to be completed after team discussion is concluded.
+
+---
+
+NOTES by Francesco:
+Should be specific to Rumble as in WDK we don't register wallets
+This needs discussion in a specific session / thread
+We could maybe just change the label from transaction  (added from the base indexer) to change (overridden in btc indexer) in parseTX  https://github.com/tetherto/wdk-indexer-wrk-btc/blob/64cd27e5097a6a409a52c2c2e4efac4e66669f3a/workers/lib/providers/rpc.provider.js#L116
+Notes: different wallets work differently, should we make it rumble wallet specific? I think yes but we have to make sure that we're ok that imported wallets won't work so well
+
