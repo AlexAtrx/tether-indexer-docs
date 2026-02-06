@@ -1,0 +1,192 @@
+## Problem
+  1. For every sent out transaction on EVM, the app receives two trx one to the receipient and the other on for paying gas
+  2. For every BTC trx sent out on BTC main chain, we receive two tranasactions, to the receipient and the other on with reminders
+
+## Requirements
+
+❌ Option 1: FE to build a custom logic to handle the transaction history similar to V1.
+
+##  Conclusion:
+it is unscalable to create a custom logic in FE for every chain to treat the UX. This will also drive in consistencies when the user move to another device.
+
+✅ Option 2: Trx history service in the BE that sends to the app the exact history it needs.
+
+This service reads from the indexer and creates consistent transaction records for the FE. The resulting transaction should have references to its relevant on-chain transactions. 
+
+The FE should be able to identify the following information, and we need the BE to support that
+
+1. The timeline of the different stages when a transaction has started, completed, failed,... etc
+2. The transfer type if received, sent, swap_out, swap_in.
+    a. Swap out is the transfer out to swap
+    b. Swap in, the received swapped amount
+3. Network that was used to execute the transfer
+4. Direction: In, out, self. Self is only when the user moves funds between their accounts.
+5. Tip? We need to know if this transfer is a result of a tip
+    a. We should identify if it is for a channel tipjar or a Creator tipjar
+    b. We should identify the channel or the creator that it was sent to
+    c. Open Question: Should we only categorize transfers initiated from a tip flow in FE as tips?
+6. Counterparties (from & to)
+    a. Identify if the counterparty is another Rumble wallet user/creator tipjar/ channel tipjar (already in V1)
+    b. If one of the counterparties is the swap partner, then mark the trx activity as swap in or out based on direction
+7. Total amount and token, taken from the user balance for a sent out or total amount received
+    a. Amount delivered to receipient
+    b. Total Fees and their breakdown
+8. Explorer link
+9. Reference to underlying transactions
+
+
+##  Modular Implementation
+1. This should be implemented to be reusable accross different apps. We will need it for Tether Wallet and others.
+2. We need two different services: 
+    a. Core Transaction History: its domain is chain-related info
+    b. Rumble addons service: its domain is adding rumble-related information to the transaction
+3. The transaction payload to the frontend should be one transaction as a result of the two services contributing 
+
+## Core Transaction History
+
+This should be reusable with other apps, its domain should only be chain-related info.
+
+1. The timeline of the different stages when a transaction has started, completed, failed,... etc
+2. The transfer type if received, sent, swap_out, swap_in.
+    a. Swap out is the transfer out to swap
+    b. Swap in, the received swapped amount
+3. Network that was used to execute the transfer
+4. Direction: In, out, self. Self is only when the user move funds between their accounts.
+5. Total amount and token, taken from user balance for a sent out or total amount received
+    a. Amount deliverd to receipient
+    b. Total Fees and their breakdown
+6. Explorer link
+7. Reference to underlying transactions
+
+## Rumble addons
+
+1. Tip? We need to know if this transfer is a result of a tip
+  a. Should we only categorize transfers initiated from a tip flow in FE as tips?
+  b. We should identify if it is for a channel tipjar or a Creator tipjar
+2. Counterparties (from & to)
+  a. Identify if the counterparty is another Rumble wallet user/creator tipjar/ channel tipjar (already in V1)
+  b. If one of the counterparties is the swap partner, then mark the trx activity as swap in or out based on direction
+
+## Proposed Transaction contract
+
+'Feel free to ignore it, it is a simulation of how I am thinking.'
+
+```
+// All the rumble_addons parameters starts with app_
+{
+  "id": "string",
+  "chain_reference": "string",
+  "account_id": "string",
+  "created_at": "yyyy-mm-dd HH:MM",
+  "updated_at": "yyyy-mm-dd HH:MM", // time of the latest status
+  "activity_type": "TRANSFER",
+  "app_activity_subtype": "TRANFER | TIP", // when TIP, then there should be a tip object
+  "app_context": { // We can skip since we won't have all the info
+    "app_flow": "NONE | SEND | RECEIVE | TIP | PAYMENT | BUY | WITHDRAW | DEPOSIT | SWAP",
+    "reference_id": "string|null"
+  },
+
+  "direction": "IN|OUT|SELF", //Self is only there for a user when they move funds between their accounts/addresses. We can skip it if we don't have all the data needed
+  "status": "PENDING|SUBMITTED|CONFIRMED|FAILED",
+  "rail": "EVM | BTC | LN | SPARK",
+  "network": {
+    "chain_id": "number|null", // not null only in EVM chains
+    "network_name": "string|null"
+  },
+
+  "asset": {
+    "symbol": "string",    
+    "decimals": "number",
+  },
+
+
+  "amount": {
+    "value": "string" // in the smallest unit
+    "unit": "SAT|SCUDO|USDT|USAT", // for Lightning, amount should always be in Sats
+  },
+"value_usd_cents": "string" // the amount in USD cents at the time of the transaction when created at BE
+  
+"participants": {
+    "from": {
+      "type": "EVM_ADDRESS|BTC_ADDRESS|LN_NODE|SPARK_ACCOUNT|UNKNOWN",
+      "value": "string",
+      "app_resolved": { //if the user address matches internal records
+        "display_name": "string|null",
+        "entity_type": "SELF|INTERNAL_USER_ACC|CHANNEL_TIPJAR|USER_TIPJAR",
+        "avatar_url": "string|null",
+      }
+    },
+    "to": {
+      "type": "EVM_ADDRESS|BTC_ADDRESS|LN_INVOICE|LN_NODE|SPARK_ACCOUNT|UNKNOWN",
+      "value": "string",
+      "app_resolved": { //if the user address matches internal records
+        "display_name": "string|null",
+        "entity_type": "SELF|INTERNAL_USER_ACC|CHANNEL_TIPJAR|USER_TIPJAR",
+        "avatar_url": "string|null",
+      }
+    }
+  },
+  "fees": {
+    "user_paid": {
+      "value": "string",
+      "unit": "SAT|SCUDO|USDT|USAT",
+      "asset": {
+        "symbol": "string",
+        "decimals": "number",
+      }
+    },
+    "sponsored": "boolean",
+  },
+  "links": {
+    "explorer": {
+      "kind": "EXPLORER_TX", // we might extend in the future to have other types of links like having a webpage showing the transaction data in a more user firendly view than chain explorers.
+      "url": "string"
+    }
+  },
+  "app_tip": { //only present when the transfer is initiated from a tip flow
+    "tip_id": "string|null"
+    "tip_direction": "SENT|RECEIVED|NONE",
+    "counterparty": { //if the sender didn't choose to be annonymous
+      "id": "string|null",
+      "image_url": "string|null",
+      "display_name": "string|null"
+    },
+    "app_content": { //only incase it was a tip on a live stream
+      "content_id": "string|null",
+      "content_type": "STREAM",
+    },
+  },
+  "underlying_tx": [ // these are refernces to the transactions on chain linked to this transaction
+  {
+    "rail": "EVM|BTC",
+    "network_id": "string",
+    "tx": {
+      "type": "EVM|BTC",
+      "hash": "string"
+    },
+    "status": "SUCCESS|REVERTED|PENDING|UNKNOWN",
+    "link": {
+      "explorer": "string|null"
+    }
+  }
+ ]    
+}
+
+```
+
+## Gaps
+
+<BE team to fill what are the information missing to fulfill the requirements>
+
+## Migrations
+
+The new transaction history service should migrate historical transactions. 
+Current APIs used in V1 should continue functioning without disruption
+
+## Deliverables
+
+1. API contract for FE
+2. Core Transaction History service
+3. Rumble addons service
+4. New APIs for transaction history
+5. Migrating historical transactions
