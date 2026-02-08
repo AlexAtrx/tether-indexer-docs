@@ -1,0 +1,9 @@
+I was asked by mobile app team to: "please double check and close if not relevant."
+
+And I was told "This is not a bug but an Improvment so I will move it to the improvments for now and we'll change it later."
+
+They are talking about this ticket: _docs/_tasks/6-feb-26-check-validity-of-message-in-app/ticket.txt
+
+Check the codebase for notifications and confirm if this is relevant to the backend - meaning: if the source of the message is by any chance the backend. 
+
+What I mean: if it's an improvement that he mobile app wants, check if such type of notifications is really coming from backend, and tell me if its doable in the backend itself or not.

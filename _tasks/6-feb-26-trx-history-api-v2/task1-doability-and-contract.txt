@@ -1,0 +1,19 @@
+## Context
+
+This is a proposal by the product owner about the requirement of a transaction history implement in the actual system: _docs/_tasks/6-feb-26-trx-history-api-v2/requirment.txt
+
+Old discussion about the same: _docs/_tasks/__ trx history api
+
+## Your task
+
+Go through the requirement document of the transaction history.
+
+Understand that the requirement doesn't really require a separate deployment or processes running separately for the transaction service. What they're looking for is basically a module maybe in the backend that links things together in a way that matches the convention and simple enough to be done in a single quick round. The feature out of the box will be a transaction history and points, according to the requirements and specifications in the document.
+
+At the moment I have only these two requests:
+
+1. Given the actual codebase that I have, most of which is on dev branch, is the requirement included in the document shared above possible or not?
+
+2. If it is not possible, give me an explanation why, and if there is a way to propose a middle ground or a compromise, propose it. 
+
+3. If it is possible, then all I want from you at the moment is the interface of the API so that we can share it with the frontend team. Pay full attention to the rest of the APIs and their requirements while drafting the interface of the API. Pay full attention to what is possible and to the bottlenecks that may or may not be introduced due to implementing this API.

@@ -1,0 +1,9 @@
+Read the ticket: _docs/_tasks/6-feb-26-Notes on Transfer push notifications/ticket.txt
+
+I was asked by the mobile app team to: "this is not a bug but an Improvment so I will move it to the improvments board for now and we'll take a look. please double check and close if not relevant."
+
+Understand the ticket very well.
+Check if this improvement does make sense or not.
+Check the backend to tell me if it's doable in the backend or not.
+
+When you reach a definitive conclusion, give me a short message to reply to the mobile team.
