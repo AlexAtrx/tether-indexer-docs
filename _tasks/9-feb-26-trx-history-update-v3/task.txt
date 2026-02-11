@@ -1,0 +1,13 @@
+1-
+This is the infal specs: _docs/_tasks/6-feb-26-trx-history-api-v2/SPEC.md
+
+2-
+Scan quickly through the beginning of the story treatment:
+1: _docs/_tasks/trx history api
+2: _docs/_tasks/tx_mobile_amount_issue-22-jan-2026
+
+3-
+Go through the codebase. 
+
+4- 
+Conclude if the specs of point 1 is doable or not. If not, propose a better solution. Don't edit the specs of point 1. 
