@@ -79,20 +79,178 @@ The lead's Rumble suggestion (`subType`, `tipDirection`, `rantDirection`, `chann
 
 ---
 
-## Questions for the lead
+## Lead's responses to objections
 
-1. **`fromUserId` / `toUserId`** — This requires a new address→userId reverse lookup in WDK base. Is this expected to work cross-deployment (i.e., resolve Rumble userIds from WDK base)? Or is it Rumble-only? If Rumble-only, should WDK base return these as null?
+| Objection | Lead's decision |
+|---|---|
+| **1. Dropped `underlyingTransfers[]`** | Accepted. Less duplicate data. A 2nd detail endpoint can be added later if needed. |
+| **2. Dropped rant message text** | **Keep it.** "Yeah let's include it then if it's doable." |
+| **3. Dropped counterparty displayName/avatarUrl** | Accepted. "We don't store display names on our side, so it would be a call against Rumble APIs. User IDs are enough references from our side." |
+| **4. Dropped `appContext.referenceId`** | Accepted. "Webhooks are temporary data, so they would be lost." |
+| **5. `rantDirection` vs `tipDirection`** | Use single `tipDirection` for both. |
+| **6. `channelId`** | Confirmed not doable. Drop it. |
 
-2. **Human-friendly `amount`** — Should the backend convert amounts (apply decimals) at response time? Or does "human friendly" just mean BTC-style where it's already in BTC denomination? EVM amounts are currently stored in smallest unit (`"1000000"` = 1 USDT).
+---
 
-3. **`fee` / `feeToken` / `feeLabel`** — Should `fee` be null for Phase 1 (matching the current deferred scope)? Or is fee extraction now expected in this iteration?
+## Agreed response shapes
 
-4. **Rant message content** — The reduced Rumble response doesn't include the rant text message. Does the FE not need to display rant messages in the transaction list?
+### WDK Base layer
 
-5. **Counterparty resolution** — With `fromUserId`/`toUserId` replacing `appResolved` (displayName, avatarUrl), is the FE expected to resolve usernames and avatars client-side? If so, is there an existing batch-resolve endpoint?
+```jsonc
+{
+  // ─── PRIMARY KEY ───
+  "userId": "....",
+  "walletId": "052d6e5d-...",
+  "transactionHash": "0xabc123...",
+  "blockNumber": 12345,
 
-6. **`rantDirection` vs `tipDirection`** — Why separate fields? A rant is a subtype of tip. Can this be a single `direction` field under the Rumble addon (matching the current `tipDirection` that covers both)?
+  // ─── TIMING ───
+  "ts": 1707222200000,
+  "updatedAt": 1707222200000,
 
-7. **`channelId`** — The lead flagged uncertainty. Should we skip this field for now and add it later if feasible?
+  // ─── CHAIN / NETWORK ───
+  "blockchain": "ethereum",
 
-8. **`underlyingTransfers` fallback** — With underlying transfers dropped, should the FE use the old `/token-transfers` endpoint for detail views? Or is there no detail view planned?
+  // ─── ASSET ───
+  "token": "usdt",
+
+  // ─── CLASSIFICATION ───
+  "type": "sent",           // "sent" | "received" | "swap_out" | "swap_in"
+  "status": "confirmed",    // Phase 1: always "confirmed"
+
+  // ─── AMOUNT ───
+  "amount": "0.0001",       // human-friendly amount
+  "fiatAmount": "100.50",   // nullable
+  "fiatCcy": "usd",         // nullable
+
+  // ─── PARTICIPANTS ───
+  "from": "0xabc...",
+  "fromUserId": "...",       // nullable — NEW SCOPE
+  "to": "0xdef...",
+  "toUserId": "...",         // nullable — NEW SCOPE
+
+  // ─── FEES ───
+  "fee": "0.00123",         // nullable — NEW SCOPE (deferred from Phase 2?)
+  "feeToken": "usdt",       // nullable
+  "feeLabel": "paymaster"   // "gas" | "paymaster" — normalized: undefined → "gas"
+}
+```
+
+### Rumble addon fields
+
+```jsonc
+{
+  "subType": "transfer",     // "transfer" | "tip" | "rant"
+  "tipDirection": "sent",    // "sent" | "received" — nullable, only for tips/rants
+  "message": "Great stream!" // rant text — nullable, only for rants
+}
+```
+
+---
+
+## Questions and answers (resolved)
+
+| # | Question | Lead's answer | Implication |
+|---|---|---|---|
+| 1 | `fromUserId` / `toUserId` — build reverse lookup now? | **Null for now** | Both fields returned as `null`. No new address→userId lookup needed. Future work. |
+| 2 | Human-friendly `amount` — backend conversion? | **Keep raw, app handles it** | No change to amount format. EVM stays `"1000000"`, BTC stays `"0.5"`. Same as existing `/token-transfers`. |
+| 3 | `fee` / `feeToken` — implement fee extraction? | **Null for now**, focus on it afterwards. Paymaster fees are easier to detect. | `fee: null`, `feeToken: null`. Only `feeLabel` populated (`"gas"` or `"paymaster"`). Fee extraction is next priority after this ships. |
+
+---
+
+## Final agreed response shapes
+
+All questions resolved. Ready to implement.
+
+### WDK Base layer
+
+```jsonc
+{
+  // ─── PRIMARY KEY ───
+  "userId": "....",                  // wallet owner's userId
+  "walletId": "052d6e5d-...",
+  "transactionHash": "0xabc123...",
+  "blockNumber": 12345,
+
+  // ─── TIMING ───
+  "ts": 1707222200000,              // block timestamp (epoch ms)
+  "updatedAt": 1707222200000,       // equals ts in Phase 1
+
+  // ─── CHAIN / NETWORK ───
+  "blockchain": "ethereum",
+
+  // ─── ASSET ───
+  "token": "usdt",
+
+  // ─── CLASSIFICATION ───
+  "type": "sent",                   // "sent" | "received" | "swap_out" | "swap_in"
+  "status": "confirmed",            // Phase 1: always "confirmed"
+
+  // ─── AMOUNT ───
+  "amount": "1000000",              // raw chain format (app converts using token decimals)
+  "fiatAmount": "100.50",           // nullable
+  "fiatCcy": "usd",                 // nullable
+
+  // ─── PARTICIPANTS ───
+  "from": "0xabc...",
+  "fromUserId": null,               // null for now — future work
+  "to": "0xdef...",
+  "toUserId": null,                 // null for now — future work
+
+  // ─── FEES ───
+  "fee": null,                      // null for now — fee extraction is next priority
+  "feeToken": null,                 // null for now
+  "feeLabel": "gas"                 // "gas" | "paymaster" — populated from existing label detection
+}
+```
+
+### Rumble addon fields (added on top of base)
+
+```jsonc
+{
+  "subType": "transfer",            // "transfer" | "tip" | "rant"
+  "tipDirection": "sent",           // "sent" | "received" — nullable, only for tips/rants
+  "message": "Great stream!"        // rant text — nullable, only for rants
+}
+```
+
+---
+
+## Implementation delta — what changes from current code
+
+The current implementation returns the rich Section 5 response from the spec. This update is a **response shape change** — the processing pipeline and stored data remain the same, only the API response mapping changes.
+
+### Fields to remove from response
+
+| Field | Why safe to drop |
+|---|---|
+| `rail`, `chainId`, `networkName` | FE derives from `blockchain` |
+| `symbol`, `decimals` | FE derives from `token` |
+| `direction` (in/out/self) | Redundant with `type` (sent/received/swap_out/swap_in) |
+| `explorerUrl` | FE builds from `blockchain` + `transactionHash` |
+| `fromMeta`, `toMeta` | Replaced by flat `fromUserId`/`toUserId` (null for now) |
+| `fees` (object) | Replaced by flat `fee`/`feeToken`/`feeLabel` |
+| `label` | Replaced by `feeLabel` |
+| `underlyingTransfers[]` | Less dup data; detail endpoint later if needed |
+| `appActivitySubtype` | Replaced by Rumble `subType` |
+| `appContext` | Dropped — webhooks are temporary |
+| `appTip` (object) | Replaced by flat Rumble `tipDirection` + `message` |
+
+### Fields to add to response
+
+| Field | Source |
+|---|---|
+| `userId` | From wallet owner lookup (already available in processing context) |
+| `blockNumber` | Promote from `underlyingTransfers[0].blockNumber` to top level |
+| `fromUserId` | `null` (future work) |
+| `toUserId` | `null` (future work) |
+| `fee` | `null` (next priority after this ships) |
+| `feeToken` | `null` (next priority) |
+| `feeLabel` | Map from existing: `label === "paymasterTransaction"` → `"paymaster"`, else → `"gas"` |
+| Rumble: `subType` | Rename from `appActivitySubtype` |
+| Rumble: `tipDirection` | From existing `appTip.tipDirection` |
+| Rumble: `message` | From existing `appTip.appContent.message` |
+
+### Fields unchanged
+
+`transactionHash`, `walletId`, `ts`, `updatedAt`, `blockchain`, `token`, `type`, `status`, `amount` (raw format), `fiatAmount`, `fiatCcy`, `from`, `to`
