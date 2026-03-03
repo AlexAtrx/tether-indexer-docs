@@ -1,0 +1,50 @@
+wdk-indexer-wrk-evm
+
+terminal 1
+
+node worker.js --wtype wrk-erc20-indexer-proc \
+--env development --rack eth-proc --chain usdt-eth
+
+terminal 2
+
+node worker.js --wtype wrk-erc20-indexer-api \
+--env development --rack eth-api --chain usdt-eth  --proc-rpc  \
+016e9d05616989ab957e6b1dc2733beaa67d771db1a98bfdaf4de6bd0a8454ff
+
+---
+
+rumble-data-shard-wrk
+
+terminal 3
+
+node worker.js --wtype wrk-data-shard-proc --env development --rack shard-1
+
+terminal 4
+
+node worker.js --wtype wrk-data-shard-api --env development \
+--rack shard-1-1 --proc-rpc \
+5411ecc1aa1955cc4e279f0a0d05cd5fe442654044306b28c6a024da1e23db3a
+
+---
+
+rumble-ork-wrk
+
+node -e "\
+const root = process.cwd(); \
+process.argv = [ \
+'node', 'worker.js', \
+'--wtype', 'wrk-ork-api', \
+'--env', 'development', \
+'--rack', 'ork-1', \
+'--serviceRoot', root \
+]; \
+const w = require('./worker.js'); \
+w.init(); \
+w.start(); \
+"
+
+---
+
+**rumble-app-node**
+
+node worker.js --wtype wrk-node-http --env development --port 3000

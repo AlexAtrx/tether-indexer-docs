@@ -1,0 +1,14 @@
+In order to launch the data shard processor in 'rumble-data-shard-wrk', i had to make some code changes into it. This is while the team can deploy without these changes. This is the reason:
+
+----- 
+
+The constructor with this.init() / this.start(): The base class WrkBase (from the @tetherto/wdk-data-shard-wrk package) expects subclasses to call init() and start() to boot up. In the team's deployment environment, the worker launcher framework handles this lifecycle automatically — it instantiates the worker and then calls init() and start() on it externally. But when you run node worker.js locally, the bootstrap path goes through a simpler flow that just constructs the class and expects the constructor itself to kick off the lifecycle. Without the explicit init()/start() in the constructor, the worker was constructed and then… did nothing — it
+just silently exited.
+
+The this.jobTimeouts ??= {}: The init() method tries to set this.jobTimeouts.processTxWebhooks but this.jobTimeouts was never initialized to an object. In the deployed environment, the base class or framework likely initializes this property before init() runs (possibly a newer version of the base package, or a different initialization order). Locally, it was undefined, so accessing .processTxWebhooks on it would throw.
+
+The logger.info for the rpc public key: This is just so you can actually see the key to copy-paste into terminal 4. The deployed environment doesn't need this because service discovery / orchestration handles the RPC wiring automatically.
+
+TL;DR: The team's deployment tooling manages worker lifecycle and wiring externally. Running locally with node worker.js bypasses that tooling, so you need the class to self-start and self-report.
+
+-----
