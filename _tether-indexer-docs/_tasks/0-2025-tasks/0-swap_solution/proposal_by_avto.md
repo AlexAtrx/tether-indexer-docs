@@ -1,0 +1,5 @@
+swap flow on the app side
+we call GET /api/v1/swaps/getAction to get the swap quote. The response includes a unique txId for this swap session.
+then we  call POST /api/v1/swaps/registerTxs with the txId to register the transaction
+then we periodically call GET /api/v1/swaps/getStatus using the txId. once the endpoint returns status: 'success', we extract the dstTxHash (destination hash) from the response and locally link it with the srcTxHash (source hash) to mark the entire operation as a completed swap and identify the receiving transaction as a part of swap operation.
+would it be possible to move the logic of associating these transactions to the backend? Ideally, when we fetch transaction history or details, the backend should already identify and link the source and destination transactions as a "Swap" entity, removing the need for the app to manually track and link hashes via the txId. all the endpoints are proxied through backend.

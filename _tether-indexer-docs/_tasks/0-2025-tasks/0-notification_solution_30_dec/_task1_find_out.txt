@@ -1,0 +1,15 @@
+## Context
+
+The issue is discussed in these tasks: 
+_docs/tasks/notifications_discussion_21_dec
+_docs/tasks/notifications_observed_Duplicate_swap
+_docs/tasks/notifications_not_showing_debug
+
+## Qeustions for a solution
+
+I need to know: 
+1. Which API exactly is relevant to this bug/problem? Give me the URL, method and handler module in code. 
+2. If the solution on mind is that: we need request the app to send us encrypted string based on device information (obtained by a React Native library on the app) AND combine that with the FMC token that is already coming from the app to uniquely identify the app, do we need the app (consumer) to send us the userID encrypted also, or only the device information string? 
+3. Does this backed store the userId (email) as is? 
+
+Just answer these questions for now, and put the answers in a new file called _task1_find_out_results.txt

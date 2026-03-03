@@ -1,0 +1,34 @@
+Fix proposal (draft)
+
+Goal
+- Ensure direct tip notifications generate a Rumble chat webhook or fail fast with an actionable error.
+
+Recommended approach
+1) Client fix (mobile app)
+   - Always include `dt` and `id` in direct tip requests.
+   - This is required to hit the TIP webhook path in `rumble-ork-wrk/workers/api.ork.wrk.js`.
+
+2) Backend guard (non-breaking)
+   - Add a warning log/metric when `type=TOKEN_TRANSFER` has a transaction hash but lacks both:
+     - `payload` (RANT), and
+     - `dt` + `id` (TIP).
+   - Keep the current 204/200 response to avoid breaking push-only TOKEN_TRANSFER uses.
+
+3) Optional strictness (explicit)
+   - Introduce `webhookRequired: true` (or similar) in `/api/v1/notifications`.
+   - If set, enforce `payload` or `dt` + `id` and return 400 when missing.
+   - This enforces Rumble-tip correctness without breaking other TOKEN_TRANSFER notifications.
+
+4) Docs/tests alignment
+   - Update `rumble-docs/api/Notifications/POST -api-v1-notifications.bru` to describe the
+     `payload` vs `dt`/`id` requirements for chat webhooks.
+   - Update `rumble-app-node/tests/http.node.wrk.intg.test.js` if any new field or validation is added.
+
+Alternatives
+- Hard-enforce `dt` + `id` for all TOKEN_TRANSFER requests.
+  - Simpler, but breaks current push-only transfer notifications (there is an existing test for this).
+- Backend fallback: derive `dt`/`id` from stored user or wallet metadata.
+  - Only viable if a reliable mapping to Rumble ids exists; otherwise not feasible.
+
+Risks
+- Enforcing new required fields is a breaking change for clients not yet updated.

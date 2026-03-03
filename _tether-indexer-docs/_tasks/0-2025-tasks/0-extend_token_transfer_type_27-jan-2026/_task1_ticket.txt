@@ -1,0 +1,8 @@
+Read:
+_docs/_tasks/_rumble-tip-test-21-jan-2026/solution-suggestion.md
+
+Which was a solution agreed upon by the team as one step solution towards solving the notification issue.
+
+If you want more context, read the contents of the folder of the suggestion.
+
+As you can see, the solution has two phases. I want to convert each phase into its own ticket. In this directory (_docs/_tasks/_extend_token_transfer_type_27-jan-2026), write both the tickets for me. Make the tickets comprehensive in a way that the developer knows why this is done and can easily understand the reason of this solution.

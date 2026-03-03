@@ -1,0 +1,46 @@
+## Context
+
+This is the specification file _docs/_tasks/11-feb-26-execute-plan-trx-history/SPEC.md
+
+It resulted form research you ran on multiple phases before. 
+
+This is the current status of the indexer system _docs/___TRUTH.md
+
+## Task
+
+1. Read the specs file very well and understand the feature. 
+2. Understand the status of the system. 
+3. Execute the feature in the local repos here. 
+
+Note 1: 
+- Create a branch in each involved repo and choose a common name for the branch. 
+- Make sure you test the logic and pass the tests. 
+- If you need to plan first, do that. 
+- Make sure Swagger docs are updated or written if not already there (if not there, see how Swagger is implemented in other repos). 
+- Do not commit or push any code. 
+
+Note 2:
+
+During a previous run to execute, you asked me this question:
+"
+The spec says to modify each wdk-indexer-wrk-* to publish grouped transfer events. However, the current architecture uses a 3-stage pipeline (Indexer → Processor → Data-Shard) where individual transfers flow through Redis streams as CSV. Changing the stream format would break the processor. Should I implement the grouping at the data-shard level instead (group transfers by txHash as they arrive in _processSingleMessage), which achieves the same result without modifying the indexer-to-processor stream contract?
+"
+
+My answer is:
+------
+wdk-indexer-wrk-* changes:
+	- first we adjust wdk-indexer-wrk-* to publish new transfer events by grouping transfers of same tx in a single event
+	- also we have to adjust polling to do this grouping which makes it easier for other services to handle tx
+
+wdk-data-shard-wrk changes:
+	- we keep storing existing wdk_data_shard_wallet_transfers_v2 as it is which more helpful for debugging purposes and maybe usable in future simple solutions
+	- we add a new wdk_data_shard_wallet_transfers_processed which stores a single entry per entire transaction and not per transfer
+	- we adjust processing logic of transfer events to do generic parsing for wdk_data_shard_wallet_transfers_processed as well, ideally this should be a single method that can be extended by other classes e.g. rumble use case which would call super.method and afterwards do further parsing for rumble specific use case
+	- lastly on rumble_data_shard_wrk and tether_data_shard_wrk we extend the base class method to do further processing
+
+wdk-app-node changes:
+	- we keep existing flows as we still going to support wdk_data_shard_wallet_transfers_v2
+	- we add v2 endpoints for transfer history taht utilized wdk_data_shard_wallet_transfers_processed collection rather than wdk_data_shard_wallet_transfers_v2
+------
+
+If this doesn't answer your question, ask again clarifying what you want. 

@@ -1,0 +1,49 @@
+### Context
+This task concerns the **INDEXER** project.  
+A canonical reference file for this project exists at: 
+```
+_docs/___TRUTH.md
+```
+Use it whenever needed to understand the project’s conventions, architecture, or constraints.
+
+### Task
+1. **Use the GitHub CLI** to retrieve:
+    - the **diff** of this PR
+		https://github.com/tetherto/wdk-indexer-wrk-base/pull/63
+    - all **PR review comments**
+2. Put into consideration these relevant PRs: 
+	https://github.com/tetherto/wdk-indexer-wrk-evm/pull/62
+https://github.com/tetherto/wdk-indexer-wrk-btc/pull/64
+https://github.com/tetherto/wdk-indexer-wrk-solana/pull/50
+https://github.com/tetherto/wdk-indexer-wrk-ton/pull/60
+https://github.com/tetherto/wdk-indexer-wrk-tron/pull/56
+https://github.com/tetherto/wdk-data-shard-wrk/pull/138
+https://github.com/tetherto/rumble-docs/pull/34
+3. **Address the comments of the PR** using only verifiable information from:
+    - the PR title and description
+    - the code changes
+    - the repository indicated by the PR URL (`tetherto/[repo-name]`)
+    - existing PR comments
+4. For each PR comment that **has not been replied to by “AlexAtrx”**:
+    - Quote a clear portion of the comment so it is identifiable.
+    - Check whether the comment accurately reflects the code.
+    - Determine whether the comment is:
+        - correct and actionable
+        - unclear or ambiguous
+        - outdated relative to the code
+        - incorrect or based on a misunderstanding
+    - Provide a **concise, professional recommendation**, choosing one of:
+        - **Advise adjusting the code** to address the comment
+        - **Advise replying to the comment** with clarification, correction, or justification
+5. **Do not write or modify code** as part of this task.
+6. **Do not place any comment in GitHub**.
+
+### Notes
+- This PR belongs to the **INDEXER** project; examine adjacent repositories if needed to understand the logic.
+- Verify cross-repo assumptions before concluding.
+- The objective is **accurate and truthful evaluation**, based on software-engineering best practices.
+
+### Output Requirements
+- Present feedback comment by comment.
+- Each comment must be identifiable through a quoted excerpt.
+- Provide clear, direct recommendations without describing internal reasoning steps or thought processes.

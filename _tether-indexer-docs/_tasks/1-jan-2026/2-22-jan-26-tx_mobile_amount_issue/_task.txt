@@ -1,0 +1,19 @@
+## Context
+
+This is about a bug in the mobile app where the BTC transaction amounts are displayed incorrectly.
+
+Refer to ticket.txt for more full context.
+
+Refer to the meeting notes meeting-notes.txt for more context.
+
+Refer to the slack discussions slack-discussions/chat.txt for more context. Don't miss the proposal.txt file in the same directory.
+
+## Task
+
+- Understand the current implementation of the mobile app for displaying BTC transaction amounts.
+- Understand the current implementation of the indexers for indexing BTC transactions.
+- Understand the proposed solution in proposal.txt.
+- Understand the team discussion AND the proposal.
+- Dig into the backend here to figure which APIs are or might be responsible for the issue.
+- Give me a concise summary of what you find. Point to the culprit code if it exists in the backend.
+- No code fix. Just analysis.

@@ -1,0 +1,9 @@
+Explain to me what's done in this subject as a whole (I'm pointing to the PR and their reviews, but explain what's done in these PRs).
+
+Add to the explanation a string paragraph that tells what's done without pointing to modules. But add to it the repo names indicating what's done in what repo. 
+
+In the rest of the explanation, mentioned repos, modules and tech approach.
+
+Subject _docs/tasks/Wallet Balance 23 Dec 2025
+
+Put the poutput in a file in this folder.

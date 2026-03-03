@@ -1,0 +1,40 @@
+Now we have this comment form him:
+
+"hmm we have this issue"
+With the log:
+
+---
+21|shard-p | 2025-12-11T15:20:15: TypeError: Cannot read properties of undefined (reading 'push')
+21|shard-p | 2025-12-11T15:20:15:     at WrkDataShardProc.init (/srv/data/staging/rumble-data-shard-wrk/workers/proc.shard.data.wrk.js:40:19)
+21|shard-p | 2025-12-11T15:20:15:     at new WrkDataShardProc (/srv/data/staging/rumble-data-shard-wrk/workers/proc.shard.data.wrk.js:25:10)
+21|shard-p | 2025-12-11T15:20:15:     at worker (/srv/data/staging/rumble-data-shard-wrk/node_modules/bfx-svc-boot-js/lib/worker.js:64:15)
+21|shard-p | 2025-12-11T15:20:15:     at Object.<anonymous> (/srv/data/staging/rumble-data-shard-wrk/node_modules/bfx-svc-boot-js/index.js:20:39)
+21|shard-p | 2025-12-11T15:20:15:     at Module._compile (node:internal/modules/cjs/loader:1529:14)
+21|shard-p | 2025-12-11T15:20:15:     at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
+21|shard-p | 2025-12-11T15:20:15:     at Module.load (node:internal/modules/cjs/loader:1275:32)
+21|shard-p | 2025-12-11T15:20:15:     at Module._load (node:internal/modules/cjs/loader:1096:12)
+21|shard-p | 2025-12-11T15:20:15:     at Module.require (node:internal/modules/cjs/loader:1298:19)
+21|shard-p | 2025-12-11T15:20:15:     at Hook._require.Module.require (/opt/nvm/versions/node/v20.19.4/lib/node_modules/pm2/node_modules/require-in-the-middle/index.js:101:39)
+---
+
+And he shares this code:
+
+---
+  init () {
+    this.loadConf('proc.shard.data', 'wrk')
+    super.init()
+
+    this.jobSchedules.processTxWebhooks ??= this.conf.wrk?.processTxWebhooks || '*/10 * * * * *'
+    this.gaslessMaxRetries = this.conf.wrk?.gaslessMaxRetries || 3
+    this.gaslessRetryDelay = this.conf.wrk?.gaslessRetryDelay || 10_000 // 10 seconds
+
+    // Add LRU facility for notification deduplication
+    const dedupeMaxEntries = this.conf.notifications?.transferDedupeMaxEntries || 20000
+    const dedupeTtlMs = this.conf.notifications?.transferDedupeTtlMs || 600000
+    this.initFacs.push(['fac', 'bfx-facs-lru', 'dedupe', 'dedupe', { max: dedupeMaxEntries, maxAge: dedupeTtlMs }, 1])
+  }
+---
+
+Saying: "this.initFacs is not defined anywhere in class hierarchies"
+
+Find out!

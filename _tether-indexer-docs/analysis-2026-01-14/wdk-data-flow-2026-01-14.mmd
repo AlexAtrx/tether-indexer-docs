@@ -1,0 +1,95 @@
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#2d3748', 'primaryTextColor': '#fff', 'lineColor': '#718096'}}}%%
+
+sequenceDiagram
+    autonumber
+    participant Client as SDK/App Client
+    participant AppNode as wdk-app-node<br/>(HTTP Gateway)
+    participant IdxApp as wdk-indexer-app-node<br/>(Indexer API)
+    participant Ork as wdk-ork-wrk<br/>(Router)
+    participant Shard as wdk-data-shard-wrk<br/>(Data Storage)
+    participant Processor as wdk-indexer-processor-wrk<br/>(TX Router)
+    participant Indexer as Chain Indexers<br/>(EVM/BTC/SOL/etc)
+    participant Redis as Redis<br/>(Cache/Streams)
+    participant DB as MongoDB/HyperDB
+    participant RPC as Blockchain RPC
+
+    Note over Client,RPC: === WALLET CREATION FLOW ===
+
+    Client->>AppNode: POST /api/v1/wallets<br/>{addresses, name, type}
+    AppNode->>AppNode: JWT Auth + Rate Limit Check
+    AppNode->>Ork: RPC: addWallet(userId, addresses)
+    Ork->>Ork: Autobase: Check address uniqueness
+    Ork->>Ork: Round-robin shard selection
+    Ork->>Shard: RPC: addWallet(walletData)
+    Shard->>DB: Insert wallet record
+    Shard-->>Ork: {walletId, shardId}
+    Ork->>Ork: Autobase: Store user→shard lookup
+    Ork-->>AppNode: {wallet}
+    AppNode-->>Client: 201 Created {wallet}
+
+    Note over Client,RPC: === BALANCE QUERY FLOW ===
+
+    Client->>AppNode: GET /api/v1/wallets/:id/balance
+    AppNode->>Redis: Check cache (key: balance:{walletId})
+    alt Cache Hit
+        Redis-->>AppNode: Cached balance
+        AppNode-->>Client: 200 OK {balance}
+    else Cache Miss
+        AppNode->>Ork: RPC: getWalletBalance(walletId)
+        Ork->>Ork: LRU: Lookup shard for wallet
+        Ork->>Shard: RPC: getWalletBalance(walletId)
+        loop For each chain/token in wallet
+            Shard->>Indexer: RPC: getBalance(address)<br/>Topic: {chain}:{token}
+            Indexer->>RPC: eth_getBalance / getTokenBalance
+            RPC-->>Indexer: balance
+            Indexer-->>Shard: balance
+        end
+        Shard->>Shard: Aggregate + FX conversion
+        Shard-->>Ork: {balances, fiatTotal}
+        Ork-->>AppNode: {balance}
+        AppNode->>Redis: Cache result (TTL: 30s)
+        AppNode-->>Client: 200 OK {balance}
+    end
+
+    Note over Client,RPC: === TRANSFER INDEXING FLOW ===
+
+    loop Every sync interval (5-30s per chain)
+        Indexer->>RPC: Get new blocks/transactions
+        RPC-->>Indexer: Block data + transactions
+        Indexer->>Indexer: Filter relevant transfers
+        Indexer->>DB: Store blocks + transfers
+        Indexer->>Redis: Publish to stream<br/>@wdk/transactions:{chain}:{token}
+    end
+
+    Note over Client,RPC: === TRANSFER ROUTING FLOW ===
+
+    Processor->>Redis: XREADGROUP from transaction stream
+    Redis-->>Processor: Transfer batch
+    loop For each transfer
+        Processor->>Processor: Autobase: Lookup wallet by address
+        alt Wallet found
+            Processor->>Processor: Get shard for wallet
+            Processor->>Redis: Route to shard stream<br/>@wdk/transactions:shard-{id}
+        else Wallet not found
+            Processor->>Processor: Skip (not tracked)
+        end
+    end
+    Processor->>Redis: XACK processed messages
+
+    Note over Client,RPC: === SHARD TRANSFER PROCESSING ===
+
+    Shard->>Redis: XREADGROUP from shard stream
+    Redis-->>Shard: Transfers for this shard
+    Shard->>Shard: Dedupe + validate
+    Shard->>DB: Store wallet transfers
+    Shard->>Shard: Emit "new-transfer" event
+
+    Note over Client,RPC: === DIRECT INDEXER API QUERY ===
+
+    Client->>IdxApp: GET /api/v1/ethereum/usdt/:address/token-transfers<br/>x-api-key: {key}
+    IdxApp->>IdxApp: Validate API key (Autobase)
+    IdxApp->>Indexer: RPC: queryTransfersByAddress<br/>Topic: ethereum:usdt
+    Indexer->>DB: Query transfers by address
+    DB-->>Indexer: Transfer records
+    Indexer-->>IdxApp: {transfers}
+    IdxApp-->>Client: 200 OK {transfers}

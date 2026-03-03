@@ -1,0 +1,79 @@
+
+Thread
+
+rumble-wallet-v3-dev
+
+11:38
+ RPC queryTransfersByAddress [Rumble Staging]                                                                         
+     Server: ed92bebe...863bf312
+     Payload:                                                                                                             
+     {"address":"bc1qyzyqxk338cv77xvjh6f3y0kapsldpxhs5035rd","limit":50,"fromTs":1771261082001,"toTs":9999999999999}    
+     ------------------------------------------------------------                                                         
+     [
+       {                                                                                                                  
+         "transferIndex": 0,                                                                                            
+         "transactionHash": "60e719ed188d23e381f0fc97e64812c151f4b03ca7d72fb9dc5f42f450e6478c",                         
+         "amount": "0.00008578",
+         "blockNumber": 937379,
+         "blockchain": "bitcoin",
+         "from": "bc1qyzyqxk338cv77xvjh6f3y0kapsldpxhs5035rd",
+         "label": "transaction",
+         "logIndex": null,
+         "timestamp": 1771491790000,
+         "to": "39aekq6gWtBjYXQNKjwCTUDtHc6o1yeiZJ",
+         "token": "btc",
+         "transactionIndex": 904
+       },
+       {
+         "transferIndex": 0,
+         "transactionHash": "982620b63caec9630a585911d31554106ed658ddd6e9f7a0116f98c6e8c7ac46",
+         "amount": "0.00002636",
+         "blockNumber": 937527,
+...
+ (edited) 
+11:38
+timestamp: 2026-02-19 10:03:10 +0100 - fresh
+@Usman Khan / @Alex you may want to take a look at this as well, thank you (edited) 
+Saved for later
+Francesco C.
+  1 hour ago
+@Alex @Usman Khan this one
+1:34
+@Alex - Usman is checking
+1:34
+thanks both
+Francesco C.
+  35 minutes ago
+Gohar, I checked and yes, you have recent transactions for 0x8778a200f5e34945ed05629098195534c2963432 USDT on Polygon
+1:43
+they don't seem to appear
+Francesco C.
+  20 minutes ago
+RPC queryTransfersByAddress [Rumble Staging]                                                                    
+     Server - public key: 0b66e82d...304d0ea1
+     Service: Indexer - Chain/Token: POL / USDT - method: queryTransfersByAddress --- params: { address:             
+     ADDRESS, limit: LIMIT }                                                                                       
+     Payload: {"address":"0x8778a200f5e34945ed05629098195534c2963432","limit":10}                                    
+     ------------------------------------------------------------
+     [                                                                                                               
+       {                                                                                                             
+         "transferIndex": 0,                                                                                       
+         "transactionHash": "0x039d4f217ab77ab7b09a00f35dd7ba92bd1976f3a0bb3bda1f98397148c79d09",                    
+         "amount": "2.676617",                                                                                     
+         "blockNumber": 83230084,                                                                                  
+         "blockchain": "polygon",
+         "from": "0x07ae8551be970cb1cca11dd7a11f47ae82e70e67",
+         "label": "transaction",
+         "logIndex": 253,
+         "timestamp": 1771580192000,
+         "to": "0x8778a200f5e34945ed05629098195534c2963432",
+         "token": "usdt",
+         "transactionIndex": 34
+       },
+       {
+         "transferIndex": 0,
+         "transactionHash": "0xfb210ae729761b1421f692fcd559791f5d71b8ccb2319dea5535fb9761e5e8e3",
+         "amount": "1.0",
+I can see POL USDT transactions are indexed but they don't appear in the history
+10 external people are from 5 organisations
+

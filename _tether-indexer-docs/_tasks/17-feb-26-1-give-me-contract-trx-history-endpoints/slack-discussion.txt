@@ -1,0 +1,164 @@
+I think we're adding too much data above, and a lot dup data
+
+IMO on base wdk layer we can have just this:
+{
+  // ─── PRIMARY KEY ───
+  "userId": "....", // duplicate data but helpful for querying
+  "walletId": "052d6e5d-...",
+  "transactionHash": "0xabc123...",
+  "blockNumber": 12345
+
+  // ─── TIMING ───
+  "ts": 1707222200000, // block timestamp (epoch ms)
+  "updatedAt": 1707222200000, // equals ts in Phase 1; differs for pending→confirmed in Phase 2
+  "createdAt": 1707222300000, // when this doc was created/updated (backend-only, not in API response)
+
+  // ─── CHAIN / NETWORK ───
+  "blockchain": "ethereum", // indexed for filtering
+  
+  // ─── ASSET ───
+  "token": "usdt", // indexed for filtering
+  
+  // ─── CLASSIFICATION ───
+  "type": "sent", // "sent" | "received" | "swap_out" | "swap_in" — indexed
+  "status": "confirmed", // Phase 1: always "confirmed"
+
+  // ─── AMOUNT ───
+  "amount": "0.0001", // human friendly amount
+  "fiatAmount": "100.50", // may be null
+  "fiatCcy": "usd", // may be null
+
+  // ─── PARTICIPANTS ───
+  "from": "0xabc...",
+  "fromUserId": "..." // nullable
+  "to": "0xdef...",
+  "toUserId": "..." // nullable
+
+  // ─── FEES ───
+  "fee": "0.00123",
+  "feeToken": "usdt",
+  "feeLabel": "paymaster", // "gas" | "paymaster" — normalized: undefined → "gas"
+}
+@Mo Elsabry @Francesco C. wdyt about above structure?
+
+and for rumble we can have these:
+{
+  "subType": "transfer", "rant", "tip",...
+  "tipDirection": "sent", "received",... optional
+  "rantDirection": ...,
+  "channelId": // not sure if doable tbh
+}
+
+Hey @Vigan
+looking to implement your suggested responses, I think we are dropping quite a bit of what rather can be needed. These are:
+
+1- Dropped underlyingTransfers[]
+Without this the app loses the ability to show individual transfer details (e.g., BTC: sent 0.5 to recipient + 0.3 change back). It's acceptable if the app only shows list views. But for detail views, it can fall back to the old /token-transfers endpoint, which is what we are trying to avoid.
+
+2- Dropped Rumble appTip.appContent.message
+Without this, rant messages (the text the user typed) won't be in the response. If the app needs to display Great stream! on a rant entry, it has no way to get it from this endpoint.
+
+3- Dropped Rumble appTip.counterparty (displayName, avatarUrl)
+If this is replaced by fromUserId/toUserId, the app must make separate calls to resolve usernames/avatars. This adds app complexity and latency (N+1 resolution or batch lookup).
+
+4- Dropped appContext.referenceId
+With this, if the FE ever needs to link back to the webhook/internal event, it can't. The Rumble side is under-specified.
+
+What do you think?
+
+More notes:
+channelId is not doable indeed as you say.
+rantDirection vs tipDirection: why two separate direction fields? In the current implementation, tipDirection covers both tips and rants
+
+imo avoiding this field ensures we have less dup data, we can add indeed a 2nd endpoint to get each transfer details if useful
+didn't knew, yeah let's include it then if it's doable
+either way we don't store display names etc in our side, so it would be a call against rumble apis if we need to show those details which imo is better than duplicating data. I think user ids are enough references from our side, but we can revisit on adding more data later if needed
+webhooks are temporary data afaik, so they would be lost, no?
+
+@Vigan Ok, thanks!
+
+2 more questions plz:
+
+1. fromUserId / toUserId: we don't have an address→userId reverse lookup today. For outgoing txs, fromUserId is easy (it's the wallet owner). But the counterparty's userId (e.g. toUserId on a send) requires looking up which user owns that address in our system. Should I build this lookup now, or ship with nulls for the counterparty side and add it later?
+
+2. fee / feeToken: extracting actual fee values requires chain-specific logic across all indexers (gasUsed×gasPrice for EVM, sum(inputs)-sum(outputs) for BTC, etc.). None of this exists today. Can we ship with fee: null, feeToken: null for now and just populate feeLabel ("gas" | "paymaster") which we can do already?
+
+1. fromUserId / toUserId: we don't have an address→userId reverse lookup today. For outgoing txs, fromUserId is easy (it's the wallet owner). But the counterparty's userId (e.g. toUserId on a send) requires looking up which user owns that address in our system. Should I build this lookup now, or ship with nulls for the counterparty side and add it later?
+let's leave it as null for now?
+2. we can leave it as null as well, but we should focus on it afterwards, usually on paymasters you can detect fee easily though
+
+Hi guys, so here's my understanding
+We will have a separate table for transaction history details instead of querying and matching real time
+2. You are proposing two APIs one for the transaction history list and another for transaction details. correct?
+
+I saw your efforts to reduce the data size, but this is what I'd go for to ensure that we are covered in one API
+
+{
+  // ─── PRIMARY KEY ───
+  "userId": "....", // duplicate data but helpful for querying
+  "walletId": "052d6e5d-...",
+  "transactionHash": "0xabc123...",
+  "blockNumber": 12345,
+
+  // ─── TIMING ───
+  "ts": 1707222200000, // block timestamp (epoch ms)
+  "updatedAt": 1707222200000, // equals ts in Phase 1; differs for pending→confirmed in Phase 2
+  "createdAt": 1707222300000, // when this doc was created/updated (backend-only, not in API response)
+
+  // ─── CHAIN / NETWORK ───
+  "blockchain": "ethereum", // indexed for filtering
+
+
+  // ─── ASSET ───
+  "token": "usdt", // indexed for filtering
+
+  // ─── CLASSIFICATION ───
+  "type": "sent", // "sent" | "received" | "swap_out" | "swap_in" — indexed
+  "direction": "out", // "in" | "out" | "self"
+  "status": "confirmed", // Phase 1: always "confirmed"
+
+  // ─── AMOUNT ───
+  "amount": "1000000", // EVM: smallest unit ("1000000" = 1 USDT)
+  // BTC: BTC denomination ("0.5" = 0.5 BTC)
+  "fiatAmount": "100.50", // may be null
+  "fiatCcy": "usd", // may be null
+
+// ─── FEES ───
+  "fee": "0.00123",
+  "feeToken": "usdt",
+  "feeLabel": "paymaster", // "gas" | "paymaster" — normalized: undefined → "gas"
+}
+
+  // ─── PARTICIPANTS ───
+  "from": "0xabc...",
+  "to": "0xdef...",
+   "isFromSelf": true,
+    "isToSelf": false
+  },
+
+  // ─── LINKS ───
+  "explorerUrl": "https://etherscan.io/tx/0x...",
+
+  // ─── APP-LEVEL (null in Phase 1) ───
+  "fromAppResolved": null,
+  "toAppResolved": null
+}
+
+For an EVM sent out transfer, is the amount (total to receipient + fees)?
+
+We will have a separate table for transaction history details instead of querying and matching real time
+correct
+2. You are proposing two APIs one for the transaction history list and another for transaction details. correct?
+correct, so v2 history will provide details from this new table, and new details one will batch a lot data in one place including also each raw transfer
+
+  // ─── LINKS ───
+  "explorerUrl": "https://etherscan.io/tx/0x...",
+
+  // ─── APP-LEVEL (null in Phase 1) ───
+  "fromAppResolved": null,
+  "toAppResolved": null
+}
+I think explorer url is not needed as it would be too much dup data, ui side can simply construct explorer url from tx hash. Could you explain fromAppResolved and toAppResolved please?
+
+Reg. 2. Problem is the app caches transactions. So it need to have sufficient data to display details from cache. @Dario Moceri any thoughts here?
+

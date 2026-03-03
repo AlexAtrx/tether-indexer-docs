@@ -1,0 +1,20 @@
+# Ignore all root-level directories (auto-catches all sub-repos)
+/*/
+
+# Whitelist: docs repository
+!_tether-indexer-docs/
+
+# Whitelist: hidden directories (editor/LLM folders like .claude)
+!.*/
+
+# Global ignores
+.DS_Store
+node_modules/
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+.env
+.env*.local
+*.pem
+*.tsbuildinfo
+dev/

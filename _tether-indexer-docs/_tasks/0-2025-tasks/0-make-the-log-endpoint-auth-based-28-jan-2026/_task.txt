@@ -1,0 +1,15 @@
+## Context
+Some time ago I executed this ticket: _docs/_tasks/_log-endpoint-21-jan-2026
+and the result of this PR: https://github.com/tetherto/rumble-app-node/pull/127
+And the code was a code that I've added to this repo: rumble-app-node
+The Feature branches already checked out here locally. 
+
+
+## Task
+Now I have a new requirement on the same feature:
+Revise the code to use hard auth instead of soft auth by which only auth users can log (if a user is not logged in (authorized), the mobile app will hold their logs until they log in. When they login the mobile app sends all the pending log lines all at once, and the log lines will be associated to the logged in user. 
+With that, the limits of the long line should extend a bit. 
+
+Execute the changes.
+Make sure the tests reflect the new changes.
+Run the test and make sure everything is fine.

@@ -1,0 +1,502 @@
+~/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk dev *1 !6
+❯ npm test
+
+> @tetherto/wdk-data-shard-wrk@0.1.0 test
+> brittle "tests/**/*.test.js"
+
+TAP version 13
+
+# setup hook
+Creating fallback logger
+{"level":40,"time":1765307500766,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-proc:22744","msg":"Redis event engine not configured, skipping stream creation setup"}
+Creating fallback logger
+{"level":30,"time":1765307502145,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-proc:22744","traceId":"shard-8ad113b2-cd7c-412e-8cbd-f31b456350b8","msg":"rpc action request: getShardGroup"}
+{"level":30,"time":1765307502145,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-proc:22744","traceId":"shard-8ad113b2-cd7c-412e-8cbd-f31b456350b8","msg":"rpc action response: getShardGroup - completed (0.47ms)"}
+{"level":30,"time":1765307502149,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-proc:22744","traceId":"shard-3b579b88-ebe1-474c-aae8-af1bc4ce96e5","msg":"rpc action request: getDbKey"}
+{"level":30,"time":1765307502149,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-proc:22744","traceId":"shard-3b579b88-ebe1-474c-aae8-af1bc4ce96e5","msg":"rpc action response: getDbKey - completed (0.16ms)"}
+{"level":30,"time":1765307503000,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","msg":"announced shard group: wrk-data-shard-proc-proc-rack-5428dc7a-d707-400c-b2e2-12598d2f4c1c"}
+{"level":30,"time":1765307503938,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","msg":"announced shard type topic: @wdk/data-shard"}
+{"level":30,"time":1765307503940,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","msg":"wrk-data-shard-api-api-rack loading replica db, please wait..."}
+ok 1 - setup hook # time = 6139.09475ms
+
+# getWallet
+{"level":30,"time":1765307506059,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-f58a9c14-d28d-4ef4-bcd3-3b444f7e54e5","msg":"rpc action request: addWallet"}
+{"level":30,"time":1765307506060,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-proc:22744","traceId":"shard-f58a9c14-d28d-4ef4-bcd3-3b444f7e54e5","msg":"rpc action request: addWallet"}
+{"level":30,"time":1765307506068,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-proc:22744","traceId":"shard-f58a9c14-d28d-4ef4-bcd3-3b444f7e54e5","msg":"rpc action response: addWallet - completed (8.10ms)"}
+{"level":30,"time":1765307506068,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-f58a9c14-d28d-4ef4-bcd3-3b444f7e54e5","msg":"rpc action response: addWallet - completed (9.39ms)"}
+    not ok 1 - wallet id should exist
+      ---
+      operator: ok
+      source: |
+          const id = walletRes[0].id
+          t.ok(id, 'wallet id should exist')
+        ----^
+
+          // Need to synchronize the db state by adding delays
+      stack: ./tests/api.shard.data.wrk.intg.test.js:58:5
+      ...
+{"level":30,"time":1765307507076,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-8fe28562-1805-45fb-8e70-6438bde6ed1c","msg":"rpc action request: getWallet"}
+{"level":30,"time":1765307507091,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-8fe28562-1805-45fb-8e70-6438bde6ed1c","msg":"rpc action response: getWallet - completed (14.84ms)"}
+    not ok 2 - id should be same
+      ---
+      actual: undefined
+      expected: 1e0c4e15-3ee6-440b-9f36-791ad1c443e9
+      operator: is
+      source: |
+
+          t.is(id, fetchedId, 'id should be same')
+        ----^
+          t.alike(toCreateWallet, restOfWalletBody, 'created wallet fields should match fetched wallet')
+        })
+      stack: ./tests/api.shard.data.wrk.intg.test.js:66:5
+      ...
+    not ok 3 - created wallet fields should match fetched wallet
+      ---
+      actual:
+        userId: 123
+        type: channel
+        name: testChannel
+        enabled: true
+        channelId: channel123
+        addresses:
+          ethereum: 0x870585e3af9da7ff5dcd8f897ea0756f60f69cc1
+      expected:
+        type: channel
+        userId: test-user-transfers
+        enabled: false
+        addresses:
+          ethereum: 0x6666666666666666666666666666666666666666
+        channelId: test789
+        name: Wallet D
+      operator: alike
+      source: |
+          t.is(id, fetchedId, 'id should be same')
+          t.alike(toCreateWallet, restOfWalletBody, 'created wallet fields should match fetched wallet')
+        ----^
+        })
+      stack: ./tests/api.shard.data.wrk.intg.test.js:67:5
+      ...
+not ok 2 - getWallet # time = 1133.123375ms
+
+# getTransfersByTs
+{"level":30,"time":1765307508109,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-eff0b903-2920-4fa5-ad18-6058a57a1c45","msg":"rpc action request: getTransfersByTs"}
+{"level":30,"time":1765307508133,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-eff0b903-2920-4fa5-ad18-6058a57a1c45","msg":"rpc action response: getTransfersByTs - completed (24.04ms)"}
+    ok 1 - (should return all transfers in time range) - transactions should be an array
+    ok 2 - (should return all transfers in time range) - should return all 5 transfers
+{"level":30,"time":1765307508134,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-846413f0-8ced-44a9-a40a-b34447275c1e","msg":"rpc action request: getTransfersByTs"}
+{"level":30,"time":1765307508134,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-846413f0-8ced-44a9-a40a-b34447275c1e","msg":"rpc action response: getTransfersByTs - completed (0.61ms)"}
+    ok 3 - (should filter by time range) - should return only transfers from last 2 hours
+    ok 4 - (should filter by time range) - all transfers should be in range
+{"level":30,"time":1765307508135,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-496dda5c-a2a9-4326-9670-6fd221c6161e","msg":"rpc action request: getTransfersByTs"}
+{"level":30,"time":1765307508136,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-496dda5c-a2a9-4326-9670-6fd221c6161e","msg":"rpc action response: getTransfersByTs - completed (0.40ms)"}
+    ok 5 - (should respect limit parameter) - should return only 3 transfers
+    ok 6 - (should respect limit parameter) - should include pagination
+    ok 7 - (should respect limit parameter) - pagination limit should be 3
+{"level":30,"time":1765307508136,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-6c6ba521-4f45-466e-8e71-23c5eef98e87","msg":"rpc action request: getTransfersByTs"}
+{"level":30,"time":1765307508136,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-6c6ba521-4f45-466e-8e71-23c5eef98e87","msg":"rpc action response: getTransfersByTs - completed (0.21ms)"}
+    ok 8 - (should return empty array for far future time range) - should return no transfers for far future date
+{"level":30,"time":1765307508137,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-e328abed-700c-4d7d-8c79-c852e92a8ae0","msg":"rpc action request: getTransfersByTs"}
+{"level":30,"time":1765307508137,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-e328abed-700c-4d7d-8c79-c852e92a8ae0","msg":"rpc action response: getTransfersByTs - completed (0.20ms)"}
+    ok 9 - (should handle edge case with fromTs greater than toTs) - should return no transfers when fromTs > toTs
+ok 3 - getTransfersByTs # time = 1044.0005ms
+
+# updateWallet
+{"level":30,"time":1765307508138,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-92f4afcb-eca9-4c12-b448-41ebe9cb28d0","msg":"rpc action request: addWallet"}
+{"level":30,"time":1765307508138,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-proc:22744","traceId":"shard-92f4afcb-eca9-4c12-b448-41ebe9cb28d0","msg":"rpc action request: addWallet"}
+{"level":30,"time":1765307508139,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-proc:22744","traceId":"shard-92f4afcb-eca9-4c12-b448-41ebe9cb28d0","msg":"rpc action response: addWallet - completed (1.04ms)"}
+{"level":30,"time":1765307508139,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-92f4afcb-eca9-4c12-b448-41ebe9cb28d0","msg":"rpc action response: addWallet - completed (1.42ms)"}
+    not ok 1 - wallet id should exist
+      ---
+      operator: ok
+      source: |
+          const id = wallet[0].id
+          t.ok(id, 'wallet id should exist')
+        ----^
+
+          const fetchedWallet = await rpcReq(apiWorkerWrapper, pubKey, 'updateWallet', {
+      stack: ./tests/api.shard.data.wrk.intg.test.js:241:5
+      ...
+{"level":30,"time":1765307508140,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-609f9e3f-92a7-4cc7-8e6b-18c21726e2b5","msg":"rpc action request: updateWallet"}
+{"level":30,"time":1765307508140,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-proc:22744","traceId":"shard-609f9e3f-92a7-4cc7-8e6b-18c21726e2b5","msg":"rpc action request: updateWallet"}
+{"level":30,"time":1765307508141,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-proc:22744","traceId":"shard-609f9e3f-92a7-4cc7-8e6b-18c21726e2b5","msg":"rpc action response: updateWallet - error returned (0.82ms) :\"[HRPC_ERR]=ERR_UPDATE_WALLET_FORBIDDEN\""}
+{"level":30,"time":1765307508141,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-609f9e3f-92a7-4cc7-8e6b-18c21726e2b5","msg":"rpc action response: updateWallet - error returned (1.22ms) :\"[HRPC_ERR]=[HRPC_ERR]=ERR_UPDATE_WALLET_FORBIDDEN\""}
+    ok 2 - id should be same
+    not ok 3 - enabled should be true
+      ---
+      actual: undefined
+      expected: false
+      operator: is
+      source: |
+          t.is(id, fetchedWallet.id, 'id should be same')
+          t.is(fetchedWallet.enabled, false, 'enabled should be true')
+        ----^
+          t.is(fetchedWallet.name, 'updatedTestChannel', 'name should be updated')
+        })
+      stack: ./tests/api.shard.data.wrk.intg.test.js:251:5
+      ...
+    not ok 4 - name should be updated
+      ---
+      actual: undefined
+      expected: updatedTestChannel
+      operator: is
+      source: |
+          t.is(fetchedWallet.enabled, false, 'enabled should be true')
+          t.is(fetchedWallet.name, 'updatedTestChannel', 'name should be updated')
+        ----^
+        })
+      stack: ./tests/api.shard.data.wrk.intg.test.js:252:5
+      ...
+not ok 4 - updateWallet # time = 4.750083ms
+
+# getWalletByAddress
+{"level":30,"time":1765307508142,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-0d95a1f3-4add-499d-9da6-c6b9b8e34276","msg":"rpc action request: addWallet"}
+{"level":30,"time":1765307508143,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-proc:22744","traceId":"shard-0d95a1f3-4add-499d-9da6-c6b9b8e34276","msg":"rpc action request: addWallet"}
+{"level":30,"time":1765307508143,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-proc:22744","traceId":"shard-0d95a1f3-4add-499d-9da6-c6b9b8e34276","msg":"rpc action response: addWallet - completed (0.70ms)"}
+{"level":30,"time":1765307508144,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-0d95a1f3-4add-499d-9da6-c6b9b8e34276","msg":"rpc action response: addWallet - completed (1.08ms)"}
+    not ok 1 - wallet id should exist
+      ---
+      operator: ok
+      source: |
+          const createdWallet = createdWallets[0]
+          t.ok(createdWallet.id, 'wallet id should exist')
+        ----^
+
+          // Need to synchronize the db state by adding delays
+      stack: ./tests/api.shard.data.wrk.intg.test.js:277:5
+      ...
+{"level":30,"time":1765307509146,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-27196120-b810-4595-b8de-4bb35b4abd6c","msg":"rpc action request: getWalletByAddress"}
+{"level":30,"time":1765307509152,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-27196120-b810-4595-b8de-4bb35b4abd6c","msg":"rpc action response: getWalletByAddress - completed (6.10ms)"}
+    not ok 2 - found wallet id should match created wallet id
+      ---
+      actual: 52895243-6a9a-40e1-ab0d-6191702bcf96
+      expected: undefined
+      operator: is
+      source: |
+
+          t.is(foundWalletByBtc[0].id, createdWallet.id, 'found wallet id should match created wallet id')
+        ----^
+
+          const foundWalletByEth = await rpcReq(apiWorkerWrapper, pubKey, 'getWalletByAddress', {
+      stack: ./tests/api.shard.data.wrk.intg.test.js:286:5
+      ...
+{"level":30,"time":1765307509155,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-f6076a0e-1cbe-49f0-9db8-cd297af1a550","msg":"rpc action request: getWalletByAddress"}
+{"level":30,"time":1765307509160,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-f6076a0e-1cbe-49f0-9db8-cd297af1a550","msg":"rpc action response: getWalletByAddress - completed (4.37ms)"}
+    not ok 3 - found wallet id should match created wallet id
+      ---
+      actual: 52895243-6a9a-40e1-ab0d-6191702bcf96
+      expected: undefined
+      operator: is
+      source: |
+
+          t.is(foundWalletByEth[0].id, createdWallet.id, 'found wallet id should match created wallet id')
+        ----^
+
+          const foundWalletBySol = await rpcReq(apiWorkerWrapper, pubKey, 'getWalletByAddress', {
+      stack: ./tests/api.shard.data.wrk.intg.test.js:292:5
+      ...
+{"level":30,"time":1765307509163,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-f63d707f-7f36-4aab-b00b-c91490081999","msg":"rpc action request: getWalletByAddress"}
+{"level":30,"time":1765307509164,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-f63d707f-7f36-4aab-b00b-c91490081999","msg":"rpc action response: getWalletByAddress - completed (0.99ms)"}
+    not ok 4 - found wallet id should match created wallet id
+      ---
+      actual: 52895243-6a9a-40e1-ab0d-6191702bcf96
+      expected: undefined
+      operator: is
+      source: |
+
+          t.is(foundWalletBySol[0].id, createdWallet.id, 'found wallet id should match created wallet id')
+        ----^
+
+          const walletByNonExistentAddress = await rpcReq(apiWorkerWrapper, pubKey, 'getWalletByAddress', {
+      stack: ./tests/api.shard.data.wrk.intg.test.js:298:5
+      ...
+{"level":30,"time":1765307509165,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-42afe1f5-773e-4410-908b-ce139a077b26","msg":"rpc action request: getWalletByAddress"}
+{"level":30,"time":1765307509166,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-42afe1f5-773e-4410-908b-ce139a077b26","msg":"rpc action response: getWalletByAddress - error returned (0.68ms) :\"[HRPC_ERR]=ERR_WALLET_NOT_FOUND\""}
+    ok 5 - should not find wallet by non-existent address
+not ok 5 - getWalletByAddress # time = 1023.850833ms
+
+# getWalletBalance
+{"level":30,"time":1765307509167,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-5ec75375-3e2c-4ec7-b8ac-07ded512c099","msg":"rpc action request: addWallet"}
+{"level":30,"time":1765307509167,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-proc:22744","traceId":"shard-5ec75375-3e2c-4ec7-b8ac-07ded512c099","msg":"rpc action request: addWallet"}
+{"level":30,"time":1765307509169,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-proc:22744","traceId":"shard-5ec75375-3e2c-4ec7-b8ac-07ded512c099","msg":"rpc action response: addWallet - completed (1.69ms)"}
+{"level":30,"time":1765307509169,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-5ec75375-3e2c-4ec7-b8ac-07ded512c099","msg":"rpc action response: addWallet - completed (2.34ms)"}
+    not ok 1 - wallet id should exist
+      ---
+      operator: ok
+      source: |
+          const id = wallet[0].id
+          t.ok(id, 'wallet id should exist')
+        ----^
+
+          // Need to synchronize the db state by adding delays
+      stack: ./tests/api.shard.data.wrk.intg.test.js:323:5
+      ...
+{"level":30,"time":1765307510176,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-c329f773-569a-4177-8cc2-d8bf6bdc4236","msg":"rpc action request: getWalletBalance"}
+{"level":40,"time":1765307510384,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-c329f773-569a-4177-8cc2-d8bf6bdc4236","err":{"type":"Error","message":"ERR_NUM_NAN","stack":"Error: ERR_NUM_NAN\n    at nBN (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/node_modules/@bitfinex/lib-js-util-math/src/bn.js:20:25)\n    at /Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:127:40\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async Promise.all (index 0)\n    at async /Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:117:9\n    at async Promise.all (index 0)\n    at async BlockchainService.getWalletBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:113:5)\n    at async NetFacility.handleReply (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/node_modules/hp-svc-facs-net/index.js:138:19)\n    at async /Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/api.shard.data.wrk.js:683:35\n    at async /Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/api.shard.data.wrk.js:679:20"},"msg":"ERR_WALLET_BALANCE_FAILURE_CCY: ethereum:usdt - 0x6666666666666666666666666666666666666666"}
+{"level":40,"time":1765307510410,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-c329f773-569a-4177-8cc2-d8bf6bdc4236","err":{"type":"Error","message":"ERR_NUM_NAN","stack":"Error: ERR_NUM_NAN\n    at nBN (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/node_modules/@bitfinex/lib-js-util-math/src/bn.js:20:25)\n    at /Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:127:40\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async Promise.all (index 1)\n    at async /Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:117:9\n    at async Promise.all (index 0)\n    at async BlockchainService.getWalletBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:113:5)\n    at async NetFacility.handleReply (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/node_modules/hp-svc-facs-net/index.js:138:19)\n    at async /Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/api.shard.data.wrk.js:683:35\n    at async /Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/api.shard.data.wrk.js:679:20"},"msg":"ERR_WALLET_BALANCE_FAILURE_CCY: ethereum:xaut - 0x6666666666666666666666666666666666666666"}
+{"level":30,"time":1765307510410,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-c329f773-569a-4177-8cc2-d8bf6bdc4236","msg":"rpc action response: getWalletBalance - completed (234.64ms)"}
+    not ok 2 - total balance should exist
+      ---
+      operator: ok
+      source: |
+          const balance = await rpcReq(apiWorkerWrapper, pubKey, 'getWalletBalance', { id })
+          t.ok(balance.balance, 'total balance should exist')
+        ----^
+          t.is(balance.tokenBalances.usdt, '1000', 'usdt token balance should be 1000')
+          t.is(balance.tokenBalances.xaut, '500', 'xaut token balance should be 500')
+      stack: ./tests/api.shard.data.wrk.intg.test.js:337:5
+      ...
+    not ok 3 - usdt token balance should be 1000
+      ---
+      actual: null
+      expected: 1000
+      operator: is
+      source: |
+          t.ok(balance.balance, 'total balance should exist')
+          t.is(balance.tokenBalances.usdt, '1000', 'usdt token balance should be 1000')
+        ----^
+          t.is(balance.tokenBalances.xaut, '500', 'xaut token balance should be 500')
+        })
+      stack: ./tests/api.shard.data.wrk.intg.test.js:338:5
+      ...
+    not ok 4 - xaut token balance should be 500
+      ---
+      actual: null
+      expected: 500
+      operator: is
+      source: |
+          t.is(balance.tokenBalances.usdt, '1000', 'usdt token balance should be 1000')
+          t.is(balance.tokenBalances.xaut, '500', 'xaut token balance should be 500')
+        ----^
+        })
+      stack: ./tests/api.shard.data.wrk.intg.test.js:339:5
+      ...
+not ok 6 - getWalletBalance # time = 1245.948083ms
+
+# getUserBalance
+{"level":30,"time":1765307510413,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-5a84e621-9c65-4481-b3ed-1eb34f129a98","msg":"rpc action request: addWallet"}
+{"level":30,"time":1765307510414,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-proc:22744","traceId":"shard-5a84e621-9c65-4481-b3ed-1eb34f129a98","msg":"rpc action request: addWallet"}
+{"level":30,"time":1765307510416,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-proc:22744","traceId":"shard-5a84e621-9c65-4481-b3ed-1eb34f129a98","msg":"rpc action response: addWallet - completed (2.11ms)"}
+{"level":30,"time":1765307510416,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-5a84e621-9c65-4481-b3ed-1eb34f129a98","msg":"rpc action response: addWallet - completed (2.74ms)"}
+    not ok 1 - wallet id should exist
+      ---
+      operator: ok
+      source: |
+          const id = wallet[0].id
+          t.ok(id, 'wallet id should exist')
+        ----^
+
+          apiWrk.net_r0.jTopicRequest = sandbox.stub()
+      stack: ./tests/api.shard.data.wrk.intg.test.js:359:5
+      ...
+{"level":30,"time":1765307511420,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-c7dff893-fb74-43a6-9304-37aad78084f4","msg":"rpc action request: getUserBalance"}
+{"level":40,"time":1765307511422,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-c7dff893-fb74-43a6-9304-37aad78084f4","err":{"type":"Error","message":"ERR_NUM_NAN","stack":"Error: ERR_NUM_NAN\n    at nBN (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/node_modules/@bitfinex/lib-js-util-math/src/bn.js:20:25)\n    at BlockchainService.getAddressBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:170:30)\n    at async /Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:201:28\n    at async Promise.all (index 0)\n    at async BlockchainService.getWalletBalanceWithAddress (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:199:5)\n    at async tryGetBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:246:21)\n    at async Promise.all (index 0)\n    at async BlockchainService.getAggregatedWalletBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:255:18)\n    at async BlockchainService.getUserBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:308:17)\n    at async NetFacility.handleReply (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/node_modules/hp-svc-facs-net/index.js:138:19)"},"msg":"ERR_WALLET_BALANCE_FAILURE_CCY: ethereum:usdt - 0x870585e3af9da7ff5dcd8f897ea0756f60f69dd1"}
+{"level":40,"time":1765307511422,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-c7dff893-fb74-43a6-9304-37aad78084f4","err":{"type":"Error","message":"ERR_NUM_NAN","stack":"Error: ERR_NUM_NAN\n    at nBN (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/node_modules/@bitfinex/lib-js-util-math/src/bn.js:20:25)\n    at BlockchainService.getAddressBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:170:30)\n    at async /Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:201:28\n    at async Promise.all (index 0)\n    at async BlockchainService.getWalletBalanceWithAddress (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:199:5)\n    at async tryGetBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:246:21)\n    at async Promise.all (index 1)\n    at async BlockchainService.getAggregatedWalletBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:255:18)\n    at async BlockchainService.getUserBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:308:17)\n    at async NetFacility.handleReply (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/node_modules/hp-svc-facs-net/index.js:138:19)"},"msg":"ERR_WALLET_BALANCE_FAILURE_CCY: ethereum:usdt - 0x870585e3af9da7ff5dcd8f897ea0756f60f69dd1"}
+{"level":40,"time":1765307511422,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-c7dff893-fb74-43a6-9304-37aad78084f4","err":{"type":"Error","message":"ERR_NUM_NAN","stack":"Error: ERR_NUM_NAN\n    at nBN (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/node_modules/@bitfinex/lib-js-util-math/src/bn.js:20:25)\n    at BlockchainService.getAddressBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:170:30)\n    at async /Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:201:28\n    at async Promise.all (index 0)\n    at async BlockchainService.getWalletBalanceWithAddress (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:199:5)\n    at async tryGetBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:246:21)\n    at async Promise.all (index 2)\n    at async BlockchainService.getAggregatedWalletBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:255:18)\n    at async BlockchainService.getUserBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:308:17)\n    at async NetFacility.handleReply (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/node_modules/hp-svc-facs-net/index.js:138:19)"},"msg":"ERR_WALLET_BALANCE_FAILURE_CCY: ethereum:usdt - 0x870585e3af9da7ff5dcd8f897ea0756f60f69dd1"}
+{"level":40,"time":1765307511422,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-c7dff893-fb74-43a6-9304-37aad78084f4","err":{"type":"Error","message":"ERR_NUM_NAN","stack":"Error: ERR_NUM_NAN\n    at nBN (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/node_modules/@bitfinex/lib-js-util-math/src/bn.js:20:25)\n    at BlockchainService.getAddressBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:170:30)\n    at async /Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:201:28\n    at async Promise.all (index 0)\n    at async BlockchainService.getWalletBalanceWithAddress (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:199:5)\n    at async tryGetBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:246:21)\n    at async Promise.all (index 3)\n    at async BlockchainService.getAggregatedWalletBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:255:18)\n    at async BlockchainService.getUserBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:308:17)\n    at async NetFacility.handleReply (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/node_modules/hp-svc-facs-net/index.js:138:19)"},"msg":"ERR_WALLET_BALANCE_FAILURE_CCY: ethereum:usdt - 0x870585e3af9da7ff5dcd8f897ea0756f60f69dd1"}
+{"level":40,"time":1765307511422,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-c7dff893-fb74-43a6-9304-37aad78084f4","err":{"type":"Error","message":"ERR_NUM_NAN","stack":"Error: ERR_NUM_NAN\n    at nBN (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/node_modules/@bitfinex/lib-js-util-math/src/bn.js:20:25)\n    at BlockchainService.getAddressBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:170:30)\n    at async /Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:201:28\n    at async Promise.all (index 1)\n    at async BlockchainService.getWalletBalanceWithAddress (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:199:5)\n    at async tryGetBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:246:21)\n    at async Promise.all (index 3)\n    at async BlockchainService.getAggregatedWalletBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:255:18)\n    at async BlockchainService.getUserBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:308:17)\n    at async NetFacility.handleReply (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/node_modules/hp-svc-facs-net/index.js:138:19)"},"msg":"ERR_WALLET_BALANCE_FAILURE_CCY: polygon:usdt - 0x870585e3af9da7ff5dcd8f897ea0756f60f69dd1"}
+{"level":40,"time":1765307511422,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-c7dff893-fb74-43a6-9304-37aad78084f4","err":{"type":"Error","message":"ERR_NUM_NAN","stack":"Error: ERR_NUM_NAN\n    at nBN (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/node_modules/@bitfinex/lib-js-util-math/src/bn.js:20:25)\n    at BlockchainService.getAddressBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:170:30)\n    at async /Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:201:28\n    at async Promise.all (index 0)\n    at async BlockchainService.getWalletBalanceWithAddress (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:199:5)\n    at async tryGetBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:246:21)\n    at async Promise.all (index 4)\n    at async BlockchainService.getAggregatedWalletBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:255:18)\n    at async BlockchainService.getUserBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:308:17)\n    at async NetFacility.handleReply (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/node_modules/hp-svc-facs-net/index.js:138:19)"},"msg":"ERR_WALLET_BALANCE_FAILURE_CCY: ethereum:usdt - 0x870585e3af9da7ff5dcd8f897ea0756f60f69dd1"}
+{"level":40,"time":1765307511423,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-c7dff893-fb74-43a6-9304-37aad78084f4","err":{"type":"Error","message":"ERR_NUM_NAN","stack":"Error: ERR_NUM_NAN\n    at nBN (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/node_modules/@bitfinex/lib-js-util-math/src/bn.js:20:25)\n    at BlockchainService.getAddressBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:170:30)\n    at async /Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:201:28\n    at async Promise.all (index 0)\n    at async BlockchainService.getWalletBalanceWithAddress (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:199:5)\n    at async tryGetBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:246:21)\n    at async Promise.all (index 0)\n    at async BlockchainService.getAggregatedWalletBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:255:18)\n    at async BlockchainService.getUserBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:308:17)\n    at async NetFacility.handleReply (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/node_modules/hp-svc-facs-net/index.js:138:19)"},"msg":"ERR_WALLET_BALANCE_FAILURE_CCY: ethereum:xaut - 0x870585e3af9da7ff5dcd8f897ea0756f60f69dd1"}
+{"level":40,"time":1765307511423,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-c7dff893-fb74-43a6-9304-37aad78084f4","err":{"type":"Error","message":"ERR_NUM_NAN","stack":"Error: ERR_NUM_NAN\n    at nBN (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/node_modules/@bitfinex/lib-js-util-math/src/bn.js:20:25)\n    at BlockchainService.getAddressBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:170:30)\n    at async /Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:201:28\n    at async Promise.all (index 0)\n    at async BlockchainService.getWalletBalanceWithAddress (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:199:5)\n    at async tryGetBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:246:21)\n    at async Promise.all (index 1)\n    at async BlockchainService.getAggregatedWalletBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:255:18)\n    at async BlockchainService.getUserBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:308:17)\n    at async NetFacility.handleReply (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/node_modules/hp-svc-facs-net/index.js:138:19)"},"msg":"ERR_WALLET_BALANCE_FAILURE_CCY: ethereum:xaut - 0x870585e3af9da7ff5dcd8f897ea0756f60f69dd1"}
+{"level":40,"time":1765307511423,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-c7dff893-fb74-43a6-9304-37aad78084f4","err":{"type":"Error","message":"ERR_NUM_NAN","stack":"Error: ERR_NUM_NAN\n    at nBN (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/node_modules/@bitfinex/lib-js-util-math/src/bn.js:20:25)\n    at BlockchainService.getAddressBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:170:30)\n    at async /Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:201:28\n    at async Promise.all (index 0)\n    at async BlockchainService.getWalletBalanceWithAddress (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:199:5)\n    at async tryGetBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:246:21)\n    at async Promise.all (index 2)\n    at async BlockchainService.getAggregatedWalletBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:255:18)\n    at async BlockchainService.getUserBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:308:17)\n    at async NetFacility.handleReply (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/node_modules/hp-svc-facs-net/index.js:138:19)"},"msg":"ERR_WALLET_BALANCE_FAILURE_CCY: ethereum:xaut - 0x870585e3af9da7ff5dcd8f897ea0756f60f69dd1"}
+{"level":40,"time":1765307511423,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-c7dff893-fb74-43a6-9304-37aad78084f4","err":{"type":"Error","message":"ERR_NUM_NAN","stack":"Error: ERR_NUM_NAN\n    at nBN (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/node_modules/@bitfinex/lib-js-util-math/src/bn.js:20:25)\n    at BlockchainService.getAddressBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:170:30)\n    at async /Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:201:28\n    at async Promise.all (index 0)\n    at async BlockchainService.getWalletBalanceWithAddress (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:199:5)\n    at async tryGetBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:246:21)\n    at async Promise.all (index 3)\n    at async BlockchainService.getAggregatedWalletBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:255:18)\n    at async BlockchainService.getUserBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:308:17)\n    at async NetFacility.handleReply (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/node_modules/hp-svc-facs-net/index.js:138:19)"},"msg":"ERR_WALLET_BALANCE_FAILURE_CCY: ethereum:xaut - 0x870585e3af9da7ff5dcd8f897ea0756f60f69dd1"}
+{"level":40,"time":1765307511423,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-c7dff893-fb74-43a6-9304-37aad78084f4","err":{"type":"Error","message":"ERR_NUM_NAN","stack":"Error: ERR_NUM_NAN\n    at nBN (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/node_modules/@bitfinex/lib-js-util-math/src/bn.js:20:25)\n    at BlockchainService.getAddressBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:170:30)\n    at async /Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:201:28\n    at async Promise.all (index 0)\n    at async BlockchainService.getWalletBalanceWithAddress (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:199:5)\n    at async tryGetBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:246:21)\n    at async Promise.all (index 4)\n    at async BlockchainService.getAggregatedWalletBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:255:18)\n    at async BlockchainService.getUserBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:308:17)\n    at async NetFacility.handleReply (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/node_modules/hp-svc-facs-net/index.js:138:19)"},"msg":"ERR_WALLET_BALANCE_FAILURE_CCY: ethereum:xaut - 0x870585e3af9da7ff5dcd8f897ea0756f60f69dd1"}
+{"level":30,"time":1765307511423,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-c7dff893-fb74-43a6-9304-37aad78084f4","msg":"rpc action response: getUserBalance - completed (3.39ms)"}
+    not ok 2 - usdt token balance should be 300
+      ---
+      actual: null
+      expected: 300
+      operator: is
+      source: |
+
+          t.is(balance.tokenBalances.usdt, '300', 'usdt token balance should be 300')
+        ----^
+          t.is(balance.tokenBalances.xaut, '400', 'xaut token balance should be 400')
+        })
+      stack: ./tests/api.shard.data.wrk.intg.test.js:382:5
+      ...
+    not ok 3 - xaut token balance should be 400
+      ---
+      actual: null
+      expected: 400
+      operator: is
+      source: |
+          t.is(balance.tokenBalances.usdt, '300', 'usdt token balance should be 300')
+          t.is(balance.tokenBalances.xaut, '400', 'xaut token balance should be 400')
+        ----^
+        })
+      stack: ./tests/api.shard.data.wrk.intg.test.js:383:5
+      ...
+not ok 7 - getUserBalance # time = 1011.698166ms
+
+# getUserBalance - duplicate address test
+{"level":30,"time":1765307511424,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-441f9184-d22f-4491-95e4-7ffc0a51c177","msg":"rpc action request: addWallet"}
+{"level":30,"time":1765307511425,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-proc:22744","traceId":"shard-441f9184-d22f-4491-95e4-7ffc0a51c177","msg":"rpc action request: addWallet"}
+{"level":30,"time":1765307511427,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-proc:22744","traceId":"shard-441f9184-d22f-4491-95e4-7ffc0a51c177","msg":"rpc action response: addWallet - completed (2.62ms)"}
+{"level":30,"time":1765307511427,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-441f9184-d22f-4491-95e4-7ffc0a51c177","msg":"rpc action response: addWallet - completed (3.08ms)"}
+{"level":30,"time":1765307511428,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-315b79ee-4963-4f7d-993c-7eaba14a0c86","msg":"rpc action request: addWallet"}
+{"level":30,"time":1765307511428,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-proc:22744","traceId":"shard-315b79ee-4963-4f7d-993c-7eaba14a0c86","msg":"rpc action request: addWallet"}
+{"level":30,"time":1765307511433,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-proc:22744","traceId":"shard-315b79ee-4963-4f7d-993c-7eaba14a0c86","msg":"rpc action response: addWallet - completed (4.32ms)"}
+{"level":30,"time":1765307511433,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-315b79ee-4963-4f7d-993c-7eaba14a0c86","msg":"rpc action response: addWallet - completed (4.85ms)"}
+{"level":30,"time":1765307512436,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-df94625f-1013-40f9-ba3a-f2b30b699774","msg":"rpc action request: getUserBalance"}
+{"level":40,"time":1765307512454,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-df94625f-1013-40f9-ba3a-f2b30b699774","err":{"type":"Error","message":"ERR_NUM_NAN","stack":"Error: ERR_NUM_NAN\n    at nBN (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/node_modules/@bitfinex/lib-js-util-math/src/bn.js:20:25)\n    at BlockchainService.getAddressBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:170:30)\n    at async /Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:201:28\n    at async Promise.all (index 0)\n    at async BlockchainService.getWalletBalanceWithAddress (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:199:5)\n    at async tryGetBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:246:21)\n    at async Promise.all (index 0)\n    at async BlockchainService.getAggregatedWalletBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:255:18)\n    at async BlockchainService.getUserBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:308:17)\n    at async NetFacility.handleReply (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/node_modules/hp-svc-facs-net/index.js:138:19)"},"msg":"ERR_WALLET_BALANCE_FAILURE_CCY: ethereum:usdt - 0x870585e3af9da7ff5dcd8f897ea0756f60f69dd1"}
+{"level":40,"time":1765307512454,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-df94625f-1013-40f9-ba3a-f2b30b699774","err":{"type":"Error","message":"ERR_NUM_NAN","stack":"Error: ERR_NUM_NAN\n    at nBN (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/node_modules/@bitfinex/lib-js-util-math/src/bn.js:20:25)\n    at BlockchainService.getAddressBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:170:30)\n    at async /Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:201:28\n    at async Promise.all (index 0)\n    at async BlockchainService.getWalletBalanceWithAddress (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:199:5)\n    at async tryGetBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:246:21)\n    at async Promise.all (index 1)\n    at async BlockchainService.getAggregatedWalletBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:255:18)\n    at async BlockchainService.getUserBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:308:17)\n    at async NetFacility.handleReply (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/node_modules/hp-svc-facs-net/index.js:138:19)"},"msg":"ERR_WALLET_BALANCE_FAILURE_CCY: ethereum:usdt - 0x870585e3af9da7ff5dcd8f897ea0756f60f69dd1"}
+{"level":40,"time":1765307512455,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-df94625f-1013-40f9-ba3a-f2b30b699774","err":{"type":"Error","message":"ERR_NUM_NAN","stack":"Error: ERR_NUM_NAN\n    at nBN (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/node_modules/@bitfinex/lib-js-util-math/src/bn.js:20:25)\n    at BlockchainService.getAddressBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:170:30)\n    at async /Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:201:28\n    at async Promise.all (index 0)\n    at async BlockchainService.getWalletBalanceWithAddress (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:199:5)\n    at async tryGetBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:246:21)\n    at async Promise.all (index 2)\n    at async BlockchainService.getAggregatedWalletBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:255:18)\n    at async BlockchainService.getUserBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:308:17)\n    at async NetFacility.handleReply (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/node_modules/hp-svc-facs-net/index.js:138:19)"},"msg":"ERR_WALLET_BALANCE_FAILURE_CCY: ethereum:usdt - 0x870585e3af9da7ff5dcd8f897ea0756f60f69dd1"}
+{"level":40,"time":1765307512455,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-df94625f-1013-40f9-ba3a-f2b30b699774","err":{"type":"Error","message":"ERR_NUM_NAN","stack":"Error: ERR_NUM_NAN\n    at nBN (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/node_modules/@bitfinex/lib-js-util-math/src/bn.js:20:25)\n    at BlockchainService.getAddressBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:170:30)\n    at async /Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:201:28\n    at async Promise.all (index 0)\n    at async BlockchainService.getWalletBalanceWithAddress (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:199:5)\n    at async tryGetBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:246:21)\n    at async Promise.all (index 3)\n    at async BlockchainService.getAggregatedWalletBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:255:18)\n    at async BlockchainService.getUserBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:308:17)\n    at async NetFacility.handleReply (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/node_modules/hp-svc-facs-net/index.js:138:19)"},"msg":"ERR_WALLET_BALANCE_FAILURE_CCY: ethereum:usdt - 0x870585e3af9da7ff5dcd8f897ea0756f60f69dd1"}
+{"level":40,"time":1765307512455,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-df94625f-1013-40f9-ba3a-f2b30b699774","err":{"type":"Error","message":"ERR_NUM_NAN","stack":"Error: ERR_NUM_NAN\n    at nBN (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/node_modules/@bitfinex/lib-js-util-math/src/bn.js:20:25)\n    at BlockchainService.getAddressBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:170:30)\n    at async /Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:201:28\n    at async Promise.all (index 0)\n    at async BlockchainService.getWalletBalanceWithAddress (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:199:5)\n    at async tryGetBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:246:21)\n    at async Promise.all (index 4)\n    at async BlockchainService.getAggregatedWalletBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:255:18)\n    at async BlockchainService.getUserBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:308:17)\n    at async NetFacility.handleReply (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/node_modules/hp-svc-facs-net/index.js:138:19)"},"msg":"ERR_WALLET_BALANCE_FAILURE_CCY: ethereum:usdt - 0x870585e3af9da7ff5dcd8f897ea0756f60f69dd1"}
+{"level":40,"time":1765307512455,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-df94625f-1013-40f9-ba3a-f2b30b699774","err":{"type":"Error","message":"ERR_NUM_NAN","stack":"Error: ERR_NUM_NAN\n    at nBN (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/node_modules/@bitfinex/lib-js-util-math/src/bn.js:20:25)\n    at BlockchainService.getAddressBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:170:30)\n    at async /Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:201:28\n    at async Promise.all (index 1)\n    at async BlockchainService.getWalletBalanceWithAddress (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:199:5)\n    at async tryGetBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:246:21)\n    at async Promise.all (index 4)\n    at async BlockchainService.getAggregatedWalletBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:255:18)\n    at async BlockchainService.getUserBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:308:17)\n    at async NetFacility.handleReply (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/node_modules/hp-svc-facs-net/index.js:138:19)"},"msg":"ERR_WALLET_BALANCE_FAILURE_CCY: polygon:usdt - 0x870585e3af9da7ff5dcd8f897ea0756f60f69dd1"}
+{"level":40,"time":1765307512455,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-df94625f-1013-40f9-ba3a-f2b30b699774","err":{"type":"Error","message":"ERR_NUM_NAN","stack":"Error: ERR_NUM_NAN\n    at nBN (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/node_modules/@bitfinex/lib-js-util-math/src/bn.js:20:25)\n    at BlockchainService.getAddressBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:170:30)\n    at async /Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:201:28\n    at async Promise.all (index 0)\n    at async BlockchainService.getWalletBalanceWithAddress (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:199:5)\n    at async tryGetBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:246:21)\n    at async Promise.all (index 5)\n    at async BlockchainService.getAggregatedWalletBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:255:18)\n    at async BlockchainService.getUserBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:308:17)\n    at async NetFacility.handleReply (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/node_modules/hp-svc-facs-net/index.js:138:19)"},"msg":"ERR_WALLET_BALANCE_FAILURE_CCY: ethereum:usdt - 0x870585e3af9da7ff5dcd8f897ea0756f60f69dd1"}
+{"level":40,"time":1765307512455,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-df94625f-1013-40f9-ba3a-f2b30b699774","err":{"type":"Error","message":"ERR_NUM_NAN","stack":"Error: ERR_NUM_NAN\n    at nBN (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/node_modules/@bitfinex/lib-js-util-math/src/bn.js:20:25)\n    at BlockchainService.getAddressBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:170:30)\n    at async /Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:201:28\n    at async Promise.all (index 0)\n    at async BlockchainService.getWalletBalanceWithAddress (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:199:5)\n    at async tryGetBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:246:21)\n    at async Promise.all (index 6)\n    at async BlockchainService.getAggregatedWalletBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:255:18)\n    at async BlockchainService.getUserBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:308:17)\n    at async NetFacility.handleReply (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/node_modules/hp-svc-facs-net/index.js:138:19)"},"msg":"ERR_WALLET_BALANCE_FAILURE_CCY: ethereum:usdt - 0x870585e3af9da7ff5dcd8f897ea0756f60f69dd1"}
+{"level":40,"time":1765307512455,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-df94625f-1013-40f9-ba3a-f2b30b699774","err":{"type":"Error","message":"ERR_NUM_NAN","stack":"Error: ERR_NUM_NAN\n    at nBN (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/node_modules/@bitfinex/lib-js-util-math/src/bn.js:20:25)\n    at BlockchainService.getAddressBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:170:30)\n    at async /Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:201:28\n    at async Promise.all (index 0)\n    at async BlockchainService.getWalletBalanceWithAddress (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:199:5)\n    at async tryGetBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:246:21)\n    at async Promise.all (index 0)\n    at async BlockchainService.getAggregatedWalletBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:255:18)\n    at async BlockchainService.getUserBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:308:17)\n    at async NetFacility.handleReply (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/node_modules/hp-svc-facs-net/index.js:138:19)"},"msg":"ERR_WALLET_BALANCE_FAILURE_CCY: ethereum:xaut - 0x870585e3af9da7ff5dcd8f897ea0756f60f69dd1"}
+{"level":40,"time":1765307512455,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-df94625f-1013-40f9-ba3a-f2b30b699774","err":{"type":"Error","message":"ERR_NUM_NAN","stack":"Error: ERR_NUM_NAN\n    at nBN (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/node_modules/@bitfinex/lib-js-util-math/src/bn.js:20:25)\n    at BlockchainService.getAddressBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:170:30)\n    at async /Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:201:28\n    at async Promise.all (index 0)\n    at async BlockchainService.getWalletBalanceW
+
+                                                                                                             ithAddress (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:199:5)\n    at async tryGetBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:246:21)\n    at async Promise.all (index 1)\n    at async BlockchainService.getAggregatedWalletBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:255:18)\n    at async BlockchainService.getUserBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:308:17)\n    at async NetFacility.handleReply (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/node_modules/hp-svc-facs-net/index.js:138:19)"},"msg":"ERR_WALLET_BALANCE_FAILURE_CCY: ethereum:xaut - 0x870585e3af9da7ff5dcd8f897ea0756f60f69dd1"}
+{"level":40,"time":1765307512455,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-df94625f-1013-40f9-ba3a-f2b30b699774","err":{"type":"Error","message":"ERR_NUM_NAN","stack":"Error: ERR_NUM_NAN\n    at nBN (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/node_modules/@bitfinex/lib-js-util-math/src/bn.js:20:25)\n    at BlockchainService.getAddressBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:170:30)\n    at async /Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:201:28\n    at async Promise.all (index 0)\n    at async BlockchainService.getWalletBalanceWithAddress (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:199:5)\n    at async tryGetBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:246:21)\n    at async Promise.all (index 2)\n    at async BlockchainService.getAggregatedWalletBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:255:18)\n    at async BlockchainService.getUserBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:308:17)\n    at async NetFacility.handleReply (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/node_modules/hp-svc-facs-net/index.js:138:19)"},"msg":"ERR_WALLET_BALANCE_FAILURE_CCY: ethereum:xaut - 0x870585e3af9da7ff5dcd8f897ea0756f60f69dd1"}
+    not ok 1 - usdt token balance should be 300
+      ---
+      actual: null
+      expected: 300
+      operator: is
+      source: |
+
+          t.is(balance.tokenBalances.usdt, '300', 'usdt token balance should be 300')
+        ----^
+          t.is(balance.tokenBalances.xaut, '400', 'xaut token balance should be 400')
+        })
+      stack: ./tests/api.shard.data.wrk.intg.test.js:426:5
+      ...
+    not ok 2 - xaut token balance should be 400
+      ---
+      actual: null
+      expected: 400
+      operator: is
+      source: |
+          t.is(balance.tokenBalances.usdt, '300', 'usdt token balance should be 300')
+          t.is(balance.tokenBalances.xaut, '400', 'xaut token balance should be 400')
+        ----^
+        })
+      stack: ./tests/api.shard.data.wrk.intg.test.js:427:5
+      ...
+not ok 8 - getUserBalance - duplicate address test # time = 1032.917125ms
+
+# getUserBalanceHist
+{"level":40,"time":1765307512455,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-df94625f-1013-40f9-ba3a-f2b30b699774","err":{"type":"Error","message":"ERR_NUM_NAN","stack":"Error: ERR_NUM_NAN\n    at nBN (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/node_modules/@bitfinex/lib-js-util-math/src/bn.js:20:25)\n    at BlockchainService.getAddressBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:170:30)\n    at async /Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:201:28\n    at async Promise.all (index 0)\n    at async BlockchainService.getWalletBalanceWithAddress (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:199:5)\n    at async tryGetBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:246:21)\n    at async Promise.all (index 3)\n    at async BlockchainService.getAggregatedWalletBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:255:18)\n    at async BlockchainService.getUserBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:308:17)\n    at async NetFacility.handleReply (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/node_modules/hp-svc-facs-net/index.js:138:19)"},"msg":"ERR_WALLET_BALANCE_FAILURE_CCY: ethereum:xaut - 0x870585e3af9da7ff5dcd8f897ea0756f60f69dd1"}
+{"level":40,"time":1765307512456,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-df94625f-1013-40f9-ba3a-f2b30b699774","err":{"type":"Error","message":"ERR_NUM_NAN","stack":"Error: ERR_NUM_NAN\n    at nBN (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/node_modules/@bitfinex/lib-js-util-math/src/bn.js:20:25)\n    at BlockchainService.getAddressBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:170:30)\n    at async /Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:201:28\n    at async Promise.all (index 0)\n    at async BlockchainService.getWalletBalanceWithAddress (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:199:5)\n    at async tryGetBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:246:21)\n    at async Promise.all (index 4)\n    at async BlockchainService.getAggregatedWalletBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:255:18)\n    at async BlockchainService.getUserBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:308:17)\n    at async NetFacility.handleReply (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/node_modules/hp-svc-facs-net/index.js:138:19)"},"msg":"ERR_WALLET_BALANCE_FAILURE_CCY: ethereum:xaut - 0x870585e3af9da7ff5dcd8f897ea0756f60f69dd1"}
+{"level":40,"time":1765307512456,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-df94625f-1013-40f9-ba3a-f2b30b699774","err":{"type":"Error","message":"ERR_NUM_NAN","stack":"Error: ERR_NUM_NAN\n    at nBN (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/node_modules/@bitfinex/lib-js-util-math/src/bn.js:20:25)\n    at BlockchainService.getAddressBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:170:30)\n    at async /Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:201:28\n    at async Promise.all (index 0)\n    at async BlockchainService.getWalletBalanceWithAddress (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:199:5)\n    at async tryGetBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:246:21)\n    at async Promise.all (index 5)\n    at async BlockchainService.getAggregatedWalletBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:255:18)\n    at async BlockchainService.getUserBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:308:17)\n    at async NetFacility.handleReply (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/node_modules/hp-svc-facs-net/index.js:138:19)"},"msg":"ERR_WALLET_BALANCE_FAILURE_CCY: ethereum:xaut - 0x870585e3af9da7ff5dcd8f897ea0756f60f69dd1"}
+{"level":40,"time":1765307512456,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-df94625f-1013-40f9-ba3a-f2b30b699774","err":{"type":"Error","message":"ERR_NUM_NAN","stack":"Error: ERR_NUM_NAN\n    at nBN (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/node_modules/@bitfinex/lib-js-util-math/src/bn.js:20:25)\n    at BlockchainService.getAddressBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:170:30)\n    at async /Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:201:28\n    at async Promise.all (index 0)\n    at async BlockchainService.getWalletBalanceWithAddress (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:199:5)\n    at async tryGetBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:246:21)\n    at async Promise.all (index 6)\n    at async BlockchainService.getAggregatedWalletBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:255:18)\n    at async BlockchainService.getUserBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:308:17)\n    at async NetFacility.handleReply (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/node_modules/hp-svc-facs-net/index.js:138:19)"},"msg":"ERR_WALLET_BALANCE_FAILURE_CCY: ethereum:xaut - 0x870585e3af9da7ff5dcd8f897ea0756f60f69dd1"}
+{"level":30,"time":1765307512456,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-df94625f-1013-40f9-ba3a-f2b30b699774","msg":"rpc action response: getUserBalance - completed (19.63ms)"}
+{"level":30,"time":1765307515461,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-376a392e-2e56-4464-bf49-f5ce3b6b950a","msg":"rpc action request: getUserBalanceHist"}
+{"level":30,"time":1765307515471,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-376a392e-2e56-4464-bf49-f5ce3b6b950a","msg":"rpc action response: getUserBalanceHist - completed (9.57ms)"}
+    ok 1 - (should return historical balances) - historical balances should be returned
+    ok 2 - (should return historical balances) - should return balances for usdt
+    ok 3 - (should return historical balances) - usdt balance should match
+    ok 4 - (should return historical balances) - should return balances for btc
+    ok 5 - (should return historical balances) - btc balance should match
+    ok 6 - (should return historical balances) - should return balances for xaut
+    ok 7 - (should return historical balances) - xaut balance should match
+ok 9 - getUserBalanceHist # time = 3014.5055ms
+
+# getWalletBalanceHist
+ok 10 - getWalletBalanceHist # SKIP
+
+# getUserTokenBalance
+{"level":30,"time":1765307515473,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-c2342876-4a7d-4f48-92f3-dac295e5a025","msg":"rpc action request: addWallet"}
+{"level":30,"time":1765307515473,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-proc:22744","traceId":"shard-c2342876-4a7d-4f48-92f3-dac295e5a025","msg":"rpc action request: addWallet"}
+{"level":30,"time":1765307515475,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-proc:22744","traceId":"shard-c2342876-4a7d-4f48-92f3-dac295e5a025","msg":"rpc action response: addWallet - completed (1.50ms)"}
+{"level":30,"time":1765307515475,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-c2342876-4a7d-4f48-92f3-dac295e5a025","msg":"rpc action response: addWallet - completed (2.25ms)"}
+    not ok 1 - wallet id should exist
+      ---
+      operator: ok
+      source: |
+          const id = wallet[0].id
+          t.ok(id, 'wallet id should exist')
+        ----^
+
+          // Need to synchronize the db state by adding delays
+      stack: ./tests/api.shard.data.wrk.intg.test.js:553:5
+      ...
+{"level":30,"time":1765307516479,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-32e64296-b2c2-4535-8877-b5be1ad50385","msg":"rpc action request: getUserTokenBalance"}
+{"level":40,"time":1765307516481,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-32e64296-b2c2-4535-8877-b5be1ad50385","err":{"type":"TypeError","message":"Cannot convert undefined or null to object","stack":"TypeError: Cannot convert undefined or null to object\n    at Function.entries (<anonymous>)\n    at BlockchainService.fetchBalancesByChain (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:489:45)\n    at async /Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:521:28\n    at async Promise.all (index 0)\n    at async BlockchainService.getTokenBalance (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/workers/lib/blockchain.svc.js:518:26)"},"msg":"ERR_WALLET_BALANCE_FAILURE: ethereum"}
+{"level":30,"time":1765307516482,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-32e64296-b2c2-4535-8877-b5be1ad50385","msg":"rpc action response: getUserTokenBalance - completed (2.99ms)"}
+    not ok 2 - usdt token balance should be 1000
+      ---
+      actual: null
+      expected: 1000
+      operator: is
+      source: |
+          const balance = await rpcReq(apiWorkerWrapper, pubKey, 'getUserTokenBalance', { userId, token })
+          t.is(balance.tokenBalance, '1000', 'usdt token balance should be 1000')
+        ----^
+          t.is(balance.holdings.ethereum, '1000', 'should return holdings for chain')
+        })
+      stack: ./tests/api.shard.data.wrk.intg.test.js:566:5
+      ...
+    not ok 3 - should return holdings for chain
+      ---
+      actual: null
+      expected: 1000
+      operator: is
+      source: |
+          t.is(balance.tokenBalance, '1000', 'usdt token balance should be 1000')
+          t.is(balance.holdings.ethereum, '1000', 'should return holdings for chain')
+        ----^
+        })
+      stack: ./tests/api.shard.data.wrk.intg.test.js:567:5
+      ...
+not ok 11 - getUserTokenBalance # time = 1011.829ms
+
+# getDeletedUsers
+{"level":30,"time":1765307519493,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-3d4ba23b-63a4-4f83-b1a0-2ca68340cf94","msg":"rpc action request: getDeletedUsers"}
+{"level":30,"time":1765307519504,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-3d4ba23b-63a4-4f83-b1a0-2ca68340cf94","msg":"rpc action response: getDeletedUsers - completed (11.41ms)"}
+    ok 1 - should return two deleted users
+    ok 2 - first user should be deleted three days ago
+    ok 3 - first user should be deleted three days ago
+    ok 4 - second user should be deleted two days ago
+    ok 5 - second user should be deleted two days ago
+{"level":30,"time":1765307519505,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-705061d4-bae9-4ea6-afc0-5e887757a23b","msg":"rpc action request: getDeletedUsers"}
+{"level":30,"time":1765307519506,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-705061d4-bae9-4ea6-afc0-5e887757a23b","msg":"rpc action response: getDeletedUsers - completed (0.67ms)"}
+    ok 6 - should return three deleted users
+ok 12 - getDeletedUsers # time = 3022.546875ms
+
+# getWalletTokenBalance
+{"level":30,"time":1765307519507,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-0086f016-9cec-495a-b888-3534d0940ace","msg":"rpc action request: addWallet"}
+{"level":30,"time":1765307519508,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-proc:22744","traceId":"shard-0086f016-9cec-495a-b888-3534d0940ace","msg":"rpc action request: addWallet"}
+{"level":30,"time":1765307519510,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-proc:22744","traceId":"shard-0086f016-9cec-495a-b888-3534d0940ace","msg":"rpc action response: addWallet - completed (2.58ms)"}
+{"level":30,"time":1765307519510,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-0086f016-9cec-495a-b888-3534d0940ace","msg":"rpc action response: addWallet - completed (3.23ms)"}
+    not ok 1 - wallet id should exist
+      ---
+      operator: ok
+      source: |
+          const id = wallet[0].id
+          t.ok(id, 'wallet id should exist')
+        ----^
+
+          // Need to synchronize the db state by adding delays
+      stack: ./tests/api.shard.data.wrk.intg.test.js:640:5
+      ...
+{"level":30,"time":1765307520515,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-7f2e3079-cade-49e1-bed9-7d649c2d385d","msg":"rpc action request: getWalletTokenBalance"}
+{"level":30,"time":1765307520515,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-d7b42bad-07b1-4cc2-8821-9fa90ab2bcde","msg":"rpc action request: getWalletTokenBalance"}
+{"level":30,"time":1765307520517,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-d7b42bad-07b1-4cc2-8821-9fa90ab2bcde","msg":"rpc action response: getWalletTokenBalance - error returned (1.73ms) :\"[HRPC_ERR]=ERR_WALLET_NOT_FOUND\""}
+{"level":30,"time":1765307520518,"pid":22744,"hostname":"Alex-Studio.local","name":"wrk:http:wrk-data-shard-api:22744","traceId":"shard-7f2e3079-cade-49e1-bed9-7d649c2d385d","msg":"rpc action response: getWalletTokenBalance - error returned (2.85ms) :\"[HRPC_ERR]=ERR_WALLET_NOT_FOUND\""}
+    ok 2 - (error) - should return error for non-existing wallet
+    not ok 3 - (success) - usdt token balance should be 1000
+      ---
+      actual: undefined
+      expected: 1000
+      operator: is
+      source: |
+
+            t.is(balance.tokenBalance, '1000', 'usdt token balance should be 1000')
+        ------^
+            t.is(balance.holdings.ethereum, '1000', 'should return holdings for chain')
+          })
+      stack: ./tests/api.shard.data.wrk.intg.test.js:656:7
+      ...
+/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/tests/api.shard.data.wrk.intg.test.js:657
+    t.is(balance.holdings.ethereum, '1000', 'should return holdings for chain')
+                          ^
+
+TypeError: Cannot read properties of undefined (reading 'ethereum')
+    at /Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/tests/api.shard.data.wrk.intg.test.js:657:27
+    at async Test._run (/Users/alexa/Documents/repos/tether/_INDEXER/wdk-data-shard-wrk/node_modules/brittle/index.js:597:7)
+
+Node.js v20.15.0

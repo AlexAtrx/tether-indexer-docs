@@ -1,0 +1,17 @@
+Francecso:
+PROD logs - queryTransfersByAddress - Events happening way too frequently 
+_docs/tasks/14 Jan 2026 Reduce the amount of queryTransfersByAddress/Screenshot 2026-01-09 at 13.54.25.png
+Logs: _docs/tasks/14 Jan 2026 Reduce the amount of queryTransfersByAddress/logs.txt
+
+Vigan:
+maybe we should reduce syncWalletTransfersJob intervals? I think we still do them every 5s even though we have event driven approach in rumble prod now
+
+Francecso:
+yes
+there's this and another 2-3 events that spam a lot of events
+I will provide a full list
+but this one for sure we need to reduce
+we're hammering the DB
+
+Viagn:
+yeah is unnecessarily consuming resources

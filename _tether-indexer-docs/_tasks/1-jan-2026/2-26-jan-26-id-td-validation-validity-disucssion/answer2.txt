@@ -1,0 +1,35 @@
+  Conclusion: Partial Evidence Found
+  ┌─────────────────────────────────────────────┬────────────┬────────────────────────────────────────────┐
+  │                Evidence Type                │   Found?   │                  Details                   │
+  ├─────────────────────────────────────────────┼────────────┼────────────────────────────────────────────┤
+  │ QR scan with dt + id that failed            │ ❌ No      │ Case 2 shows working flow - webhook stored │
+  ├─────────────────────────────────────────────┼────────────┼────────────────────────────────────────────┤
+  │ dt present but id missing                   │ ✅ Yes     │ Line 105: dt: "c", no id                   │
+  ├─────────────────────────────────────────────┼────────────┼────────────────────────────────────────────┤
+  │ Proof it was a QR scan (not address lookup) │ ❓ Unclear │ Can't distinguish definitively             │
+  └─────────────────────────────────────────────┴────────────┴────────────────────────────────────────────┘
+  The Real Gap
+
+  The logs show the TIP webhook is stored but don't show whether it's ever sent to Rumble upon transaction confirmation. The issue might be:
+
+  1. Transaction confirmation job not finding the tx - The stored webhook waits for tx confirmation, but if the confirmation job doesn't pick it up, it never gets sent.
+  2. Mobile app inconsistency - Some cases send dt without id, which breaks webhook creation.
+
+  What to Tell George
+
+  You can share line 105 as a case where:
+  - dt: "c" is present (indicating channel context)
+  - id is missing
+  - This would cause the backend to skip webhook creation
+
+  However, George may counter that this is a "send to address" case where the reverse lookup found a channel wallet but the app didn't have the Rumble ID.
+
+  Recommended Next Step
+
+  Ask for specific failing transaction hashes from Rumble QA where they:
+  1. Scanned a QR code
+  2. Tip/Rant didn't appear in chat
+  3. Can confirm they used QR (not manual address entry)
+
+  Then trace those specific hashes through all logs to find where the flow broke.
+  

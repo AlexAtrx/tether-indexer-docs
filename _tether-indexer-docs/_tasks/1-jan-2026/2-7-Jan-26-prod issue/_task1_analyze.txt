@@ -1,0 +1,17 @@
+## Context
+
+Scan through the truth file _docs/___TRUTH.md to get the context of the project.
+
+## Ticket
+
+Read the ticket in this file _docs/tasks/7 Jan 26 - prod issue/ticket.txt
+
+## Task
+
+Read the Slack post and conversation referred in the ticket _docs/tasks/7 Jan 26 - prod issue/slack.txt
+
+Particularly focus on the logs part. Go through all the repos and see where the logs fall and who is responsible for it.
+
+In the Slack file you can see a reference to pieces of code. You can see these pieces of code here in the local repositories in this project.
+
+Find out where exactly the problem is and put your findings in a finding.md file in this directory.

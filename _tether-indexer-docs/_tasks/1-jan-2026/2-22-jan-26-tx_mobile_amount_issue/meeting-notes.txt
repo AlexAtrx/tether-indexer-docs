@@ -1,0 +1,17 @@
+From the meeting the things you need to verify are:
+
+Open the two screenshots – the send screen and the receive screen – and note the USD values shown on each.
+
+Confirm that the BTC amount is the same in both views; the mismatch is only in the USD figure.
+
+Check whether the mobile app is adding two transfer‑log entries together when it calculates the USD amount.
+
+Look at the “type” field in the transaction payload (sent or receive). See if it’s set by the backend or by the front‑end. If the front‑end sets it, the conversion could be applied twice.
+
+Verify the USD conversion logic that uses the USDT fallback price. Make sure the price is applied once and that the config line (US ↔ T) hasn’t been altered accidentally.
+
+Test a small BTC transaction (around $1) and watch the UI to see if the USD value is multiplied by ten.
+
+If the conversion is wrong, trace it back to the part of the app that formats the send amount.
+
+Once you identify the source, share the screenshots, the steps you took and any code snippets with the front‑end team and George so they can fix the display logic.

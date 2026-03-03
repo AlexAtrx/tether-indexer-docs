@@ -1,0 +1,47 @@
+Geroge:
+One more request @Francesco C. - our QA reported that transactions with wrong amounts are appearing in history. This is specific to BTC only.
+Looking at one example, it seems BE returns change instead of fee transaction
+
+Example response:
+```
+{
+      "type": "sent",
+      "transactionHash": "8fcd36eac73ddd0231d589052abf0486c667b032b1722b7210960a49500a1231",
+      "transferIndex": 0,
+      "walletId": "96731f7b-7096-4f81-af69-6411b57df69c",
+      "amount": "0.00001571",
+      "blockNumber": 932103,
+      "blockchain": "bitcoin",
+      "fiatAmount": "1.448752635",
+      "fiatCcy": "usd",
+      "from": "bc1q4ykyew79sc2fy6vjpyz2ze3g25rsjfwvqmu4zq",
+      "label": "transaction",
+      "logIndex": 0,
+      "to": "bc1q25yys42nx0vccjcp4wfra4gfr8cypxquv0egh7",
+      "token": "btc",
+      "transactionIndex": 1443,
+      "ts": 1768300659000
+    },
+ {
+      "type": "sent",
+      "transactionHash": "8fcd36eac73ddd0231d589052abf0486c667b032b1722b7210960a49500a1231",
+      "transferIndex": 1,
+      "walletId": "96731f7b-7096-4f81-af69-6411b57df69c",
+      "amount": "0.00008501",
+      "blockNumber": 932103,
+      "blockchain": "bitcoin",
+      "fiatAmount": "7.839494685",
+      "fiatCcy": "usd",
+      "from": "bc1q4ykyew79sc2fy6vjpyz2ze3g25rsjfwvqmu4zq",
+      "label": "transaction",
+      "logIndex": 0,
+      "to": "bc1q4ykyew79sc2fy6vjpyz2ze3g25rsjfwvqmu4zq",
+      "token": "btc",
+      "transactionIndex": 1443,
+      "ts": 1768300659000
+    },
+    ```
+
+    Vigan:
+    fyi this is related to proposal here: _docs/_tasks/_tx_mobile_amount_issue-22-jan-2026/slack-discussions/proposal.txt
+    

@@ -1,0 +1,22 @@
+Root cause analysis (main branch)
+
+Summary
+- The direct user tip flow sends TOKEN_TRANSFER notifications without `payload`, `dt`, or `id`.
+- The backend only creates a tx webhook (which drives live chat) when `payload`+`transactionHash` (rant) or `transactionHash`+`dt`+`id` (tip) are present.
+- Because the direct tip request lacks those fields, no webhook is stored or dispatched to Rumble, so the live chat notification never appears.
+
+Evidence
+- Production log snippet in `_docs/tasks/12-jan-2026-new-notifs-issue/slack-discussion.txt` shows:
+  `sendNotification payload = {"type":"TOKEN_TRANSFER",...,"transactionReceiptId":"..."}`
+  with no `payload`, `dt`, or `id`.
+- `rumble-app-node/workers/lib/server.js` accepts TOKEN_TRANSFER requests without `payload`, `dt`, or `id` (schema does not require them), so the request is forwarded as-is.
+- `rumble-ork-wrk/workers/api.ork.wrk.js` only calls `_addTxWebhook` when:
+  - `payload.payload && payload.transactionHash` (RANT), or
+  - `payload.transactionHash && payload.dt && payload.id` (TIP).
+  Missing `payload`, `dt`, and `id` means no webhook is created even though `transactionReceiptId` is mapped to `transactionHash`.
+- `rumble-data-shard-wrk/workers/proc.shard.data.wrk.js` only sends the webhook to Rumble when:
+  - type is RANT and `payload` exists, or
+  - type is TIP and both `dt` and `id` exist.
+
+Conclusion
+Direct tip requests lack the fields required to pass the webhook gating logic, so the system never triggers the Rumble webhook that powers live chat notifications.

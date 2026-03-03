@@ -1,0 +1,77 @@
+### Potential Issues / Bad ❌
+
+1. Race Condition Window
+
+Between checking address uniqueness and committing the wallet, another concurrent request could insert the same address. The seenAddresses Set only works within a single request batch,
+not across concurrent requests.
+
+Mitigation options:
+
+- Add a unique database index on addresses (recommended)
+- Use database-level locking
+
+2. Case Sensitivity Logic May Be Incomplete
+
+The code adds lowercase variant but doesn't check if the blockchain is case-sensitive:
+
+```javascript
+variants.add(rawAddress.trim().toLowerCase())
+```
+
+The base class has `this.conf.blockchains[chain].caseSensitive` configuration, but this isn't consulted when generating variants. For case-sensitive blockchains (like Bitcoin addresses), this could create false positive conflicts.
+
+3. Silent Continuation on Webhook Failures (rumble-data-shard-wrk)
+
+Both webhook calls in `addWallet` use `.catch()` that only logs:
+
+```javascript
+this._addWalletWebhook(body).catch(err => {
+  this.logger.error(`Failed to send add wallet webhook...`)
+})
+```
+
+The wallet creation succeeds but dependent systems may not be notified. Consider a retry mechanism or webhook queue for reliability.
+
+### Needs Refactoring ⚠️
+
+1. N+1 Query Problem in Address Validation
+
+In `addWallet` (`wdk-data-shard-wrk:240-246`), there's a database query for each address variant of each chain of each wallet:
+
+```javascript
+for (const candidate of variants) {
+  const existing = await uow.walletRepository
+    .getActiveWalletByAddress(candidate)
+    .toArray()
+}
+```
+
+For a batch of 10 wallets × 3 chains × 3 variants = 90 queries. Consider batching these lookups.
+
+2. Inconsistent Error Handling Pattern
+
+In `addWallet`, address conflicts return an error object in the result array (soft failure):
+
+```javascript
+newWallets.push({
+  ...newWallet,
+  status: 400,
+  error: 'ERR_WALLET_ADDRESS_ALREADY_EXISTS'
+})
+```
+
+In `updateWallet`, it throws an exception (hard failure):
+
+```javascript
+throw new Error('ERR_WALLET_ADDRESS_ALREADY_EXISTS')
+```
+
+This inconsistency could confuse API consumers. Document clearly or unify the approach.
+
+3. Missing `.catch()` on syncJar (`rumble-data-shard-wrk:186`)
+
+```javascript
+this._rumbleServerUtil.syncJar(body) // No await, no .catch()
+```
+
+Compare with line 163 which has `.catch()`. This fire-and-forget call without error handling could silently fail.

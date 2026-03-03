@@ -1,0 +1,29 @@
+Title:
+Fix ork discovery empty-list failure after restart (Jan 5 prod issue) - handle ERR_TOPIC_LOOKUP_EMPTY
+
+Description:
+
+Background
+After a full system restart, new wallet creation failed for ~4.5 hours because the app attempted ork RPC calls before any ork workers were discoverable. The request went through with an undefined ork RPC key, causing a generic internal error instead of a controlled "service unavailable" response.
+
+Scope
+- Guard ork RPC selection when the ork list is empty and return a clear 503-style error.
+- Handle ERR_TOPIC_LOOKUP_EMPTY during ork discovery/refresh: log/metric on empty and avoid overwriting with an empty list.
+- Add a readiness gate so the HTTP server does not accept traffic until at least one ork is discoverable, or fail fast with a clear startup error on timeout.
+- Fix RoundRobin update behavior to avoid NaN/invalid index on empty lists (wdk-app-node and wdk-ork-wrk).
+- Add a small regression test for /api/v1/connect behavior when ork list is empty.
+
+Validation / Investigation
+- Check ork worker logs for the 4.5 hour window to confirm all ork requests were failing or not arriving.
+- Confirm app-node logs show ERR_TOPIC_LOOKUP_EMPTY during that window.
+- Reproduce locally: run app-node without ork workers; verify it fails startup with ERR_TOPIC_LOOKUP_EMPTY, and if startup is allowed, /connect returns a controlled 503.
+
+Acceptance Criteria
+- New wallet creation and ork-dependent endpoints return a clear, controlled error when no orks are available (not a generic 500).
+- ERR_TOPIC_LOOKUP_EMPTY during startup/refresh is handled explicitly and logged.
+- RoundRobin selection does not become invalid after empty updates.
+- Readiness gate prevents accepting traffic until at least one ork is discoverable (or fails fast with a clear error on timeout).
+- A test covers the empty ork list scenario.
+
+Notes
+- Keep behavior safe for Autobase deployments; Mongo deployments should not regress.

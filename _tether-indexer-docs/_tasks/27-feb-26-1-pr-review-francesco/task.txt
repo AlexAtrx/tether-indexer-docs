@@ -1,0 +1,66 @@
+## context
+
+Read Asana ticket: 
+
+------
+Reduce Logging Volume
+
+At the moment we're pushing too many logs to be indexed/stored by grafana.
+
+We want to reduce the log volume by moving all the logs that are very frequent and that we still need to log but we neeed to restrict them to just log locally, in our local dev env
+
+We will restrict them so they log to the level 20 - debug level
+This log level will be filtered out with a pre-filter in alloy grafana log ingestions pipelines
+
+These PRs are addressing this across all repos
+------
+
+## task
+
+For the above ticket you are reviewing a PR in the **INDEXER** project.
+
+A canonical reference file for this project exists at: _docs/___TRUTH.md
+
+Use it whenever needed to understand the project’s conventions, architecture, or constraints.
+
+### **Task**
+
+### **1. Retrieve PR data**
+
+Using the GitHub CLI:
+
+- Fetch the **diff** and **all comments** for the following pull
+    
+    ```bash
+    https://github.com/tetherto/rumble-data-shard-wrk/pull/176
+    ```
+    
+
+### **2. Review the PR**
+
+Perform a comprehensive technical review:
+
+- Read the **PR title and description** to understand its purpose.
+- Examine **every code change** in the diff.
+- Evaluate the changes for:
+    - Code smells or maintainability issues
+    - Bugs or logical errors
+    - Security flaws
+    - Architectural or design issues
+    - Missing missing validation, or missing edge-case handling
+- If you need to, check the the rest of the code in the repo itself. The repository is indicated by the PR URL (`tetherto/[repo-name]/pull`).
+
+For each specific issue you find:
+
+- Identify the **file** and **line number(s)**.
+- Provide:
+    - A concise description of the problem.
+    - A concrete, actionable recommendation to fix it summed up in a concise comment to copy/paste it into GitHub.
+
+### **Notes**
+
+- If understanding a change requires context from another repo within the INDEXER project, you may inspect that repo locally here as well. Do checkout any branch relevant to the PR.
+- Some PRs are raised simultaneously and they are relevant to each other.
+- Your priority is **truth and correctness**, not agreement.
+- Do **not** commit or push any code.
+- Do **not** add any review comment in GitHub.

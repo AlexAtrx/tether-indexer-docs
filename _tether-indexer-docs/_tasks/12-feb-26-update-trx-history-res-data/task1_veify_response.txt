@@ -1,0 +1,84 @@
+## Context
+
+This is the specs of a feature that has been implemented yesterday: _tasks/11-feb-26-execute-plan-trx-history/SPEC.md
+
+This is the implementation summary of it: _tasks/11-feb-26-execute-plan-trx-history/IMPLEMENTATION_SUMMARY.md
+
+These are the PRs raised for it:
+https://github.com/tetherto/wdk-indexer-wrk-base/pull/76
+https://github.com/tetherto/wdk-indexer-wrk-btc/pull/96
+https://github.com/tetherto/wdk-indexer-wrk-evm/pull/92
+https://github.com/tetherto/wdk-indexer-wrk-tron/pull/76
+https://github.com/tetherto/wdk-indexer-wrk-ton/pull/82
+https://github.com/tetherto/wdk-indexer-wrk-solana/pull/72
+https://github.com/tetherto/wdk-indexer-wrk-spark/pull/71
+https://github.com/tetherto/wdk-data-shard-wrk/pull/168
+https://github.com/tetherto/wdk-ork-wrk/pull/80
+https://github.com/tetherto/wdk-app-node/pull/69
+https://github.com/tetherto/rumble-data-shard-wrk/pull/169
+https://github.com/tetherto/rumble-app-node/pull/146
+https://github.com/tetherto/rumble-ork-wrk/pull/103
+https://github.com/tetherto/wdk-indexer-processor-wrk/pull/10
+
+All PRs are raised from the local branch feat/transaction-history-v2 on each repo. 
+
+The code exists locally, so you don't have to check the PRs but the PRs are shared for reference.
+
+## Task
+
+1. Understand the future and implementation summary and the code implemented. 
+2. I received a request from the lead developer to change the response of the APIs in a reduction way. Meaning the response data should be reduced and there shouldn't be so much data in the response on both impounds. These are the suggested responses.
+
+On base wdk layer we can have just this:
+```
+{
+  // ─── PRIMARY KEY ───
+  "userId": "....", // duplicate data but helpful for querying
+  "walletId": "052d6e5d-...",
+  "transactionHash": "0xabc123...",
+  "blockNumber": 12345
+
+  // ─── TIMING ───
+  "ts": 1707222200000, // block timestamp (epoch ms)
+  "updatedAt": 1707222200000, // equals ts in Phase 1; differs for pending→confirmed in Phase 2
+  "createdAt": 1707222300000, // when this doc was created/updated (backend-only, not in API response)
+
+  // ─── CHAIN / NETWORK ───
+  "blockchain": "ethereum", // indexed for filtering
+  
+  // ─── ASSET ───
+  "token": "usdt", // indexed for filtering
+  
+  // ─── CLASSIFICATION ───
+  "type": "sent", // "sent" | "received" | "swap_out" | "swap_in" — indexed
+  "status": "confirmed", // Phase 1: always "confirmed"
+
+  // ─── AMOUNT ───
+  "amount": "0.0001", // human friendly amount
+  "fiatAmount": "100.50", // may be null
+  "fiatCcy": "usd", // may be null
+
+  // ─── PARTICIPANTS ───
+  "from": "0xabc...",
+  "fromUserId": "..." // nullable
+  "to": "0xdef...",
+  "toUserId": "..." // nullable
+
+  // ─── FEES ───
+  "fee": "0.00123",
+  "feeToken": "usdt",
+  "feeLabel": "paymaster", // "gas" | "paymaster" — normalized: undefined → "gas"
+}
+```
+
+and for rumble we can have these:
+```
+{
+  "subType": "transfer", "rant", "tip",...
+  "tipDirection": "sent", "received",... optional
+  "rantDirection": ...,
+  "channelId": // not sure if doable tbh
+}
+```
+
+I want you first to answer the single question which is: that this reduction in the response really fulfill the feature of the APIs.  Be realistic, not idealistic.

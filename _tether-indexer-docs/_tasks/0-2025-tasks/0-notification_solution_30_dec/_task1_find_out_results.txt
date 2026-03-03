@@ -1,0 +1,19 @@
+Q1) Relevant API (device registration path tied to duplicate/missing notifications)
+- Primary endpoint: `POST /api/v1/device-ids`
+  - Route/handler: `rumble-app-node/workers/lib/server.js`
+  - Service call: `rumble-app-node/workers/lib/services/ork.js` (storeDevice)
+  - Ork RPC handler: `rumble-ork-wrk/workers/api.ork.wrk.js` (storeDevice)
+  - Storage logic: `rumble-data-shard-wrk/workers/api.shard.data.wrk.js` (storeDevice)
+- Related cleanup/list endpoints:
+  - `GET /api/v1/device-ids` (list devices)
+  - `DELETE /api/v1/device-ids/remove` (remove one device)
+  - `DELETE /api/v1/device-ids` (purge all devices)
+  All are defined in `rumble-app-node/workers/lib/server.js` and fan out through the same ork/data-shard chain.
+
+(If you meant the push send path itself, that is `POST /api/v1/notifications` in `rumble-app-node/workers/lib/server.js` -> `rumble-app-node/workers/lib/services/ork.js` -> `rumble-ork-wrk/workers/api.ork.wrk.js` -> `rumble-data-shard-wrk/workers/proc.shard.data.wrk.js`.)
+
+Q2) Do we need to send encrypted userId too?
+- No. The device registration API does not accept userId in the body; it is derived from auth (`middleware.auth.guard`) and passed through the RPC chain. Sending an encrypted userId would be redundant and risks mismatches. The only payload needed is the device info string (as `deviceId`) plus the FCM token (`fcmToken`).
+
+Q3) Does the backend store userId (email) as-is?
+- Yes in this path: the data shard stores user data keyed by `userId` with no hashing/encryption in the storage flow (`rumble-data-shard-wrk/workers/api.shard.data.wrk.js` -> `_storeUserData` in `wdk-data-shard-wrk/workers/proc.shard.data.wrk.js`). If `userId` is an email, it is persisted as provided.

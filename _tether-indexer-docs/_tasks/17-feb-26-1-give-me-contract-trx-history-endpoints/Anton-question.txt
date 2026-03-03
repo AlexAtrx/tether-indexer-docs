@@ -1,0 +1,32 @@
+We now have three methods for fetching transfer history in the wallet mobile app:
+getUserTokenTransfers (legacy)
+Endpoint: GET /api/v1/users/:userId/token-transfers
+Scope: all wallets for a user
+getUserTransferHistory 
+Endpoint: GET /api/v1/users/:userId/transfer-history
+Scope: all wallets for a user
+getWalletTransferHistory
+Endpoint: GET /api/v1/wallets/:walletId/transfer-history
+Scope: single wallet
+
+Questions:
+Is getUserTransferHistory the replacement for getUserTokenTransfers?
+When to use which getUserTransferHistory/getWalletTransferHistory? 
+
+_________________________________________________
+
+I would suggest to divide whole process in 2 stages:
+
+Phase 1: Migrate to user-level transfer history API
+Goal: Replace getUserTokenTransfers with getUserTransferHistory and restore full app functionality.
+Steps:
+In transactionHistoryService, switch from getUserTokenTransfers to getUserTransferHistory
+Update response mapping to the new format (new fields, swap_out/swap_in → sent/received)
+Verify all existing screens (transaction history, home, etc.) work correctly
+Remove or deprecate getUserTokenTransfers after the migration is complete
+
+Phase 2: Add wallet-level transfer history
+Goal: Add getWalletTransferHistory where wallet-specific history is needed.
+Steps:
+Identify where wallet-specific history is required
+Add getWalletTransferHistory calls in those places

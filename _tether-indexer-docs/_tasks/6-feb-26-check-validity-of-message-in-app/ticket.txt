@@ -1,0 +1,5 @@
+[Receive] Unclear message while receiving funding
+
+“A transfer of $10 has been successfully completed in your wallet”, it is unclear if the copy refers to a received fund or a transfer out. I think it should be changed for clarity to “ …. delivered into your wallet”
+
+Check screnshot: _docs/_tasks/6-feb-26-check-validity-of-message-in-app/Screenshot 2025-11-12 at 20.04.22.png

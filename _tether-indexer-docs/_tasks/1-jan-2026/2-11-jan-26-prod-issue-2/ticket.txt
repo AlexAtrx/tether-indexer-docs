@@ -1,0 +1,26 @@
+Title:
+Fix ork discovery empty-list failure after restart (Jan 5 Prod issue)
+
+Description:
+
+Background
+After a full system restart, new wallet creation failed for ~4.5 hours because the app attempted ork RPC calls before any ork workers were available. This produced a generic internal error instead of a controlled "service unavailable" response. A related RoundRobin bug can also leave selection state invalid after an empty update.
+
+Scope
+- Guard ork RPC selection when the ork list is empty and return a clear 503-style error.
+- Map ERR_NO_ORKS_AVAILABLE (and optionally ERR_EMPTY) to HTTP 503 in wdk-app-node/workers/lib/utils/errorsCodes.js.
+- Fix RoundRobin update behavior to avoid NaN/invalid index on empty lists (wdk-app-node and wdk-ork-wrk).
+- Handle ERR_TOPIC_LOOKUP_EMPTY during ork discovery/refresh: log/metric on empty and avoid overwriting with an empty list.
+- Add a readiness gate so the HTTP server does not accept traffic until at least one ork is discoverable, or fail fast with a clear startup error if a timeout is reached.
+- Add a small regression test for /api/v1/connect behavior when ork list is empty.
+
+Acceptance Criteria
+New wallet creation returns a clear, controlled error when no orks are available (not a generic 500).
+The “no orks available” error is explicitly mapped to HTTP 503 in errorsCodes.js.
+RoundRobin selection does not become invalid after empty updates.
+Ork discovery emptiness is visible in logs/metrics.
+A test covers the empty ork list scenario.
+ERR_TOPIC_LOOKUP_EMPTY during startup/refresh is handled explicitly, and the server does not accept traffic until an ork is discoverable (or fails fast with a clear startup error on timeout).
+
+Notes
+Keep behavior safe for Autobase deployments; Mongo deployments should not regress.

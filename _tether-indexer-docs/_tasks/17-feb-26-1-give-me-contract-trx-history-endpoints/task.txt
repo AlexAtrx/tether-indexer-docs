@@ -1,0 +1,21 @@
+0. Read the intial phase of the feature: _tether-indexer-docs/_tasks/11-feb-26-execute-plan-trx-history
+
+1. Read: _tether-indexer-docs/_tasks/12-feb-26-update-trx-history-res-data
+
+2. Review the code in the PRs:
+https://github.com/tetherto/wdk-indexer-wrk-base/pull/76
+https://github.com/tetherto/wdk-indexer-wrk-btc/pull/96
+https://github.com/tetherto/wdk-indexer-wrk-evm/pull/92
+https://github.com/tetherto/wdk-indexer-wrk-tron/pull/76
+https://github.com/tetherto/wdk-indexer-wrk-ton/pull/82
+https://github.com/tetherto/wdk-indexer-wrk-solana/pull/72
+https://github.com/tetherto/wdk-indexer-wrk-spark/pull/71
+https://github.com/tetherto/wdk-data-shard-wrk/pull/168
+https://github.com/tetherto/wdk-ork-wrk/pull/80
+https://github.com/tetherto/wdk-app-node/pull/69
+https://github.com/tetherto/rumble-data-shard-wrk/pull/169
+https://github.com/tetherto/rumble-app-node/pull/146
+https://github.com/tetherto/rumble-ork-wrk/pull/103
+https://github.com/tetherto/wdk-indexer-processor-wrk/pull/10
+
+3. Conclude the API contracts of the new endpoints and add a file to this directory that incldues the contracts. 

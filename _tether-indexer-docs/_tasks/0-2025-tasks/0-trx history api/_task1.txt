@@ -1,0 +1,8 @@
+Go through the proposal: _docs/_tasks/1- trx history api/proposal.txt
+Read the ticket: _docs/_tasks/1- trx history api/ticket.txt
+Go through all the relevant codebase.
+Give me your opinion about what is needed and if it's doable or not.
+If there are any clarifications that you want me to ask the proposal owner, give me the questions.
+Make the questions concise and clear.
+
+Note: The ticket might be a smaller scope given the proposal. Tell me if the ticket is included in the proposal or not.

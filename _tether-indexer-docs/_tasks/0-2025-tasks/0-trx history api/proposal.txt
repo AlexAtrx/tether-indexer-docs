@@ -1,0 +1,129 @@
+Rumble Wallet: Non-Custodial Infrastructure (Onboarding, Backup & Recovery)
+Context & Objective
+The goal is to provide Rumble users with a high-utility, gasless, non-custodial wallet that removes the friction of "Web3 complexity" while maintaining user sovereignty. We are implementing a Hybrid Trust Model:
+Non-Custodial: Rumble never has access to the user's plaintext seed phrase.
+User-Friendly Recovery: We offer "Rumble Cloud" (Automatic) and "Manual" (Traditional) recovery, with an advanced "Passkey PRF" option for high-security users.
+
+1. High-Level Solution Design
+The system relies on a Decoupled Secret strategy. To reconstruct the wallet, a user needs both the Encrypted Seed (stored on Rumble BE) and the Encryption Key (stored in the user's secure hardware/cloud keychain).
+Key Components:
+WDK (Wallet Development Kit): Generates entropy, BIP-39 seed phrases, and handles on-chain logic.
+Local Keychain: Stores a "ciphered" version of the seed bound to the userID for active sessions. This is non-syncing to prevent lateral movement between devices without re-authentication.
+Rumble Cloud (Default): Syncs the encryption key via iCloud/Google Keychain and stores the encrypted seed on Rumble’s servers.
+Passkey PRF (Advanced & V1 users): Uses WebAuthn extensions to derive a deterministic AES-256 key directly from biometrics.
+
+2. Detailed Flows
+
+_docs/_tasks/1- trx history api/images/1.jpg
+
+_docs/_tasks/1- trx history api/images/2.jpg
+
+
+2. Implementation Tracks
+Track A: Wallet Creation & Primary Backup
+When a user authenticated via Rumble creates a wallet, the app must:
+Generate Secrets: WDK creates the seed phrase and a strong encryption key.
+Local Persistence: Store a ciphered seed locally (device-only).
+Rumble Cloud Flow: * POST the encrypted seed to the Rumble Backend.
+Store the encryption key in the OS-level syncing keychain (iCloud/Android Credential Mgr).
+Manual Flow: If chosen, display the QR code/Plaintext. 
+Crucial: In this flow, the Backend does not store the encrypted seed.
+Track B: Passkey PRF (Advanced Settings)
+This is an opt-in flow within Settings and currently used by V1 users:
+Check for prf extension support.
+Use a Salted-KDF to transform the Passkey secret into an AES-256 key.
+Store the resulting blob and credentialID on the Backend.
+Track C: Intelligent Recovery Logic
+The app must follow a hierarchical restoration flow upon Rumble Login:
+Local Check: If a ciphered seed exists for the userID, restore immediately.
+Cloud Check: If not local, query BE for the encrypted seed and metadata.
+Key Retrieval: Attempt to pull the encryption key from the syncing keychain.
+Fallback: If keys are missing (e.g., user moved from iOS to Android or disabled sync), prompt for Manual Recovery (Seed Phrase/QR Scan).
+
+3. User Goals
+ID
+Title
+Requirement
+US.1
+Identity Binding
+As a user, my wallet must be bound to my Rumble userID so that multiple accounts on one device don't conflict.
+US.2
+Seamless Restore
+As a returning user on a new device, I want my wallet to "just work" if I have iCloud/Google sync enabled.
+US.3
+Security Warning
+As a user choosing Manual Recovery, I must be warned that Rumble cannot help me if I lose my seed phrase.
+US.4
+Hardware Auth
+As a Passkey user, I want to use FaceID/TouchID to decrypt my wallet blob stored on the server.
+
+
+4. Acceptance Criteria (AC)
+AC 1: Wallet Creation & Local Security
+[ ] Local keychain storage must use device-level encryption (non-syncing) for the active session.
+[ ] WDK must generate a 12 or 24-word BIP-39 compliant seed.
+[ ] Wallet creation must be gated by a successful Rumble OAuth session.
+AC 2: Backup Reliability
+[ ] Rumble Cloud: Successfully verify that the encryption key is stored in the iOS keychain and syncs with iCloud or equivalent Android syncing keychain.
+[ ] Manual: The app must generate a scannable QR code and a downloadable .txt backup file.
+[ ] Metadata: The BE must record the backup method (rumble_cloud, manual_recovery, or passkey_prf) and the timestamp.
+AC 3: Restoration Logic
+[ ] If backupMetadata indicates rumble_cloud, the app must automatically attempt to decrypt using the syncing keychain before asking the user for input.
+[ ] If passkey_prf is detected, the app must trigger the OS biometric prompt using the stored credentialID.
+[ ] Fallback: If any automated method fails (e.g., key not found), the app must present the Manual Recovery UI (text entry/QR scan).
+AC 4: Advanced/V1 Passkey (PRF)
+[ ] The app must correctly identify if the device's hardware supports the PRF extension.
+[ ] The secret retrieved from the Secure Enclave must be passed through an HKDF before being used for AES-256 decryption.
+
+5. Definition of success
+
+
+To measure the success of the Rumble Wallet infrastructure, we must look at three distinct categories: Technical Reliability, User Adoption/Health, and Security Integrity.
+
+4.1. Technical Reliability (The "Zero-Failure" Goal)
+Since this is a non-custodial wallet, the system must be 100% reliable in its logic to prevent permanent loss of user funds.
+100% Metadata Accuracy: The Backend must correctly identify the backup_method for every wallet created. A user should never be presented with the "Manual Recovery" screen if they previously used "Rumble Cloud."
+
+
+Restore Success Rate: >98% of users with a "Rumble Cloud" backup (and active iCloud/Google sync) should be able to restore their wallet on a new device without manually typing a seed phrase.
+
+
+Latency: The createWallet() and cipher() process should take <N seconds from the moment the user authenticates with Rumble to the moment the wallet is ready for use.
+
+
+Cross-Platform Parity: Successful restoration of the Manual Recovery seed phrase across iOS and Android (WDK must use identical derivation paths).
+
+2. User Adoption & UX Health
+We want users to feel secure enough to store assets.
+Onboarding Conversion: >90\% of users who start the "Create Wallet" flow after login should successfully complete it.
+
+
+Backup Method Distribution: * Primary Goal: >80% of users choose Rumble Cloud (high retention, low support overhead).
+
+
+Secondary Goal: <10% of users choose Manual Recovery (high risk of loss).
+
+
+Restoration Friction: The average time for a user to restore a wallet on a new device should be:
+
+
+Cloud: <10 seconds (Automatic).
+
+
+Manual: <2 minutes (Scanning QR or typing words).
+
+
+Support Ticket Volume: A successful launch should result in <1% of the daily active user base contacting support regarding "Lost Wallet" or "Recovery Issues."
+
+3. Security & Compliance Integrity
+As a non-custodial wallet for a major platform like Rumble, the security guardrails are the ultimate measure of success.
+Zero Secret Leakage: No plaintext seed phrases or unencrypted private keys should ever appear in Rumble Backend logs or analytics.
+
+
+Passkey PRF Availability: Success is defined by correctly identifying hardware support. The app should never "fail" a Passkey creation; it should instead proactively offer the "Rumble Cloud" fallback if PRF is not supported by the OS/Manager.
+
+
+UserID Isolation: A successful "Success Case" is verifying that User B on the same device cannot access User A's ciphered seed phrase in the local keychain, even if the app isn't fully closed.
+
+
+Manual Backup Verification: 100% of users choosing "Manual Recovery" must pass a "Success Check" (e.g., a small quiz or a confirmation that they saved the file) before the flow is marked complete.

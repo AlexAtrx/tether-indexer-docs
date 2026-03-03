@@ -1,0 +1,214 @@
+Hey @Francesco C. @Usman Khan, this is my take on the API contract based on requirement docs Moh has shared.
+Please read and let me know if you're OK the specs so that I can share them with Moh.
+
+---
+
+In general the design in full requires additional data that, otherwise, is not possible to require at the moment.
+But a transaction history endpoint that fixes current balance issues is possible to write.
+The requirement doesn’t need a separate deployment. 
+
+Where to implement it
+Routes live in wdk-app-node (Rumble backend).
+Aggregation/data logic runs in wdk-data-shard-wrk via RPC, same pattern as existing getWalletTransfers.
+
+API Contract
+Field naming convention: All field names that already exist in the current
+GET /api/v1/wallets/:walletId/token-transfers response keep their exact
+same name and format (transactionHash, blockchain, token, amount,
+from, to, ts, type, blockNumber, transferIndex, transactionIndex,
+logIndex, label, fiatAmount, fiatCcy). New fields introduced by this API are additions on top.
+
+1. Endpoint: Get Transaction History
+Auth: X-API-KEY header (same as existing endpoints)
+
+Query Parameters:
+blockchain | Type: string | Required: yes | Default: — | Description: Chain filter: ethereum, bitcoin, arbitrum, polygon, tron, ton, solana, spark, plasma
+token | Type: string | Required: yes | Default: — | Description: Token filter: usdt, btc, xaut, usdt0, xaut0
+from | Type: integer | Required: no | Default: 0 | Description: Start timestamp (ms, epoch)
+to | Type: integer | Required: no | Default: now | Description: End timestamp (ms, epoch)
+limit | Type: integer | Required: no | Default: 25 | Description: Max results (1-100)
+ skip | Type: integer | Required: no | Default: 0 | Description: Number of results to skip (offset pagination, matching existing convention)
+sort | Type: string | Required: no | Default: desc | Description: asc or desc (matching existing convention)
+known_addresses | Type: string | Required: no | Default: null | Description: Comma-separated list of the user's other known addresses on this chain. Used for change detection (BTC) and SELF direction.
+
+Design note: known_addresses is the pragmatic bridge between a pure chain-level module and the app layer. The app (Rumble BE or FE) knows which addresses belong to the user and passes them. This avoids the module needing a user registry, keeping it reusable.
+
+Response:
+{
+  "transfers": [
+    {
+      // === IDENTITY ===
+      "transactionHash": "string",           // same name as existing endpoint
+
+      // === TIMING ===
+      "ts": 1707222200000,                   // epoch ms — same name & format as existing endpoint
+      "updatedAt": 1707222200000,            // same as ts for confirmed txs; will differ for pending→confirmed
+
+      // === CHAIN / NETWORK ===
+      "blockchain": "ethereum",              // same name as existing endpoint
+      "rail": "EVM",                         // derived: EVM | BTC | SPARK
+      "chainId": 1,                          // EVM only, null for non-EVM
+      "networkName": "Ethereum",             // human-readable
+
+      // === ASSET ===
+      "token": "usdt",                       // same name as existing endpoint
+      "symbol": "USDT",                      // display symbol
+      "decimals": 6,                         // from static config
+
+      // === CLASSIFICATION ===
+      "type": "sent",                        // same name as existing endpoint
+                                              // extended values: "sent" | "received" | "swap_out" | "swap_in"
+      "direction": "out",                    // "in" | "out" | "self"
+      "status": "confirmed",                 // Phase 1: always "confirmed"
+                                              // Phase 2: "pending" | "submitted" | "confirmed" | "failed"
+
+      // === AMOUNT ===
+      "amount": "1000000",                   // same name & format as existing (string, smallest unit)
+      "fiatAmount": null,                    // same name as existing — Phase 1: null
+      "fiatCcy": null,                       // same name as existing — Phase 1: null
+
+      // === PARTICIPANTS ===
+      "from": "0xabc.",                    // same name as existing — primary sender
+      "to": "0xdef.",                      // same name as existing — primary recipient (non-change)
+      "fromMeta": {                          // NEW — enrichment on top of flat `from`
+        "addressType": "EVM_ADDRESS",        // EVM_ADDRESS | BTC_ADDRESS | SPARK_ACCOUNT | UNKNOWN
+        "isSelf": false,                     // true if in known_addresses or is the queried address
+        "appResolved": null                  // Phase 1: null
+                                              // Phase 2: { "displayName": "alice", "entityType": "INTERNAL_USER_ACC", "avatarUrl": "." }
+      },
+      "toMeta": {                            // NEW — enrichment on top of flat `to`
+        "addressType": "EVM_ADDRESS",
+        "isSelf": false,
+        "appResolved": null
+      },
+
+      // === FEES ===
+      "fees": {
+        "sponsored": true,                   // true if label === 'paymasterTransaction'
+        "networkFee": null                   // Phase 1: null (no fee data indexed)
+                                              // Phase 2: { "value": "21000", "token": "eth", "symbol": "ETH", "decimals": 18 }
+      },
+
+      // === LINKS ===
+      "explorerUrl": "https://etherscan.io/tx/0x...",
+
+      // === LABEL ===
+      "label": "transaction",               // same name as existing — "transaction" | "paymasterTransaction"
+
+      // === APP-LEVEL (Rumble Addons) — all null in Phase 1 ===
+      "appActivitySubtype": null,            // Phase 2: "transfer" | "tip"
+      "appContext": null,                    // Phase 2: { "appFlow": "send", "referenceId": "..." }
+      "appTip": null,                        // Phase 2: { tipId, tipDirection, counterparty, appContent }
+
+      // === UNDERLYING TRANSFERS ===
+      // Raw indexed records grouped under this logical transaction.
+      // Field names inside each item match the existing token-transfers response.
+      "underlyingTransfers": [
+        {
+          "transactionHash": "0xabc.",
+          "transferIndex": 0,
+          "transactionIndex": 0,
+          "logIndex": 0,
+          "blockNumber": 19000000,
+          "from": "0xabc.",
+          "to": "0xdef.",
+          "token": "usdt",
+          "amount": "1000000",
+          "ts": 1707222200000,
+          "label": "transaction",
+          "isChange": false                  // NEW — true if `to` is in known_addresses (BTC change detection)
+        },
+        {
+          "transactionHash": "0xabc.",
+          "transferIndex": 1,
+          "transactionIndex": 0,
+          "logIndex": null,
+          "blockNumber": 19000000,
+          "from": "0xabc.",
+          "to": "0xabc.",                  // change output back to sender
+          "token": "usdt",
+          "amount": "500000",
+          "ts": 1707222200000,
+          "label": "transaction",
+          "isChange": true
+        }
+      ]
+    }
+  ]
+}
+
+2. Endpoint: Get Single Transaction Detail
+GET /api/v1/tx-history/:address/:blockchain/:transactionHash
+Auth: X-API-KEY header
+Query Parameter:
+known_addresses | string | no | Comma-separated user addresses for change/self detection
+Response: Same shape as a single item from the transfers array above (unwrapped, not in an array).
+
+3. Endpoint: Get Transaction History (Batch / Multi-chain)
+POST /api/v1/tx-history/batch
+Auth: X-API-KEY header
+{
+  "queries": [
+    {
+      "address": "0xabc...",
+      "blockchain": "ethereum",
+      "token": "usdt",
+      "from": 1707136800000,
+      "to": 1707223200000,
+      "limit": 10,
+      "known_addresses": ["0xdef..."]
+    },
+    {
+      "address": "bc1q...",
+      "blockchain": "bitcoin",
+      "token": "btc",
+      "limit": 10,
+      "known_addresses": ["bc1q...", "1ABC..."]
+    }
+  ],
+  "merge": true  // if true, merge results across chains sorted by ts desc
+                  // if false, return results grouped by query
+}
+Response (merge=true):
+{
+  "transfers": [ /* same transaction objects, sorted by ts desc across all chains */ ]
+}
+Response (merge=false):
+{
+  "results": [
+    {
+      "query": { "address": "0xabc...", "blockchain": "ethereum", "token": "usdt" },
+      "transfers": [ /* transactions */ ]
+    },
+    {
+      "query": { "address": "bc1q...", "blockchain": "bitcoin", "token": "btc" },
+      "transfers": [ /* transactions */ ]
+    }
+  ]
+}
+
+4. Endpoint: Supported Chains (existing, no change needed)
+GET /api/v1/chains
+Already returns the list of supported blockchains and tokens.
+
+5. Field Name Alignment Reference
+
+Existing keys:
+transactionHash, blockchain, blockNumber, transferIndex, transactionIndex, logIndex, from, to, token, amount, ts, type, label, fiatAmount, fiatCcy, walletId (not included).
+
+New keys:
+updatedAt, rail (EVM / BTC / SPARK), chainId (EVM chain ID), networkName, symbol, decimals, direction, status, fromMeta/toMeta, fees, explorerUrl, appActivitySubtype, appContext, appTip, underlyingTransfers
+
+----
+
+@Mo Elsabry
+Vigan had already commented on the proposal.
+I think he's right: We already have the API that serves tx history - what's missing is just the aggregation step, which we can do as an update.
+
+-----
+
+@Francesco C. @Usman Khan
+We can execute @Vigan document suggestion with  only 1 new file (transfer.parser.js or so) and 5 existing files touched with additive changes. Zero modifications to existing methods or schemas.
+
+-----
+

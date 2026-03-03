@@ -1,0 +1,7 @@
+Short answer: your questions are valid, but they don’t contradict the root cause.
+
+- ERR_TOPIC_LOOKUP_EMPTY is thrown when no peers exist for the ork topic; in app-node that can fail startup/restart, which matches your local repro.
+- In prod, we saw the HTTP server already running and requests hitting resolveOrkRpcKey with an empty list, which yields jRequest(undefined) and the HRPC_ERR we saw. So it’s not necessarily a full process exit.
+- If the ork list is empty, all ork-dependent routes should fail (wallet creation, balances, transfers, etc.); cache may mask some reads briefly.
+- We should confirm by checking ork worker logs for that 4.5h window (no inbound RPCs or failures) and app-node logs for ERR_TOPIC_LOOKUP_EMPTY.
+- Repro locally: run app-node with no ork workers -> ERR_TOPIC_LOOKUP_EMPTY at startup; if we allow startup, /connect should return a controlled 503 with the guard.

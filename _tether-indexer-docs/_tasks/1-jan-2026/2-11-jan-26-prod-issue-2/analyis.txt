@@ -1,0 +1,18 @@
+• The pushback is valid as a set of questions, but it doesn’t show your analysis is wrong; it shows there’s an additional operational gap to explain.
+
+  - The local behavior he saw is consistent with the current code: lookupTopicKeyAll throws ERR_TOPIC_LOOKUP_EMPTY when no peers exist (wdk-app-node/
+    node_modules/hp-svc-facs-net/index.js:197), and _refreshOrks() is awaited on startup (wdk-app-node/workers/base.http.server.wdk.js:117), so the app can
+    fail to start if there are truly zero orks. That matches his test.
+  - The production log still aligns with your root cause: the HTTP server starts before _refreshOrks completes (wdk-app-node/workers/
+    base.http.server.wdk.js:110), and resolveOrkRpcKey does not guard an empty list (wdk-app-node/workers/lib/services/ork.js:8), so a request arriving
+    during that window or after an empty update will call jRequest(undefined) and throw the exact error you saw.
+  - Scope-wise, this is not limited to wallet creation. Almost every wallet/balance/entropy route goes through rpcCall (wdk-app-node/workers/lib/services/
+    ork.js:18), so if the ork list is empty, all ork-dependent requests would fail. Wallet creation was just the most visible symptom; cache can mask some
+    reads briefly.
+  - The RoundRobin NaN bug is real but it only affects the next() path (no userId) and doesn’t explain the /connect failure; it’s still a valid fix (wdk-
+    app-node/workers/lib/utils/round.robin.js:19).
+
+  Bottom line: the senior dev’s questions are valid, but your analysis of the code bug is not wrong. The missing piece is the 4.5-hour “no orks” duration,
+  which is likely an infra/discovery issue (ork workers not announcing, DHT/bootstrap lag, or a version/config difference that changes empty-list
+  behavior). I’d update the ticket to explicitly handle ERR_TOPIC_LOOKUP_EMPTY and add a readiness gate so the server doesn’t accept traffic until at least
+  one ork is discovered.

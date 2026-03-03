@@ -1,0 +1,11 @@
+From this discussion, the “notification issue” isn’t about mobile push notifications but about **in‑app chat notifications on Rumble** when a creator receives a tip.  
+
+George explains that there are **two QR flows** for tipping:  
+1. The **“live rant” QR**, which includes a `payload` field and correctly triggers a chat notification via the backend webhook.  
+2. The **“channel/user” QR**, which lacks the `payload` field. When this one is scanned and a tip is sent, the backend still receives a notification, but Rumble’s chat never displays it.  
+
+George’s view is that this isn’t a runtime failure but a **missing implementation path**—the backend accepts the message but doesn’t trigger the chat event because the payload is absent. He also notes that he’s never seen this second QR flow produce a chat notification before, implying it likely never worked as intended.  
+
+Usman adds that the issue is **not related to Firebase/mobile notifications** but to how the backend processes and forwards these events to Rumble’s chat system. He further clarifies that the backend job and Redis stream processing are functioning correctly, so the problem lies in how the webhook logic handles (or ignores) these “payload‑less” notifications.  
+
+In short, the team agrees the bug is **a logic gap in the chat notification flow for non‑payload QR tips**, not a job failure or mobile push issue.

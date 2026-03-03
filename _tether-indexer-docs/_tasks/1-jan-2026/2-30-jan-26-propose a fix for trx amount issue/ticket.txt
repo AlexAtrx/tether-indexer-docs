@@ -1,0 +1,19 @@
+Ticket: https://app.asana.com/1/45238840754660/project/1210540875949204/task/1213042008023666?focus=true
+
+Fix BTC Transaction Amount Display (Change Output Issue)
+
+SUMMARY
+BTC "Sent" transactions display incorrect amounts because change outputs are shown as separate transactions. Users see multiple confusing entries instead of one clear transaction with the actual sent amount.
+
+ROOT CAUSE
+1. BTC indexer creates one transfer record per output (including change).
+2. Data shard labels all transfers as "sent" if `from` matches wallet, even when `to` is also the wallet (change returning to sender)
+3. No distinction between "payment to recipient" and "change back to self"
+
+SOLUTION
+PART 1: Label change outputs at indexing time (generic for all consumers)
+PART 2: Filter change outputs at Rumble data shard (Rumble-specific)
+PART 3: Add fee tracking fields (optional but recommended)
+
+NOTE: to be completed after team discussion is concluded.
+

@@ -1,0 +1,123 @@
+## Context
+
+Ticket: _docs/_tasks/_log-endpoint-21-jan-2026/ticket.txt
+
+Note by dev: _docs/_tasks/_log-endpoint-21-jan-2026/dev-note.txt
+
+## Task
+
+Implement a new /log endpoint on the Rumble backend to record and forward
+Mobile application logs as well as the backend’s own logs to Loki and Grafana.
+
+The endpoint is specifically designed to ingest Mobile app login-flow logs
+and must clearly distinguish them from backend service logs using labels/tags.
+
+The endpoint must support:
+
+- A single log entry (JSON object)
+- A batch of log entries (JSON array of objects)
+
+The maximum number of log entries per request must be configurable in the application.
+
+---
+
+REQUIREMENTS
+
+1. Payload Format
+
+   - The request body can be:
+     - A single log object, OR
+     - An array of log objects
+   - Each log object must include:
+     - timestamp
+     - level
+     - message
+     - optional extra context
+     - traceId (provided by the Mobile app session)
+   - The backend must validate the request format.
+   - If an array is provided, validate every entry individually.
+   - Reject requests that exceed the configured maximum batch size.
+
+2. traceId Rules
+
+   - The Mobile frontend is required to send a traceId with every log entry.
+   - For each log entry:
+     - If traceId is present:
+       - Attach it to the Loki log line.
+       - Add it as a label.
+     - If traceId is missing:
+       - Generate a new traceId.
+       - Log a warning.
+       - Still forward the log to Loki.
+
+   This guarantees all Mobile and backend logs are traceable across the stack.
+
+3. Log Source Tagging (Mobile vs Backend)
+
+   - All logs forwarded from this endpoint must include labels/tags that:
+     - Identify them as "mobile-app" logs.
+     - Identify the flow as "mobile-login".
+   - Backend service logs must keep their existing backend/service labels.
+   - These tags must allow Grafana to clearly distinguish:
+     - Mobile phone logs
+     - Backend service logs
+
+4. Loki Integration
+
+   - Forward all validated log entries to Loki.
+   - Each log entry must include:
+     - traceId label
+     - source label: "mobile-app"
+     - flow label: "mobile-login"
+
+5. Grafana
+
+   - Grafana must be able to:
+     - Filter Mobile app logs separately from backend logs.
+     - Filter specifically on the "mobile-login" flow.
+   - A live Grafana panel should be available for testing the login log stream.
+
+6. Swagger / API Documentation
+
+   - Expose the /log endpoint in Swagger.
+   - The description must state:
+     - It accepts either a single log object or an array of log objects.
+     - The frontend is required to send a traceId.
+     - A traceId will be generated if missing.
+     - The maximum batch size is configurable.
+     - Logs are tagged as Mobile app logs.
+
+7. Validation & Middleware
+
+   - Request validation remains enabled.
+   - Response validation must use the previously agreed warning-log middleware.
+
+8. Access & Environment
+   - In the dev environment:
+     - The backend node must be allowed to write to Loki.
+     - The backend must be allowed to read from the dev Mongo instance
+       (if log enrichment is required).
+
+---
+
+GOAL
+
+Ensure that:
+
+- Mobile application logs and backend logs are both stored in Loki.
+- Mobile logs are clearly distinguishable from backend logs.
+- Every log entry is traceable via traceId.
+- Grafana can filter between Mobile and backend logs.
+- The system supports both single and batch log ingestion.
+- The implementation fully satisfies the ticket requirements.
+
+## Notes
+
+- I'm not sure of the impound name and address "/log". Conclude from the local code and endpoint naming convention on the Rumble backend what the right endpoint should be.
+
+## Deliverable
+
+- Go through the context, the task, the specs of the endpoing and relevant repo's code and make a plan to implement the log endpoint.
+- Document the plan in this folder _docs/_tasks/_log-endpoint-21-jan-2026 in a file called _plan.txt
+- Make sure to make the plan comprehensive, including tests covering all age cases if there are any.
+- Make sure the plan includes technically the weighted sequence between mobile app log and the service log that is going to have this endpoint implemented.

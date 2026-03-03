@@ -1,0 +1,13 @@
+Read the API contract short document shared with the team:
+_tether-indexer-docs/_tasks/17-feb-26-1-give-me-contract-trx-history-endpoints/API.md
+
+
+Read the transaction history feature discussions to understand the requirements and the feature itself:
+_tether-indexer-docs/_tasks/12-feb-26-update-trx-history-res-data
+_tether-indexer-docs/_tasks/17-feb-26-1-give-me-contract-trx-history-endpoints
+
+Answer the questions of the PO:
+- do we also receive buy and cashout types?
+- Do we have the field's 'totalAmount' and 'fee' in the first phase?
+
+Give me a quick yet truthful answer to both questions.

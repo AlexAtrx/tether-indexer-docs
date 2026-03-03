@@ -1,0 +1,107 @@
+Vigan:
+hey @george @Mo Elsabry here's the proposal for fee fields on wdk transfer structure
+```
+// btc from rumble
+{
+  "transactionHash": "ffda0abe2030c2080374f2f971c311f31d143e1f23ff6071df6a4856b4a21abf",
+  "transferIndex": 0,
+  "walletId": "5537d119-1272-4d59-9c1f-c45756675186",
+  "amount": "0.0000227",
+  "blockNumber": 929268,
+  "blockchain": "bitcoin",
+  "fiatAmount": "1.9821867",
+  "fiatCcy": "usd",
+  // new fields
+  "feeAmount": 0.00012,
+  "feeCcy": "btc",
+  //
+  "from": "bc1qhxhynd9h2zz242tspd50a52gw9vnnv4harvyfa",
+  "label": "transaction",
+  "logIndex": 0,
+  "to": "bc1qg8ggeywkd2sl277s7a9en6w6vuhu3t2ht5ah8w",
+  "token": "btc",
+  "transactionIndex": 855,
+  "ts": 1766575140000
+}
+
+// evm from rumble via paymasters
+{
+  "transactionHash": "0xa4fa456853204375b942572f11ef684d8397ff7d6060a0bd111b5121cf4a2b44",
+  "transferIndex": 0,
+  "walletId": "cc8f2e64-3e32-4442-9f64-93a583521f93",
+  "amount": "0.001217",
+  "blockNumber": 23640886,
+  "blockchain": "ethereum",
+  "fiatAmount": "5.03478985",
+  "fiatCcy": "usd",
+  // new fields
+  "feeAmount": 0, <---- always 0
+  "feeCcy": "eth",
+  //
+  "from": "0xe048a905e9ed20070fd27c422284979c344cabc9",
+  "logIndex": 563,
+  "timestamp": 1761230747000,
+  "to": "0x5dab2963d56273486e2aa3aa28c7426edd794aa0",
+  "token": "xaut",
+  "transactionIndex": 224,
+  "ts": 1761230747000
+}
+
+// evm another wallet
+{
+  "transactionHash": "0xa4fa456853204375b942572f11ef684d8397ff7d6060a0bd111b5121cf4a2b44",
+  "transferIndex": 0,
+  "walletId": "cc8f2e64-3e32-4442-9f64-93a583521f93",
+  "amount": "0.001217",
+  "blockNumber": 23640886,
+  "blockchain": "ethereum",
+  "fiatAmount": "5.03478985",
+  "fiatCcy": "usd",
+  // new fields
+  "feeAmount": 0.000023,
+  "feeCcy": "eth",
+  //
+  "from": "0xe048a905e9ed20070fd27c422284979c344cabc9",
+  "logIndex": 563,
+  "timestamp": 1761230747000,
+  "to": "0x5dab2963d56273486e2aa3aa28c7426edd794aa0",
+  "token": "xaut",
+  "transactionIndex": 224,
+  "ts": 1761230747000
+}
+```
+
+more context: this is to show potential native currency fees/gas fees on transfers
+
+for paymasters since fee is contract usdt transfer then it will be 0
+wdyt?
+
+Dario:
+why feeAmount always 0?
+but we need to see the fee paid by user in usdt/xaut/usat (edited) 
+
+
+Vigan:
+yup rumble app handles that part
+it detect which tx is from paymaster
+
+Dario:
+amazing
+
+Vigan:
+but for btc they can't as it's native token fee
+
+Dario:
+but this wont be a rumble thing only
+tether wallet will do the same
+whop will do the same etc
+
+Vigan:
+yup it has also tags
+
+Usman:
+how will we populate these fields in the indexers? Will indexers be required to merge multiple transfer logs?
+
+Vigan:
+nope it won't fetch multiple transfer logs, but I think in some chains we can see gas fee to determine these in a transaction level
+

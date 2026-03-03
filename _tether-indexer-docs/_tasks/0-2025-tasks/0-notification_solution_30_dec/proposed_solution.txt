@@ -1,0 +1,46 @@
+## Proposed Solution
+
+### App level
+Once the user is logged in, build a deterministic string from userId + device model + OS version + other stable device info. Hash it with SHA-256 and use the result as deviceId, which is sent to the backend.
+No random UUID fallback is needed for not-logged-in users.
+
+### Frontend flow
+After login or re-login, collect device info, combine with userId, hash to produce deviceId.
+Read the current Firebase (FMC) token.
+POST { deviceId, FMC token } to the backend. Backend returns a JSON status; if not ok, request a fresh Firebase token and retry the POST.
+
+### Backend schema
+Device collection fields: deviceIdHash , fmcToken ,  userId , registeredAt ,  lastNotifiedAt , isActive
+The deviceIdHash is already one-way hashed; no raw identifiers are stored.
+
+### Backend upsert logic
+On request, look up by deviceIdHash.
+If found, update fmcToken and userId; otherwise insert a new record.
+Since the hash includes userId, the same handset used by different users generates different hashes, allowing old data to be overwritten for the new user.
+
+### Notification dispatch
+Group records by deviceIdHash.
+Keep only the most recent active token per group.
+Send the push to that single token to avoid duplicate notifications.
+
+### Cleanup
+On Firebase NotRegistered or InvalidRegistration, mark the token inactive.
+A periodic job deletes inactive records older than the retention period.
+
+### API enhancements (Kulwinder)
+Backend returns a structured JSON status (ok, expired, missing, deleted).
+Notification service returns the same status instead of a plain 204, allowing the frontend to know when to regenerate the token.
+
+### Documentation & tracking
+Document deterministic device ID generation in the internal Swagger/Bruno repo and keep it updated via PRs.
+Create Asana tickets for FE and BE, attach this design, and set the “Rumble” field by default.
+
+### Result
+Deterministic, encrypted device IDs allow safe overwrites of handset data per user, preventing duplicate or missing push notifications for 99%+ of users. Remaining edge cases require the same device model and the same user ID.
+
+### Behavior change summary (API + client)
+- `POST /api/v1/device-ids` returns 200 + JSON status (`ok`, `missing`, `expired`) instead of 201.
+- `DELETE /api/v1/device-ids` and `/api/v1/device-ids/remove` return 200 + JSON status (`deleted`, `missing`) instead of 204.
+- `POST /api/v1/notifications` returns 200 + JSON status (`ok`, `missing`, `expired`) instead of 204.
+- Device records store `deviceId`, `fcmToken`, `registeredAt`, `lastNotifiedAt`, `isActive`; `deviceId` is deterministic (hashed) and used for upsert.
+- Client should always send `deviceId` + `fcmToken`; on `missing` or `expired`, refresh FCM token and re-register.

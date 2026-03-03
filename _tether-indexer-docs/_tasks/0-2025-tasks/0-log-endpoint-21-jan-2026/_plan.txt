@@ -1,0 +1,1059 @@
+# Implementation Plan: /log Endpoint for Mobile App Logs
+
+**Date**: 21 January 2026
+**Status**: Implementation Plan
+**Author**: Claude Code
+
+---
+
+## Executive Summary
+
+This plan details the implementation of a new `/log` endpoint on the Rumble backend to receive and forward Mobile application logs to Loki/Grafana via the existing Hyperswarm transport. The endpoint must clearly distinguish mobile logs from backend service logs using labels and support both single log entries and batch submissions.
+
+---
+
+## 1. Endpoint Naming Convention Analysis
+
+### Current Patterns in rumble-app-node
+
+After analyzing `workers/lib/server.js`, the naming conventions are:
+
+| Pattern | Examples |
+|---------|----------|
+| `/api/v1/{resource}` (plural) | `/api/v1/wallets`, `/api/v1/notifications`, `/api/v1/device-ids` |
+| `/api/v1/{resource}/:id` | `/api/v1/wallets/:id`, `/api/v1/device-ids/:deviceId` |
+| `/api/v1/{resource}/{action}` | `/api/v1/signature/:provider`, `/api/v1/swaps/getAction` |
+| External integration paths | `/moonpay/webhook`, `/lnurl/:action/:hash` |
+
+### Recommendation: `/api/v1/logs`
+
+Reasons:
+1. Follows the plural noun pattern used for other resources
+2. Aligns with the existing design document from Jan 15
+3. RESTful convention: collection endpoints use plural nouns
+4. Precedent: `/api/v1/notifications` uses plural for a similar "ingestion" endpoint
+
+**Final endpoint**: `POST /api/v1/logs`
+
+---
+
+## 2. Architecture Overview
+
+```
+Mobile App
+    |
+    | POST /api/v1/logs
+    | { log | logs[], device?, sessionId? }
+    | Authorization: Bearer <jwt> | X-Device-Id: <uuid>
+    | X-Trace-Id: <trace-id> (optional)
+    v
++-------------------+
+| rumble-app-node   |
+| (HTTP Gateway)    |
++-------------------+
+    |
+    | 1. Validate request (JSON Schema)
+    | 2. Authenticate (SSO or Device-ID)
+    | 3. Rate limit
+    | 4. Enrich logs with labels:
+    |    - source: "mobile-app"
+    |    - flow: "mobile-login"
+    |    - traceId: (from request or generated)
+    | 5. Forward to ctx.logger
+    v
++-------------------+
+| svc-facs-logging  |
+| (Pino + Transport)|
++-------------------+
+    |
+    | Hyperswarm P2P Transport
+    | (with auth message containing labels)
+    v
++-------------------+
+| Log Aggregator    |
+| (Hyperswarm srv)  |
++-------------------+
+    |
+    v
++-------------------+
+| Loki              |
+| (via aggregator)  |
++-------------------+
+    |
+    v
++-------------------+
+| Grafana           |
+| (Dashboard)       |
++-------------------+
+```
+
+### Log Flow Sequence
+
+1. **Mobile App** sends POST request with log(s)
+2. **logsGuard** validates authentication (SSO token or Device-ID)
+3. **Rate limiter** checks request limits per user/device
+4. **Handler** validates and enriches each log entry:
+   - Adds `source: "mobile-app"` label
+   - Adds `flow: "mobile-login"` label
+   - Validates/generates `traceId`
+5. **ctx.logger** logs each entry with Pino
+6. **svc-facs-logging** forwards via Hyperswarm transport
+7. **Log Aggregator** receives and forwards to Loki
+8. **Grafana** can query by labels to filter mobile vs backend logs
+
+---
+
+## 3. Request/Response Specification
+
+### 3.1 Request Headers
+
+| Header | Required | Description |
+|--------|----------|-------------|
+| `Authorization` | Conditional | `Bearer <jwt>` for authenticated users |
+| `X-Device-Id` | Conditional | UUID v4, required if no auth token |
+| `X-Trace-Id` | Optional | Request-level trace ID; server generates if absent |
+| `Content-Type` | Required | `application/json` |
+
+**Authentication Rule**: Exactly one of `Authorization` or `X-Device-Id` must be present.
+
+### 3.2 Request Body
+
+The endpoint must accept EITHER:
+
+**Option A: Single log object**
+```json
+{
+  "timestamp": 1737475200000,
+  "level": "error",
+  "message": "Login failed: network timeout",
+  "traceId": "login-7f3a9b2c",
+  "context": {
+    "screen": "LoginScreen",
+    "action": "submitLogin",
+    "error": {
+      "code": "NETWORK_TIMEOUT",
+      "stack": "Error: timeout at..."
+    }
+  }
+}
+```
+
+**Option B: Batch of log objects**
+```json
+{
+  "logs": [
+    {
+      "timestamp": 1737475200000,
+      "level": "info",
+      "message": "Login started",
+      "traceId": "login-7f3a9b2c"
+    },
+    {
+      "timestamp": 1737475201000,
+      "level": "error",
+      "message": "Login failed",
+      "traceId": "login-7f3a9b2c"
+    }
+  ],
+  "device": {
+    "platform": "ios",
+    "osVersion": "17.2",
+    "model": "iPhone 15 Pro",
+    "appVersion": "2.5.0"
+  },
+  "sessionId": "sess_xyz789"
+}
+```
+
+### 3.3 Log Entry Fields
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `timestamp` | integer | Yes | Client timestamp in milliseconds (Unix epoch) |
+| `level` | string | Yes | One of: `debug`, `info`, `warn`, `error`, `fatal` |
+| `message` | string | Yes | Human-readable log message (max 2000 chars) |
+| `traceId` | string | No* | Trace ID for correlation (*required by mobile, generated if missing) |
+| `context` | object | No | Additional context data |
+| `context.screen` | string | No | UI screen name |
+| `context.action` | string | No | User action being performed |
+| `context.error` | object | No | Error details |
+| `context.error.code` | string | No | Error code |
+| `context.error.stack` | string | No | Stack trace (max 5000 chars) |
+| `context.metadata` | object | No | Free-form extra data |
+
+### 3.4 Response
+
+**Success (200 OK)**
+```json
+{
+  "accepted": true,
+  "count": 2,
+  "traceId": "app-7f3a9b2c-acde-4c1a-9b2c-acde7f3a9b2c"
+}
+```
+
+**Validation Error (422 Unprocessable Entity)**
+```json
+{
+  "statusCode": 422,
+  "error": "Unprocessable Entity",
+  "message": "body/logs/0/level must be equal to one of the allowed values"
+}
+```
+
+**Rate Limit Exceeded (429 Too Many Requests)**
+```json
+{
+  "statusCode": 429,
+  "error": "Too Many Requests",
+  "message": "Rate limit exceeded"
+}
+```
+
+---
+
+## 4. Configuration
+
+Add to `rumble-app-node/config/common.json`:
+
+```json
+{
+  "logs": {
+    "enabled": true,
+    "rateLimit": {
+      "maxRequestsPerMinute": 60
+    },
+    "validation": {
+      "maxBatch": 100,
+      "maxMessageLength": 2000,
+      "maxStackLength": 5000,
+      "maxBodyBytes": 262144
+    },
+    "appIntegrity": {
+      "enabled": false
+    },
+    "labels": {
+      "source": "mobile-app",
+      "flow": "mobile-login"
+    }
+  }
+}
+```
+
+### Configuration Parameters
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `logs.enabled` | boolean | true | Enable/disable the endpoint |
+| `logs.rateLimit.maxRequestsPerMinute` | integer | 60 | Max requests per user/device per minute |
+| `logs.validation.maxBatch` | integer | 100 | Max log entries per request |
+| `logs.validation.maxMessageLength` | integer | 2000 | Max chars per log message |
+| `logs.validation.maxStackLength` | integer | 5000 | Max chars for error stack traces |
+| `logs.validation.maxBodyBytes` | integer | 262144 | Max request body size (256KB) |
+| `logs.appIntegrity.enabled` | boolean | false | Require app attestation for unauthenticated requests |
+| `logs.labels.source` | string | "mobile-app" | Loki source label for mobile logs |
+| `logs.labels.flow` | string | "mobile-login" | Loki flow label for mobile logs |
+
+---
+
+## 5. Implementation Details
+
+### 5.1 Files to Create/Modify
+
+| File | Action | Description |
+|------|--------|-------------|
+| `workers/lib/middlewares/logs.guard.js` | Create | Authentication guard for logs endpoint |
+| `workers/lib/services/logs.js` | Create | Log processing service |
+| `workers/lib/schemas/logs.js` | Create | JSON Schema definitions |
+| `workers/lib/schemas/index.js` | Modify | Export logs schemas |
+| `workers/lib/server.js` | Modify | Add route definition |
+| `workers/lib/middlewares/index.js` | Modify | Export logsGuard |
+| `config/common.json.example` | Modify | Add logs configuration |
+| `tests/http.node.wrk.intg.test.js` | Modify | Add integration tests |
+
+### 5.2 Logs Guard Implementation
+
+**File**: `workers/lib/middlewares/logs.guard.js`
+
+```javascript
+'use strict'
+
+const middleware = require('@tetherto/wdk-app-node/workers/lib/middlewares')
+
+const logsGuard = async (ctx, req) => {
+  req._info = req._info || {}
+
+  // Try JWT auth first
+  const authHeader = req.headers.authorization
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    try {
+      await middleware.auth.guard(ctx, req)
+      req._info.authMode = 'authenticated'
+      return
+    } catch (err) {
+      // Fall through to device-based auth
+      ctx.logger.debug({ err }, 'JWT auth failed, trying device auth')
+    }
+  }
+
+  // Require X-Device-Id for unauthenticated requests
+  const deviceId = req.headers['x-device-id']
+  if (!deviceId) {
+    throw ctx.httpd_h0.server.httpErrors.unauthorized(
+      'Authentication required: provide Authorization header or X-Device-Id'
+    )
+  }
+
+  // Validate UUID v4 format
+  const uuidV4Regex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+  if (!uuidV4Regex.test(deviceId)) {
+    throw ctx.httpd_h0.server.httpErrors.badRequest('Invalid X-Device-Id format')
+  }
+
+  req._info.authMode = 'unauthenticated'
+  req._info.deviceId = deviceId
+}
+
+module.exports = { logsGuard }
+```
+
+### 5.3 Logs Service Implementation
+
+**File**: `workers/lib/services/logs.js`
+
+```javascript
+'use strict'
+
+const crypto = require('crypto')
+const { getTraceId } = require('@tetherto/wdk-app-node/workers/lib/utils/traceId')
+
+const processLogs = async (ctx, req) => {
+  const { body } = req
+  const labels = ctx.conf.logs?.labels || {}
+  const requestTraceId = getTraceId() || generateTraceId('mobile-')
+  const serverTimestamp = Date.now()
+
+  // Normalize input: support single log or array
+  let logs
+  let device = null
+  let sessionId = null
+
+  if (Array.isArray(body.logs)) {
+    // Batch format: { logs: [...], device?, sessionId? }
+    logs = body.logs
+    device = body.device || null
+    sessionId = body.sessionId || null
+  } else if (body.timestamp && body.level && body.message) {
+    // Single log format: { timestamp, level, message, ... }
+    logs = [body]
+  } else {
+    throw ctx.httpd_h0.server.httpErrors.badRequest(
+      'Invalid request: provide either a single log object or { logs: [...] }'
+    )
+  }
+
+  // Validate batch size
+  const maxBatch = ctx.conf.logs?.validation?.maxBatch || 100
+  if (logs.length > maxBatch) {
+    throw ctx.httpd_h0.server.httpErrors.badRequest(
+      `Batch size ${logs.length} exceeds maximum of ${maxBatch}`
+    )
+  }
+
+  let missingTraceIdCount = 0
+
+  for (const log of logs) {
+    // Handle missing traceId
+    let logTraceId = log.traceId
+    if (!logTraceId) {
+      logTraceId = requestTraceId
+      missingTraceIdCount++
+    }
+
+    // Build enriched log entry with Loki-compatible labels
+    const enriched = {
+      // Loki labels (used for filtering in Grafana)
+      source: labels.source || 'mobile-app',
+      flow: labels.flow || 'mobile-login',
+      traceId: logTraceId,
+
+      // Authentication context
+      authMode: req._info.authMode,
+      userId: req._info.user?.id || null,
+      deviceId: req._info.deviceId || null,
+
+      // Session info
+      sessionId,
+
+      // Timestamps
+      clientTimestamp: log.timestamp,
+      serverTimestamp,
+
+      // Log context
+      context: log.context || {},
+      device: device || {}
+    }
+
+    // Log using appropriate level
+    const logFn = ctx.logger[log.level] || ctx.logger.info
+    logFn.call(ctx.logger, enriched, `[MOBILE] ${log.message}`)
+  }
+
+  // Log warning if any entries were missing traceId
+  if (missingTraceIdCount > 0) {
+    ctx.logger.warn({
+      missingTraceIdCount,
+      totalLogs: logs.length,
+      requestTraceId,
+      source: labels.source
+    }, 'Mobile logs received without traceId - frontend should always send traceId')
+  }
+
+  return {
+    accepted: true,
+    count: logs.length,
+    traceId: requestTraceId
+  }
+}
+
+const generateTraceId = (prefix = 'mobile-') => {
+  return prefix + crypto.randomUUID()
+}
+
+module.exports = { processLogs }
+```
+
+### 5.4 Schema Definitions
+
+**File**: `workers/lib/schemas/logs.js`
+
+```javascript
+'use strict'
+
+const getLogsSchema = (ctx) => {
+  const maxBatch = ctx.conf.logs?.validation?.maxBatch || 100
+  const maxMessageLength = ctx.conf.logs?.validation?.maxMessageLength || 2000
+  const maxStackLength = ctx.conf.logs?.validation?.maxStackLength || 5000
+
+  // Single log entry schema
+  const logEntrySchema = {
+    type: 'object',
+    properties: {
+      timestamp: { type: 'integer', description: 'Client timestamp in ms' },
+      level: {
+        type: 'string',
+        enum: ['debug', 'info', 'warn', 'error', 'fatal'],
+        description: 'Log severity level'
+      },
+      message: {
+        type: 'string',
+        minLength: 1,
+        maxLength: maxMessageLength,
+        description: 'Human-readable log message'
+      },
+      traceId: {
+        type: 'string',
+        description: 'Trace ID for log correlation (required by mobile, generated if missing)'
+      },
+      context: {
+        type: 'object',
+        properties: {
+          screen: { type: 'string', description: 'UI screen name' },
+          action: { type: 'string', description: 'User action being performed' },
+          error: {
+            type: 'object',
+            properties: {
+              code: { type: 'string', description: 'Error code' },
+              stack: {
+                type: 'string',
+                maxLength: maxStackLength,
+                description: 'Stack trace'
+              }
+            },
+            additionalProperties: false
+          },
+          metadata: {
+            type: 'object',
+            additionalProperties: true,
+            description: 'Free-form extra data'
+          }
+        },
+        additionalProperties: false
+      }
+    },
+    required: ['timestamp', 'level', 'message'],
+    additionalProperties: false
+  }
+
+  // Device info schema
+  const deviceSchema = {
+    type: 'object',
+    properties: {
+      platform: { type: 'string', enum: ['ios', 'android'], description: 'Mobile platform' },
+      osVersion: { type: 'string', description: 'OS version' },
+      model: { type: 'string', description: 'Device model' },
+      appVersion: { type: 'string', description: 'App version' }
+    },
+    additionalProperties: false
+  }
+
+  // Request body schema supporting both single and batch
+  const logsRequestSchema = {
+    oneOf: [
+      // Option 1: Single log entry (flat object)
+      logEntrySchema,
+      // Option 2: Batch with logs array
+      {
+        type: 'object',
+        properties: {
+          logs: {
+            type: 'array',
+            items: logEntrySchema,
+            minItems: 1,
+            maxItems: maxBatch,
+            description: 'Array of log entries'
+          },
+          device: deviceSchema,
+          sessionId: {
+            type: 'string',
+            minLength: 1,
+            description: 'Client session identifier'
+          }
+        },
+        required: ['logs'],
+        additionalProperties: false
+      }
+    ]
+  }
+
+  // Response schema
+  const logsResponseSchema = {
+    type: 'object',
+    properties: {
+      accepted: { type: 'boolean', description: 'Whether logs were accepted' },
+      count: { type: 'integer', description: 'Number of log entries processed' },
+      traceId: { type: 'string', description: 'Request trace ID' }
+    },
+    required: ['accepted', 'count', 'traceId'],
+    additionalProperties: false
+  }
+
+  return {
+    logsRequestSchema,
+    logsResponseSchema,
+    logEntrySchema,
+    deviceSchema
+  }
+}
+
+module.exports = { getLogsSchema }
+```
+
+### 5.5 Route Registration
+
+**File**: `workers/lib/server.js` (add to routes array)
+
+```javascript
+const { logsGuard } = require('./middlewares/logs.guard')
+const logsService = require('./services/logs')
+const { getLogsSchema } = require('./schemas/logs')
+
+// Inside routes function, add:
+{
+  method: 'POST',
+  url: '/api/v1/logs',
+  bodyLimit: ctx.conf.logs?.validation?.maxBodyBytes || 262144,
+  schema: (() => {
+    const { logsRequestSchema, logsResponseSchema } = getLogsSchema(ctx)
+    return {
+      tags: ['Logs'],
+      summary: 'Submit mobile application logs',
+      description: `
+Accepts logs from the mobile application for forwarding to Loki/Grafana.
+
+**Authentication**: Either provide a Bearer token (for authenticated users) or X-Device-Id header (for pre-login flows).
+
+**Payload**: Submit either:
+- A single log object with timestamp, level, message
+- A batch with { logs: [...], device?, sessionId? }
+
+**traceId**: The mobile app is required to send a traceId with every log entry for correlation. If missing, the server will generate one and log a warning.
+
+**Maximum batch size**: Configurable, default ${ctx.conf.logs?.validation?.maxBatch || 100} entries per request.
+
+**Labels**: All mobile logs are tagged with source="mobile-app" and flow="mobile-login" for Grafana filtering.
+      `.trim(),
+      headers: {
+        type: 'object',
+        properties: {
+          authorization: {
+            type: 'string',
+            description: 'Bearer token for authenticated users'
+          },
+          'x-device-id': {
+            type: 'string',
+            description: 'UUID v4 device identifier for unauthenticated requests'
+          },
+          'x-trace-id': {
+            type: 'string',
+            description: 'Optional request-level trace ID'
+          }
+        }
+      },
+      body: logsRequestSchema,
+      response: {
+        200: logsResponseSchema,
+        400: { $ref: 'commonError400' },
+        401: { $ref: 'commonError401' },
+        422: { $ref: 'commonError422' },
+        429: { $ref: 'commonError429' }
+      }
+    }
+  })(),
+  config: {
+    rateLimit: {
+      max: ctx.conf.logs?.rateLimit?.maxRequestsPerMinute || 60,
+      timeWindow: 60000,
+      hook: 'preHandler',
+      keyGenerator: (req) => {
+        if (req._info?.user?.id) {
+          return `logs:user:${req._info.user.id}`
+        }
+        return `logs:device:${req.headers['x-device-id'] || req.ip}`
+      }
+    }
+  },
+  preHandler: async (req, rep) => {
+    // Check if endpoint is enabled
+    if (ctx.conf.logs?.enabled === false) {
+      throw ctx.httpd_h0.server.httpErrors.serviceUnavailable('Logs endpoint disabled')
+    }
+
+    // Authenticate
+    await logsGuard(ctx, req)
+
+    // Optional: App integrity check for unauthenticated requests
+    if (req._info.authMode === 'unauthenticated' && ctx.conf.logs?.appIntegrity?.enabled) {
+      await appIntegrity.validate(ctx, req)
+    }
+  },
+  handler: async (req, rep) => {
+    const result = await logsService.processLogs(ctx, req)
+    return rep.status(200).send(result)
+  }
+}
+```
+
+### 5.6 Response Validation Middleware Integration
+
+The endpoint should use the existing response validation middleware pattern (soft validation with warning logs):
+
+**File**: `workers/lib/middlewares/response.validator.js` (add entry)
+
+```javascript
+// Add to responseSchemas object:
+'POST:/api/v1/logs': {
+  200: {
+    type: 'object',
+    properties: {
+      accepted: { type: 'boolean' },
+      count: { type: 'integer' },
+      traceId: { type: 'string' }
+    },
+    required: ['accepted', 'count', 'traceId']
+  }
+}
+```
+
+---
+
+## 6. Loki Labels and Grafana Filtering
+
+### 6.1 Label Strategy
+
+All mobile logs will include these labels for Loki:
+
+| Label | Value | Purpose |
+|-------|-------|---------|
+| `source` | `mobile-app` | Distinguish mobile logs from backend logs |
+| `flow` | `mobile-login` | Identify login-flow logs specifically |
+| `traceId` | `<uuid>` | Correlate logs across mobile and backend |
+| `app` | `rumble-app-node` | Service name (from logger config) |
+
+Backend service logs continue to use:
+| Label | Value |
+|-------|-------|
+| `source` | `pino` (default) |
+| `app` | `rumble-app-node` |
+| `traceId` | `<uuid>` |
+
+### 6.2 Grafana Query Examples
+
+**Filter only Mobile app logs:**
+```logql
+{source="mobile-app"}
+```
+
+**Filter Mobile login flow logs:**
+```logql
+{source="mobile-app", flow="mobile-login"}
+```
+
+**Filter backend service logs only:**
+```logql
+{app="rumble-app-node", source="pino"}
+```
+
+**Correlate mobile + backend by traceId:**
+```logql
+{traceId="mobile-7f3a9b2c-acde-4c1a-9b2c-acde7f3a9b2c"}
+```
+
+**Mobile errors only:**
+```logql
+{source="mobile-app"} |= "level\":\"error"
+```
+
+### 6.3 Grafana Dashboard Panel (Recommended)
+
+Create a panel with query:
+```logql
+{source="mobile-app", flow="mobile-login"} | json | line_format "{{.timestamp}} [{{.level}}] {{.message}}"
+```
+
+---
+
+## 7. Testing Plan
+
+### 7.1 Test Cases
+
+| # | Test Case | Expected Result |
+|---|-----------|-----------------|
+| 1 | POST single log with valid auth | 200, accepted: true, count: 1 |
+| 2 | POST batch logs with valid auth | 200, accepted: true, count: N |
+| 3 | POST with X-Device-Id (no auth) | 200, accepted: true |
+| 4 | POST without auth or device-id | 401 Unauthorized |
+| 5 | POST with invalid X-Device-Id format | 400 Bad Request |
+| 6 | POST with missing required fields | 422 Unprocessable Entity |
+| 7 | POST with invalid level enum | 422 Unprocessable Entity |
+| 8 | POST exceeding max batch size | 400 Bad Request |
+| 9 | POST with missing traceId | 200, warning logged |
+| 10 | Rate limit exceeded | 429 Too Many Requests |
+| 11 | Endpoint disabled via config | 503 Service Unavailable |
+| 12 | Message exceeds maxMessageLength | 422 Unprocessable Entity |
+| 13 | Stack trace exceeds maxStackLength | 422 Unprocessable Entity |
+
+### 7.2 Test Implementation
+
+**File**: `tests/http.node.wrk.intg.test.js` (add section)
+
+```javascript
+// ====== LOGS ENDPOINT TESTS ======
+
+test('POST /api/v1/logs - Single log entry success', async t => {
+  sandbox.reset()
+
+  const payload = {
+    timestamp: Date.now(),
+    level: 'info',
+    message: 'Login button pressed',
+    traceId: 'login-test-123',
+    context: {
+      screen: 'LoginScreen',
+      action: 'pressLoginButton'
+    }
+  }
+
+  const res = await fetch(`http://localhost:${wrk.ctx.port}/api/v1/logs`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      authorization: 'Bearer test-token'
+    },
+    body: JSON.stringify(payload)
+  })
+
+  const data = await res.json()
+  t.is(res.status, 200, 'should return 200 OK')
+  t.is(data.accepted, true, 'should be accepted')
+  t.is(data.count, 1, 'should count 1 log')
+  t.ok(data.traceId, 'should return traceId')
+})
+
+test('POST /api/v1/logs - Batch logs success', async t => {
+  sandbox.reset()
+
+  const payload = {
+    logs: [
+      { timestamp: Date.now(), level: 'info', message: 'Log 1', traceId: 'batch-123' },
+      { timestamp: Date.now(), level: 'warn', message: 'Log 2', traceId: 'batch-123' },
+      { timestamp: Date.now(), level: 'error', message: 'Log 3', traceId: 'batch-123' }
+    ],
+    device: {
+      platform: 'ios',
+      osVersion: '17.2',
+      appVersion: '2.5.0'
+    },
+    sessionId: 'sess_xyz789'
+  }
+
+  const res = await fetch(`http://localhost:${wrk.ctx.port}/api/v1/logs`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      authorization: 'Bearer test-token'
+    },
+    body: JSON.stringify(payload)
+  })
+
+  const data = await res.json()
+  t.is(res.status, 200, 'should return 200 OK')
+  t.is(data.count, 3, 'should count 3 logs')
+})
+
+test('POST /api/v1/logs - Device-ID auth success', async t => {
+  sandbox.reset()
+
+  const payload = {
+    timestamp: Date.now(),
+    level: 'info',
+    message: 'Pre-login log',
+    traceId: 'prelogin-123'
+  }
+
+  const res = await fetch(`http://localhost:${wrk.ctx.port}/api/v1/logs`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-device-id': '550e8400-e29b-41d4-a716-446655440000'
+    },
+    body: JSON.stringify(payload)
+  })
+
+  t.is(res.status, 200, 'should return 200 OK')
+})
+
+test('POST /api/v1/logs - Missing auth and device-id', async t => {
+  sandbox.reset()
+
+  const res = await fetch(`http://localhost:${wrk.ctx.port}/api/v1/logs`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      timestamp: Date.now(),
+      level: 'info',
+      message: 'Test'
+    })
+  })
+
+  t.is(res.status, 401, 'should return 401 Unauthorized')
+})
+
+test('POST /api/v1/logs - Invalid device-id format', async t => {
+  sandbox.reset()
+
+  const res = await fetch(`http://localhost:${wrk.ctx.port}/api/v1/logs`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-device-id': 'invalid-not-uuid'
+    },
+    body: JSON.stringify({
+      timestamp: Date.now(),
+      level: 'info',
+      message: 'Test'
+    })
+  })
+
+  t.is(res.status, 400, 'should return 400 Bad Request')
+})
+
+test('POST /api/v1/logs - Missing required fields', async t => {
+  sandbox.reset()
+
+  const res = await fetch(`http://localhost:${wrk.ctx.port}/api/v1/logs`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      authorization: 'Bearer test-token'
+    },
+    body: JSON.stringify({
+      level: 'info'
+      // missing timestamp and message
+    })
+  })
+
+  t.is(res.status, 422, 'should return 422 Unprocessable Entity')
+})
+
+test('POST /api/v1/logs - Invalid level enum', async t => {
+  sandbox.reset()
+
+  const res = await fetch(`http://localhost:${wrk.ctx.port}/api/v1/logs`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      authorization: 'Bearer test-token'
+    },
+    body: JSON.stringify({
+      timestamp: Date.now(),
+      level: 'critical', // invalid
+      message: 'Test'
+    })
+  })
+
+  t.is(res.status, 422, 'should return 422 Unprocessable Entity')
+})
+
+test('POST /api/v1/logs - Missing traceId logs warning', async t => {
+  sandbox.reset()
+
+  // Spy on logger.warn
+  const warnSpy = sandbox.spy(wrk.ctx.logger, 'warn')
+
+  const res = await fetch(`http://localhost:${wrk.ctx.port}/api/v1/logs`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      authorization: 'Bearer test-token'
+    },
+    body: JSON.stringify({
+      timestamp: Date.now(),
+      level: 'info',
+      message: 'Test without traceId'
+      // no traceId
+    })
+  })
+
+  t.is(res.status, 200, 'should still accept the log')
+  t.ok(warnSpy.called, 'should log a warning about missing traceId')
+})
+
+test('POST /api/v1/logs - Exceeds max batch size', async t => {
+  sandbox.reset()
+
+  const logs = Array.from({ length: 150 }, (_, i) => ({
+    timestamp: Date.now(),
+    level: 'info',
+    message: `Log ${i}`,
+    traceId: 'batch-overflow'
+  }))
+
+  const res = await fetch(`http://localhost:${wrk.ctx.port}/api/v1/logs`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      authorization: 'Bearer test-token'
+    },
+    body: JSON.stringify({ logs })
+  })
+
+  t.is(res.status, 400, 'should return 400 Bad Request')
+})
+```
+
+---
+
+## 8. Implementation Sequence
+
+### Phase 1: Core Implementation
+
+1. **Create schema file** (`workers/lib/schemas/logs.js`)
+   - Define log entry, device, request, and response schemas
+   - Export via `schemas/index.js`
+
+2. **Create logs guard** (`workers/lib/middlewares/logs.guard.js`)
+   - Implement JWT + Device-ID authentication
+   - Export via `middlewares/index.js`
+
+3. **Create logs service** (`workers/lib/services/logs.js`)
+   - Implement `processLogs` function
+   - Handle single vs batch format
+   - Enrich logs with labels
+   - Handle missing traceId
+
+4. **Add route to server.js**
+   - Register POST /api/v1/logs route
+   - Configure rate limiting
+   - Add Swagger documentation
+
+### Phase 2: Configuration & Integration
+
+5. **Update configuration**
+   - Add `logs` section to `config/common.json.example`
+   - Document all config options
+
+6. **Update response validator**
+   - Add logs endpoint to response validation registry
+
+### Phase 3: Testing
+
+7. **Write integration tests**
+   - All test cases from Section 7.1
+   - Run tests: `npm test`
+
+### Phase 4: Documentation & Verification
+
+8. **Verify Swagger documentation**
+   - Access /docs endpoint
+   - Verify endpoint description, schemas, examples
+
+9. **Verify Grafana filtering**
+   - Deploy to dev environment
+   - Submit test logs via endpoint
+   - Query Loki with label filters
+   - Verify mobile vs backend log separation
+
+---
+
+## 9. Dependencies and Environment
+
+### 9.1 Required Access (Dev Environment)
+
+- **Loki write access**: Backend node must be allowed to write to Loki via Hyperswarm transport
+- **Mongo read access**: If log enrichment requires user data lookup (not required for v1)
+
+### 9.2 No New Dependencies
+
+The implementation uses existing dependencies:
+- `@tetherto/wdk-app-node` - Base framework, auth utilities
+- `pino` - Logging (via svc-facs-logging)
+- `@fastify/rate-limit` - Rate limiting (already configured)
+- `crypto` - TraceId generation (Node.js built-in)
+
+---
+
+## 10. Security Considerations
+
+1. **Authentication**: Requires either valid SSO token or valid UUID v4 device-id
+2. **Rate limiting**: Prevents abuse (60 req/min default per user/device)
+3. **Payload validation**: JSON Schema validation prevents malformed data
+4. **Size limits**: Body size limit (256KB) and batch size limit (100 entries)
+5. **No sensitive data storage**: Logs are forwarded, not persisted locally
+6. **App integrity**: Optional attestation check for unauthenticated requests (future)
+
+---
+
+## 11. Open Questions (Carried Forward)
+
+1. **App integrity timing**: When will mobile attestation be ready to enable `logs.appIntegrity.enabled`?
+2. **User enrichment**: Should authenticated logs include additional user profile data from Mongo?
+3. **Log retention**: What is the Loki retention policy for mobile logs?
+
+---
+
+## 12. Summary
+
+This implementation plan provides a comprehensive roadmap for adding the `/api/v1/logs` endpoint to the Rumble backend. Key features include:
+
+- **Flexible payload**: Supports both single log and batch submissions
+- **Dual authentication**: Works for both authenticated and pre-login flows
+- **Loki-ready labels**: `source=mobile-app`, `flow=mobile-login` for Grafana filtering
+- **TraceId enforcement**: Requires traceId from mobile, generates with warning if missing
+- **Configurable limits**: Max batch size, message length, rate limits via config
+- **Full documentation**: Swagger/OpenAPI documentation for the endpoint
+- **Comprehensive testing**: 13 test cases covering all edge cases
+
+The implementation follows existing patterns in the codebase and requires no new external dependencies.

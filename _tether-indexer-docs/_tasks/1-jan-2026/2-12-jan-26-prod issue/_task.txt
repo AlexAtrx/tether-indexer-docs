@@ -1,0 +1,12 @@
+Read the latest developments on this issue: 
+_docs/tasks/11-jan-26-prod-issue-2
+
+now we have a new final comment on Slack, which is this:
+
+Usman:
+Even though ERR_TOPIC_LOOKUP_EMPTY isn't very descriptive, isn't this equivalent to exiting the service (ending the process) when no datashards are available? 
+Can we confirm this by checking the logs of ork workers during that time window? This should result in all requests to orks failing. Confirming that for that 4.5 hour window, all ork workers requests were failing will clear things up.
+I am unsure, because we initialize the DataShardUtil in the start function, and if there aren't any RPC keys for the worker, then the server will immediately restart.
+Finally, can we reproduce this issue locally?
+
+I'll give you the entire context of the analysis. Tell me if this makes sense and answer the questions briefly.

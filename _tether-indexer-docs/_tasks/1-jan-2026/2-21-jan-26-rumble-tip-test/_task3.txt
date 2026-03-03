@@ -1,0 +1,44 @@
+Based on your feed on this task '_docs/_tasks/_rumble-tip-test-21-jan-2026', I shared this analysis and proposal with the team:
+
+---
+Analysis
+From logs
+Log:Notification req include payload and transactionHash: undefined - 0x... - true/false
+includes only payload and transactionHash. The fields dt and id are missing.
+What happens if dt or id are missing
+Rumble worker only calls _addTxWebhook when:
+RANT: payload + transactionHash + dt + id
+TIP: transactionHash + dt + id
+If dt or id is missing, _addTxWebhook is skipped and no tx webhook is stored.
+Rumble data shrd worker only sends the Rumble webhook for stored tx webhooks.
+Result: missing dt or id => no webhook to Rumble => no live chat entry.
+Practical solution - in the PR:point_up:
+Make dt and id  required in TOKEN_TRANSFER.
+---
+
+I was asked: 
+
+---
+have we talked with the frontend team? Is it always possible for them to pass these fields? I am wondering if we've thought about all edge-cases and different flows.
+---
+
+So I shared this with the mobile team:
+
+---
+Another question please:
+Problem
+Trying to handle the absence of RANT and TIP sometimes in live channels, we realized logs that payload sometimes includes only payload and transactionHash. The fields dt and id are missing.
+In short: when these are missing ➔ no webhook to Rumble ➔ no live chat entry.
+Practical solution
+Make dt and id  required in TOKEN_TRANSFER in the API.
+Question
+if we make them required in the API, is it always possible for you to pass these fields?
+---
+
+then i was asked:
+
+---
+Hey Alex, can you share few examples? I’m curious if toWallet field is present
+---
+
+what does the akser mean? does he make sense? do we have exampeles?
