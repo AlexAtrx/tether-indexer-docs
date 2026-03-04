@@ -1,0 +1,68 @@
+Slack conversation:
+
+Dev:
+
+===========
+h that's how you fix docker on mac:
+_wdk_docker_network_v2/scripts/patch-dht-bootstrap.sh 
+you call it in every service
+
+I think we could also set 
+```
+global.Pear?.config.dht?.bootstrap
+```
+Which is in:
+https://github.com/holepunchto/hyperdht/blob/4b0f9092c44eb40e9cf9799d76d3fe8da107b329/lib/constants.js#L16C27-L16C61
+
+Explanation:
+The link goes to:
+```exports.BOOTSTRAP_NODES = global.Pear?.config.dht?.bootstrap || [
+  '88.99.3.86@node1.hyperdht.org:49737',
+  '142.93.90.113@node2.hyperdht.org:49737',
+  '138.68.147.8@node3.hyperdht.org:49737'
+]
+```
+Check the library online. 
+===========
+
+[Then later on]:
+
+Dev:
+===========
+I tried on my side but the docker network hyperswarm/rpc doesn't work
+
+here's what Claude/Cursor says about it
+
+---
+
+:red_circle: HyperDHT/UDX Cross-Container RPC Failure — macOS Docker Desktop
+
+  Every cross-container @hyperswarm/rpc request fails. Same-container (localhost) works fine.
+
+  Failing paths:
+
+  • rumble-app-node → rumble-ork (connect, addWallet, storeDevice) → CHANNEL_CLOSED / RPC client closed
+  • rumble-ork → rumble-data-shard-api (addWallet forwarded) → CHANNEL_CLOSED
+  • evm-indexer-api → evm-indexer-proc → CHANNEL_CLOSED (never triggered in practice — MongoDB mode skips RPC)
+
+  Working:
+  • rumble-data-shard-proc → itself (localhost) → :white_check_mark: Works
+
+  Root cause: Docker Desktop on macOS runs containers in a Linux VM with virtio networking. UDX (UDP transport used by
+  HyperDHT) data streams fail between containers — the Noise handshake completes (relayed through DHT bootstrap) but no
+  data flows. The server never receives the connection.
+
+  What works vs what breaks:
+
+  :white_check_mark: Raw UDP (dgram) — cross-container works
+  :white_check_mark: DHT peer lookup — works
+  :white_check_mark: Noise handshake — appears to complete (relayed via bootstrap)
+  :x: UDX data transfer — fails (server never receives connection)
+  :x: @hyperswarm/rpc — CHANNEL_CLOSED / CHANNEL_DESTROYED
+
+  Tested with: udx-native 1.19.2, hyperdht 6.29.0, @hyperswarm/rpc 3.4.1, node:22-bookworm + node:22-bookworm-slim
+
+---
+
+do you get channel closed on your setup?
+===========
