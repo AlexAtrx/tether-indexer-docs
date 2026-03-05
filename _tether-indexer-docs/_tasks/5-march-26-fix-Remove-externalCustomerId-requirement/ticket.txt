@@ -1,0 +1,52 @@
+TASK
+Remove `externalCustomerId` as requirement - at the moment we raise an error which results in 500 - this leads to a UX problem, no push notification being sent to user for buy and sell - there is also apparently another issue which is hard to debug/identify because of this high occurence error
+
+Affected code - https://github.com/tetherto/rumble-app-node/blob/7175b88b46e783e2aa79abeeea3139e6cd373db9/workers/lib/services/moonpay.utils.js#L92
+Affected code 2 - https://github.com/tetherto/rumble-app-node/blob/7175b88b46e783e2aa79abeeea3139e6cd373db9/workers/lib/services/moonpay.utils.js#L125
+(check _tether-indexer-docs/_tasks/5-march-26-fix-Remove-externalCustomerId-requirement/ref1.txt)
+
+
+CONTEXT
+500 error from webhook - caddy webserverFeb 07 01:04:29 walletstg3 caddy[44522]: {"level":"debug","ts":1770426269.9462829,"logger":"http.handlers.reverse_proxy","msg":"upstream roundtrip","upstream":"localhost:3000","duration":0.005956464,"request":{"remote_ip":"172.71.123.85","remote_port":"31500","client_ip":"172.71.123.85","proto":"HTTP/2.0","method":"POST","host":"wallet-8s4anfsr6it9.rumble.com","uri":"/moonpay/webhook","headers":{"Cf-Ipcontinent":["EU"],"Moonpay-Signature":["t=1770426269,s=64129e9696a285ae8602a4a9fd0190bd36cbf6d75a083c476b9f2a25871638b9"],"X-Forwarded-Proto":["https"],"Cf-Ipcity":["Brussels"],"User-Agent":["node-fetch/1.0"],"X-Datadog-Parent-Id":["8919813928751292806"],"Cdn-Loop":["cloudflare; loops=1"],"Cf-Ja4":["t13d521100_b262b3658495_8e6e362c5eac"],"Cf-Ja3-Hash":["944d1e1858cd278718f8a46b65d3212f"],"Cf-Timezone":["Europe/Brussels"],"Moonpay-Signature-V2":["t=1770426269,s=61c66c45abef4166827e02fba3e20d77b96b0dae12902a63d0abda6b39dafb23"],"X-Datadog-Sampling-Priority":["2"],"Accept-Encoding":["gzip, br"],"Cf-Iplongitude":["4.34878"],"Traceparent":["00-69868da0000000006484b1deaa5e647c-7bc98b824dcd6186-01"],"Cf-Ipcountry":["BE"],"Cf-Ray":["9c9ef939488e9eb0-CDG"],"Cf-Region-Code":["BRU"],"Cf-Region":["Brussels Capital"],"Cf-Bot-Score":["1"],"X-Forwarded-For":["172.71.123.85"],"Cf-Postal-Code":["1000"],"X-Forwarded-Host":["wallet-8s4anfsr6it9.rumble.com"],"Baggage":["sessionId=87502805-5272-4b97-9f3e-0f9bc4883a6b"],"Tracestate":["dd=t.tid:69868da000000000;t.dm:-3;s:2;p:7bc98b824dcd6186"],"Via":["2.0 Caddy"],"Cf-Visitor":["{\"scheme\":\"https\"}"],"Content-Length":["3276"],"Cf-Iplatitude":["50.85045"],"Accept":["*/*"],"Cf-Connecting-Ip":["34.77.238.249"],"Cf-Verified-Bot":["false"],"X-Datadog-Trace-Id":["7243109670617769084"],"X-Datadog-Tags":["_dd.p.tid=69868da000000000,_dd.p.dm=-3"],"Content-Type":["application/json"]},"tls":{"resumed":false,"version":772,"cipher_suite":4865,"proto":"h2","server_name":"wallet-8s4anfsr6it9.rumble.com"}},"headers":{"Connection":["keep-alive"],"Keep-Alive":["timeout=72"],"X-Trace-Id":["app-89e633f9-95c1-40ac-8859-99c0211a8375"],"Content-Type":["application/json; charset=utf-8"],"Content-Length":["98"],"Date":["Sat, 07 Feb 2026 01:04:29 GMT"]},"status":500}
+
+
+CONTEXT - log messagesNEW
+2026-02-07T00:56:18: {"level":50,"time":1770425778432,"pid":872842,"hostname":"walletprd3","name":"wrk-node-http-3000-10147b65-b966-4aaa-bd02-added8634274","traceId":"app-715bda84-e9a8-48bc-8f78-0cebc3703c4c","err":{"type":"Error","message":"ERR_MOONPAY_NO_EXTERNAL_CUSTOMER_ID","stack":"Error: ERR_MOONPAY_NO_EXTERNAL_CUSTOMER_ID\n    at _handleTransactionUpdated (/srv/data/production/rumble-app-node/workers/lib/services/moonpay.utils.js:93:11)\n    at Object.webhook (/srv/data/production/rumble-app-node/workers/lib/services/moonpay.utils.js:161:11)\n    at Object.handler (/srv/data/production/rumble-app-node/workers/lib/server.js:284:43)\n    at preHandlerCallback (/srv/data/production/rumble-app-node/node_modules/fastify/lib/handleRequest.js:139:37)\n    at next (/srv/data/production/rumble-app-node/node_modules/fastify/lib/hooks.js:233:9)\n    at handleResolve (/srv/data/production/rumble-app-node/node_modules/fastify/lib/hooks.js:250:7)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)"},"msg":"unhandled route error"}
+
+
+OLD - jan 21st
+2026-01-21T12:39:20: {"level":50,"time":1768999160143,"pid":12543,"hostname":"walletprd3","name":"wrk:http:wrk-node-http:12543","traceId":"app-8e85d24b-0293-4e7d-9f9f-848d8b56515b","err":{"type":"Error","message":"ERR_MOONPAY_NO_EXTERNAL_CUSTOMER_ID","stack":"Error: ERR_MOONPAY_NO_EXTERNAL_CUSTOMER_ID\n    at _handleTransactionUpdated (/srv/data/production/rumble-app-node/workers/lib/services/moonpay.utils.js:93:11)\n    at Object.webhook (/srv/data/production/rumble-app-node/workers/lib/services/moonpay.utils.js:161:11)\n    at Object.handler (/srv/data/production/rumble-app-node/workers/lib/server.js:289:43)\n    at preHandlerCallback (/srv/data/production/rumble-app-node/node_modules/fastify/lib/handleRequest.js:139:37)\n    at next (/srv/data/production/rumble-app-node/node_modules/fastify/lib/hooks.js:233:9)\n    at handleResolve (/srv/data/production/rumble-app-node/node_modules/fastify/lib/hooks.js:250:7)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)"},"msg":"unhandled route error"}
+
+First occurrence - Dec 31st
+2025-12-31T21:23:01: {"level":50,"time":1767216181394,"pid":1058819,"hostname":"walletprd3","name":"wrk:http:wrk-node-http:1058819","traceId":"app-ab487297-ce10-4f5a-8852-3618d528b964","err":{"type":"Error","message":"ERR_MOONPAY_NO_EXTERNAL_CUSTOMER_ID","stack":"Error: ERR_MOONPAY_NO_EXTERNAL_CUSTOMER_ID
+at _handleTransactionUpdated (/srv/data/production/rumble-app-node/workers/lib/services/moonpay.utils.js:93:11)
+at Object.webhook (/srv/data/production/rumble-app-node/workers/lib/services/moonpay.utils.js:161:11)
+at Object.handler (/srv/data/production/rumble-app-node/workers/lib/server.js:289:43)
+at preHandlerCallback (/srv/data/production/rumble-app-node/node_modules/fastify/lib/handleRequest.js:139:37)
+at next (/srv/data/production/rumble-app-node/node_modules/fastify/lib/hooks.js:233:9)
+at handleResolve (/srv/data/production/rumble-app-node/node_modules/fastify/lib/hooks.js:250:7)
+at process.processTicksAndRejections (node:internal/process/task_queues:105:5)"},"msg":"unhandled route error"}
+
+CONTEXT - frequency - production - ~17k events over 7 days - 2k events per day
+(check _tether-indexer-docs/_tasks/5-march-26-fix-Remove-externalCustomerId-requirement/screen.png)
+
+CONTEXT
+https://tether-to.slack.com/archives/C096C3P9MGD/p1769016051388029
+(check _tether-indexer-docs/_tasks/5-march-26-fix-Remove-externalCustomerId-requirement/slack.txt)
+
+CONTEXT Conversation in rumble private channel
+
+ERR_MOONPAY_NO_EXTERNAL_CUSTOMER_ID
+we have log messages including this string (edited) 
+https://tether-to.slack.com/archives/C096C3P9MGD/p1769016051388029
+Small question for @george and team on production logs related to new release
+for logs including ERR_MOONPAY_NO_EXTERNAL_CUSTOMER_ID we didn't release a "fix" yet to silence them and treat them as warnings 
+@george can we switch moonpay to their sandbox env to test buy/sell ? maybe we can use the dev menu you implemented in the app to change this option - moonpay docs: https://dev.moonpay.com/docs/faq-sandbox-testing (edited) 
+
+george  [8:17 AM]
+Hey, both Buy and Sell are expected to work without this field, it's just optional field to track customer id on backend side which we aren't using. 
+We should remove the requirement for it to be present on backend side. 
+In this case the issue is likely related to our known issue around cashout which we identified with Rumble support few days ago. I’ll respond in moonpay channel
+
+CONTEXT - Francesco
+As the frontend team cannot easily add the code to create an anonimized id to pass to moonpay and the field is marked as optional on moonpay (and only used to track the customer limits - https://dev.moonpay.com/reference/get_v1-customers-ext-customerid) - we need to release a fix on the backend side to have

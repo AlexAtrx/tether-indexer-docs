@@ -1,0 +1,5 @@
+Read all contents of this directory inclduding slack,, ticket, ref1 nand screenshot, starting fomr the ticket. 
+
+Understand the issue at hand and what needs to be done. 
+
+Give me a concise explanation of the issue.

@@ -1,0 +1,13 @@
+Backend Errors to be Silenced - staging - thread
+
+we'll soon get sentry on slack with alerts, this will be annoying very soon if we don't silence the alerts form errors to warnings
+
+Check Sentry Data:
+_tether-indexer-docs/_tasks/5-march-26-fix-Rumble-Address-Sentry-False-Positives/sentry-data-cleared
+_tether-indexer-docs/_tasks/5-march-26-fix-Rumble-Address-Sentry-False-Positives/sentry-data
+
+Error: body/0 must have required property 'type'
+
+POST
+/api/v1/wallets
+wallet-8s4anfsr6it9.rumble.com

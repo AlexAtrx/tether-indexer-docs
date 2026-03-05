@@ -1,0 +1,68 @@
+## Context
+
+### Ticket to handle
+[backend] Fix the failing syncBalances job
+
+
+### PR to address the ticket
+https://github.com/tetherto/wdk-data-shard-wrk/pull/186/changes
+- Note: the dev says it's a partial fix.
+- Comment of the dev who worked on it (Usman) and raised the PR: 
+Usman was referring to the **“[backend] Fix the failing syncBalances job”** task. He explained that his current pull request provides only a **partial fix**—it resolves one subset of the issues causing the job to fail but doesn’t fully address the root cause. The remaining problems are tied to performance and scalability, as the syncBalances job executes many RPC calls and can take over an hour to complete under load. He emphasized that although production appears stable now, the same issue could surface later at scale, so it’s important to finalize a complete fix soon.
+- Info from the dev:
+Key Changes: Discussed in PR description
+Note: As this issue is only reproduce-able in an environment where there are tons of users, so I am going to deploy this change on the dev environment and see if this fixes the problem. If it succeeds, I'll also check for 1 data-shard on the staging environment to confirm the solution works. 
+
+
+### Full meeting summary to pick from it what's relevant to this issue only:
+------
+# SyncBalances Job Performance Review
+
+## Action Items
+- Review Usman's PR for the **syncBalances** partial fix; coordinate with Francesco for final approval and merge.  
+- Optimize the **balances job** to cut down RPC calls and bring execution time well under an hour.  
+- Validate production data for the **balance trends endpoint**; confirm users receive complete entries.  
+- After merging, run analytics tests on **staging** to ensure the fix works under load.  
+- Share the test account credentials with QA (George) so they can reproduce the Android v2 → v3 manual‑backup scenario.  
+- Investigate the Android install/login flow with two Google accounts (public vs. tester) and document any required steps.  
+
+
+
+## SyncBalances Job Issue
+- Usman opened a PR that **partially fixes** the failing `syncBalances` job.  
+- Current fix addresses one subset of failures; root cause (excessive RPC calls) remains.  
+- Job currently takes **>1 hour** in staging due to unoptimized background calls.  
+- Production logs show **no errors**, but staging stress‑tests expose the bottleneck.  
+- Team needs a **robust, scalable solution** before the issue surfaces in production.  
+
+
+
+## Balance Trends Endpoint
+- PR improves the endpoint so it no longer returns empty entries under stress‑test conditions.  
+- Issue tied to the same **balances job** performance problems.  
+- Need to **confirm** that production users receive correct trend data after the fix.  
+- Staging environment shows the problem because it simulates a higher user load than production.  
+
+
+
+## Android Manual Backup Flow
+- Scenario: user creates wallet with **manual seed backup** on v2, then updates/install v3 and logs in without deleting v2.  
+- Requires having **two Google accounts**: one for the public Play Store version, one for the internal tester build.  
+- The tester build appears as an **update** to the existing app, not a separate listing.  
+- Testing shows the flow works when both accounts are present; need to verify across devices.  
+- QA (George) will run additional tests; share account details and steps with the team.  
+
+
+
+## General Discussion Points
+- Patricio’s task **“Incorrect period is displayed”** is fixed in production; the remaining work is on the balances job.  
+- Staging has **more users** than production now; performance issues will eventually affect production if not addressed.  
+- Team agreed to **track** all unresolved items before the next stand‑up to avoid lingering blockers.  
+-------
+
+
+## Task
+
+Understand the ticket, check the PR code changes, understand the issue from the codebase, and only answer this question for now:
+
+Is the comment the dev is saying relevant to this ticket or there is a mis-understanding here?

@@ -1,0 +1,35 @@
+Small question for @george and team on production logs related to new release
+
+we have the current log message
+2026-01-21T12:39:20: {"level":50,"time":1768999160143,"pid":12543,"hostname":"walletprd3","name":"wrk:http:wrk-node-http:12543","traceId":"app-8e85d24b-0293-4e7d-9f9f-848d8b56515b","err":{"type":"Error","message":"ERR_MOONPAY_NO_EXTERNAL_CUSTOMER_ID","stack":"Error: ERR_MOONPAY_NO_EXTERNAL_CUSTOMER_ID\n    at _handleTransactionUpdated (/srv/data/production/rumble-app-node/workers/lib/services/moonpay.utils.js:93:11)\n    at Object.webhook (/srv/data/production/rumble-app-node/workers/lib/services/moonpay.utils.js:161:11)\n    at Object.handler (/srv/data/production/rumble-app-node/workers/lib/server.js:289:43)\n    at preHandlerCallback (/srv/data/production/rumble-app-node/node_modules/fastify/lib/handleRequest.js:139:37)\n    at next (/srv/data/production/rumble-app-node/node_modules/fastify/lib/hooks.js:233:9)\n    at handleResolve (/srv/data/production/rumble-app-node/node_modules/fastify/lib/hooks.js:250:7)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)"},"msg":"unhandled route error"}
+
+maybe someone can double check this issue
+
+https://tether-to.slack.com/archives/C096C3P9MGD/p1763739271164869?thread_ts=1763738850.881159&cid=C096C3P9MGD
+
+if we don't receive an externalCustomerId at the moment we throw an error, should we consider this a warning (or info) instead of an error?
+
+2026-01-21T17:21:14: {"level":30,"time":1769016074526,"pid":451283,"hostname":"walletprd3","name":"wrk-node-http-3000-10147b65-b966-4aaa-bd02-added8634274","traceId":"app-b32dba91-758a-47f2-ad4a-35c46ba09232","msg":"Sell transaction updated: {\"status\":\"pending\",\"cryptoTransactionId\":null,\"externalCustomerId\":null,\"walletAddress\":\"0x87D519A94ac893A35318BBedf7D8B2D44578FDE7\"}"}
+
+2026-01-21T17:10:19: {"level":30,"time":1769015419658,"pid":451283,"hostname":"walletprd3","name":"wrk-node-http-3000-10147b65-b966-4aaa-bd02-added8634274","traceId":"app-52133c6b-bbb8-43b4-8ea0-20fae489d288","msg":"Sell transaction updated: {\"status\":\"completed\",\"cryptoTransactionId\":\"ec961e45d1aa6b577ea00cf7f28b5bc0b646b638c8f9668648075c187beb391b\",\"externalCustomerId\":null,\"walletAddress\":\"bc1qj8gcwyfyslg0mwuvcz4hva8afetuwcwqknvnxa\"}"}
+
+we have been ignoring them for the past release but we would like to silence them if they're just warnings
+
+not sure if it's related to the data that comes from mobile app directly
+
+It seems externalCustomerId  is something we can pass to moonpay for user identification which they will return as part of webhook response. Right now we don't pass externalCustomerId  to them, so the absence of this field's value is expected.
+
+Going forward we can pass rumble user id here which will allow us to associate moonpay webhooks with Rumble users.
+
+ok so we'll not treat it as an error, thank you
+
+we didn't follow up on this and this issue and it was somewhat important cc @Mo Elsabry fiy
+
+But what if the user is logging in with seedphrase, there will be no customer id to pass. Is it a mandatory param by Moonpay?
+
+No, it's optional for moopay, but mandatory for our backend. 
+
+Yo ensure I understand the ask correctly, we are removing this field. Correct? @Francesco C.
+
+yes, we're removing the fact that this field is required
+

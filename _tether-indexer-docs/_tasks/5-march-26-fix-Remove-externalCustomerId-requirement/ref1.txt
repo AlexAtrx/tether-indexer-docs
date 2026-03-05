@@ -1,0 +1,9 @@
+code:
+  if (!externalCustomerId) {
+    throw new Error('ERR_MOONPAY_NO_EXTERNAL_CUSTOMER_ID')
+  }
+
+in file:
+rumble-app-node/workers/lib/services/moonpay.utils.js
+
+Line repeated in two places.

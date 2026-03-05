@@ -1,0 +1,182 @@
+```
+# ISSUE
+issue_id=RUMBLE-WALLET-BACKEND-C
+project=rumble-wallet-backend
+status=ongoing
+error="body must have required property 'userMsg'"
+events=2100
+users=1
+priority=unset
+environment_filter="All Envs"
+
+# EVENT (DETAILS TAB)
+event_id=35a7cadb
+timestamp="Mar 4, 12:01 PM"
+handled=yes
+level=error
+url="https://wallet-8s4anfsr6it9.rmbl.ws/api/v1/seed-phrases/connect/verify"
+trace_id=b8e4878763a3d0e79e35808a1b8de9cc
+
+# STACK TRACE (TOP -> BOTTOM)
+1 file="/srv/data/staging/rumble-app-node/node_modules/fastify/lib/context.js" function=defaultSchemaErrorFormatter line=114 column=10
+2 file=fastify/lib/validation.js function=wrapValidationError line=249 column=17
+3 file=fastify/lib/validation.js function=validate line=167 column=16
+4 file=fastify/lib/handleRequest.js function=preValidationCallback line=93 column=25
+5 file=fastify/lib/handleRequest.js function=handler line=77 column=7
+6 file=fastify/lib/contentTypeParser.js line=199 column=9
+7 file=node:async_hooks function=AsyncResource.runInAsyncScope line=206 column=9
+8 file=fastify/lib/contentTypeParser.js function=done line=192 column=14
+9 file=fastify/lib/contentTypeParser.js function="Parser.defaultJsonParser [as fn]" line=304 column=5
+10 file=fastify/lib/contentTypeParser.js function=IncomingMessage.onEnd line=283 column=27
+mechanism=generic
+handled=true
+
+# BREADCRUMBS
+breadcrumb_exception_time="12:01:48 PM"
+breadcrumb_exception="Error body must have required property 'userMsg'"
+breadcrumb_console_time="05:15:58.940 AM"
+breadcrumb_console="creating fallback logger"
+http_method=POST
+http_path="/api/v1/seed-phrases/connect/verify"
+http_host=wallet-8s4anfsr6it9.rmbl.ws
+http_body.address="<captured-address-string>"
+http_body.chain=spark
+http_body.msg="<captured-msg-hash>"
+http_body.signature="<captured-signature-string>"
+http_cookie="__cf_bm=<redacted>"
+header_accept="application/json"
+header_accept_encoding="gzip, br"
+header_accept_language="en-GB,en;q=0.9"
+header_cdn_loop="cloudflare; loops=1"
+header_cf_connecting_ip="87.241.157.138"
+header_cf_ipcountry=AM
+header_cf_ray="9d7062934a882930-EVN"
+header_cf_visitor='{"scheme":"https"}'
+header_content_length=328
+header_content_type="application/json"
+header_host="wallet-8s4anfsr6it9.rmbl.ws"
+header_priority="u=3,i"
+header_user_agent="RumbleWalletDev/378 CFNetwork/3860.400.51 Darwin/25.3.0"
+header_via="2.0 caddy"
+header_x_authtoken="[Filtered]"
+header_x_forwarded_for="172.68.95.144"
+header_x_forwarded_host="wallet-8s4anfsr6it9.rmbl.ws"
+header_x_forwarded_proto="https"
+header_x_trace_id="mob::6d91cf3a-0683-4f63-95ed-0f1d0c726e9b"
+
+# ISSUE STATS
+assigned_to="no one"
+last_24h=1
+last_30_days=2100
+last_seen="5 hours ago"
+first_seen="a month ago"
+
+# CONTEXTS (DETAILS TAB)
+user.ip=127.0.0.1
+browser.name=RumbleWalletDev
+browser.version=378
+runtime.name=node
+runtime.version=20.19.4
+os.name="Ubuntu Linux"
+os.version=24.04
+client_os=iOS
+culture.locale=en-US
+culture.timezone=UTC
+device.arch=x64
+device.boot_time=2025-08-21T16:30:54.370Z
+app.free_memory=56.6 GiB
+app.memory_usage=122.7 MiB
+app.start_time=2026-03-04T04:15:58.146Z
+trace.client_sample_rate=1
+trace.parent_span_id=d3e113d0a8d3320d
+trace.sampled=true
+trace.span_id=c3e48e3639b899fe
+trace.status=unknown
+trace.trace_id=b8e4878763a3d0e79e35808a1b8de9cc
+
+# SDK & PACKAGES
+sdk.name=sentry.javascript.node
+sdk.version=10.32.1
+package=@fastify/swagger@^8.15.0
+package=@fastify/swagger-ui@^4.1.0
+package=@sentry/node@10.32.1
+package=@tetherto/wdk-app-node@git+...#613b99c...
+package=ajv@6.12.6
+package=ansi-regex@5.0.1
+package=ansi-styles@4.3.0
+package=async@3.2.6
+package=balanced-match@1.0.2
+package=bfx-svc-boot-js@1.0.2
+package=brittle@3.16.3
+package=cliui@8.0.1
+package=crc-32@1.2.2
+package=debug@4.4.1
+# (more behind “Show More”)
+
+# TAGS / DISTRIBUTIONS (TAGS TAB)
+browser="RumbleWalletDev 1" count=2100
+browser="okhttp 4.12.0" count=14
+browser="RumbleWalletDev 326" count=8
+browser="RumbleWalletDev 378" count=5
+browser="RumbleWallet 162" count=1
+browser="RumbleWalletDev 333" count=1
+
+browser.name="RumbleWalletDev" count=2100
+browser.name="okhttp" count=14
+browser.name="RumbleWallet" count=1
+
+client_os=iOS count=2100
+client_os.name=iOS count=2100
+
+environment=staging count=2100
+environment=production count=32
+
+handled=yes count=2100
+level=error count=2100
+mechanism=generic count=2100
+
+os="Ubuntu Linux 24.04" count=2100
+os.name="Ubuntu Linux" count=2100
+
+runtime="node v20.19.4" count=2100
+runtime="node v22.20.0" count=1
+runtime.name=node count=2100
+
+server_name=walletstg2 count=2100
+server_name=walletstg3 count=12
+server_name=walletstg1 count=11
+server_name=walletprd3 count=1
+
+transaction="POST /api/v1/swaps/registerTxs" count=2100
+transaction="POST /api/v1/wallets" count=19
+transaction="PATCH /api/v1/wallets/:id" count=11
+transaction="POST /api/v1/seed-phrases/connect/verify" count=6
+transaction="POST /api/v1/device-ids" count=1
+
+url="https://wallet-8s4anfsr6it9.rumble.com/api/v1/swaps/registerTxs" count=2100
+url="https://wallet-8s4anfsr6it9.rumble.com/api/v1/wallets" count=15
+url="https://wallet-8s4anfsr6it9.rmbl.ws/api/v1/seed-phrases/connect/verify" count=5
+url="https://wallet-8s4anfsr6it9.rmbl.ws/api/v1/wallets" count=4
+url="https://wallet-8s4anfsr6it9.rmbl.ws/api/v1/wallets/22ddeba2-0288-4a8c-a61a-ba5b65147ad1" count=2
+url="https://wallet-8s4anfsr6it9.rmbl.ws/api/v1/wallets/a6d49e1f-fd3c-43e6-bfbd-6654ec58083b" count=2
+url="https://wallet-8s4anfsr6it9.rmbl.ws/api/v1/wallets/c814db12-32f9-43ee-9d2b-6a7f6c022d11" count=2
+url="https://wallet-8s4anfsr6it9.rmbl.ws/api/v1/wallets/21dbaf99-102c-40eb-ac2d-e8e951d0bf63" count=2
+url="https://wallet-9p1aan4nff.rmbl.ws/api/v1/seed-phrases/connect/verify" count=1
+url="https://wallet-8s4anfsr6it9.rmbl.ws/api/v1/wallets/41504cff-a06a-4e59-b30e-6ec28d23456d" count=1
+
+user=127.0.0.1 count=2100
+
+# OTHER TABS
+activity=0_entries
+user_feedback=0_entries
+attachments=0
+all_events=2100 (list not reproduced)
+merged_issues_count=1 fingerprint=80a9d2045822c373107e6f1c591b9c59 actions="Unmerge, Compare, Collapse All"
+similar_issues=empty
+replays=0
+
+# SENTRY INSTANCE
+sentry.version=25.8.0
+sentry.commit=ad3ec8b
+```
+

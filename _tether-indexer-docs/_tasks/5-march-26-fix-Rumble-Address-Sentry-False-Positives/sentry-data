@@ -1,0 +1,148 @@
+Here’s everything I pulled together from the Sentry issue (including the distributions/tags page and the other tabs, plus what was empty):
+
+## Overview / Issue
+
+* **Issue ID:** `RUMBLE-WALLET-BACKEND-C`
+* **Project:** rumble-wallet-backend
+* **Status:** Ongoing
+* **Error (title):** `Error: body must have required property 'userMsg'`
+* **Events:** **2.1k**
+* **Users:** **1**
+* **Priority:** set via dropdown (not set in the capture)
+* **Environment filter:** All Envs
+
+## Latest event shown on the Details page
+
+* **Event ID:** `35a7cadb`
+* **Timestamp:** **Mar 4, 12:01 PM** (breadcrumb shows `12:01:48.000 PM`)
+* **Handled:** yes
+* **Level:** error
+* **URL:** `https://wallet-8s4anfsr6it9.rmbl.ws/api/v1/seed-phrases/connect/verify`
+* **Trace ID:** `b8e4878763a3d0e79e35808a1b8de9cc` (link shown to full trace)
+
+## Stack trace (fastify / AJV validation)
+
+Error message: `body must have required property 'userMsg'`
+
+* Mechanism: `generic`
+* Handled: `true`
+
+Frames shown (top to bottom):
+
+1. `/srv/data/staging/rumble-app-node/node_modules/fastify/lib/context.js` — `defaultSchemaErrorFormatter` (line **114:10**) with surrounding context (lines **107–115** in the view)
+2. `fastify/lib/validation.js` — `wrapValidationError` (**249:17**)
+3. `fastify/lib/validation.js` — `validate` (**167:16**)
+4. `fastify/lib/handleRequest.js` — `preValidationCallback` (**93:25**)
+5. `fastify/lib/handleRequest.js` — `handler` (**77:7**)
+6. `fastify/lib/contentTypeParser.js` (**199:9**)
+7. `node:async_hooks` — `AsyncResource.runInAsyncScope` (**206:9**)
+8. `fastify/lib/contentTypeParser.js` — `done` (**192:14**)
+9. `fastify/lib/contentTypeParser.js` — `Parser.defaultJsonParser [as fn]` (**304:5**)
+10. `fastify/lib/contentTypeParser.js` — `IncomingMessage.onEnd` (**283:27**)
+
+## Breadcrumbs (what the UI showed)
+
+* **Exception** at `12:01:48 PM`: `Error body must have required property 'userMsg'`
+* **Console info** at `05:15:58.940 AM`: `creating fallback logger` (1 item)
+* **HTTP POST** to `/api/v1/seed-phrases/connect/verify`
+
+  * **Host:** `wallet-8s4anfsr6it9.rmbl.ws`
+  * **Request body (JSON) included:** address, chain (spark), msg hash, signature (full strings shown in the capture)
+  * **Cookie header:** `__cf_bm=...` (**redacted here**)
+  * **Headers included (as shown):**
+
+    * Accept: `application/json`
+    * Accept-Encoding: `gzip, br`
+    * Accept-Language: `en-GB,en;q=0.9`
+    * Cdn-Loop: `cloudflare; loops=1`
+    * Cf-Connecting-Ip: `87.241.157.138`
+    * Cf-Ipcountry: `AM`
+    * Cf-Ray: `9d7062934a882930-EVN`
+    * Cf-Visitor: `{"scheme":"https"}`
+    * Content-Length: `328`
+    * Content-Type: `application/json`
+    * Host: `wallet-8s4anfsr6it9.rmbl.ws`
+    * Priority: `u=3,i`
+    * User-Agent: `RumbleWalletDev/378 CFNetwork/3860.400.51 Darwin/25.3.0`
+    * Via: `2.0 caddy`
+    * X-Authtoken: **[Filtered]**
+    * X-Forwarded-For: `172.68.95.144`
+    * X-Forwarded-Host: `wallet-8s4anfsr6it9.rmbl.ws`
+    * X-Forwarded-Proto: `https`
+    * X-Trace-Id: `mob::6d91cf3a-0683-4f63-95ed-0f1d0c726e9b`
+    * (There was a “Show More” button for additional headers not expanded in the capture.)
+
+## Issue stats (Details panel)
+
+* **Assigned to:** No one
+* **Last 24h:** 1
+* **Last 30 days:** 2.1k
+* **Last Seen:** 5 hours ago
+* **First Seen:** a month ago
+
+## Details tab contexts (summarized)
+
+* **User:** IP `127.0.0.1`
+* **Browser:** RumbleWalletDev version `378`
+* **Runtime:** node `v20.19.4`
+* **OS:** Ubuntu Linux `24.04` (kernel shown `6.8.0-78-generic`)
+* **Client OS:** iOS
+* **Culture locale:** `en-US`
+* **Timezone:** `UTC`
+* **Device architecture:** `x64`
+* **Device boot time:** `2025-08-21T16:30:54.370Z` (about 6 months before the event timestamp shown)
+* **App:** free memory `56.6 GiB`, memory usage `122.7 MiB`, start time `2026-03-04T04:15:58.146Z`
+* **Trace details:** client sample rate 1, parent span id `d3e113d0a8d3320d`, sampled true, span id `c3e48e3639b899fe`, status unknown, trace id as above
+* **SDK:** `sentry.javascript.node`, version `10.32.1`
+* **Packages list (partial shown before “Show More”):**
+
+  * `@fastify/swagger` ^8.15.0
+  * `@fastify/swagger-ui` ^4.1.0
+  * `@sentry/node` 10.32.1
+  * `@tetherto/wdk-app-node` (git URL with commit `613b99c...`)
+  * `ajv` 6.12.6
+  * `ansi-regex` 5.0.1
+  * `ansi-styles` 4.3.0
+  * `async` 3.2.6
+  * `balanced-match` 1.0.2
+  * `bfx-svc-boot-js` 1.0.2
+  * `brittle` 3.16.3
+  * `cliui` 8.0.1
+  * `crc-32` 1.2.2
+  * `debug` 4.4.1
+  * (More packages behind “Show More”)
+
+## Tags / distributions (from the Tags tab)
+
+All tags are listed as “distributed” values with counts and links to filtered events.
+
+* **browser**: `RumbleWalletDev 1` (**2.1k**), `okhttp 4.12.0` (**14**), `RumbleWalletDev 326` (**8**), `RumbleWalletDev 378` (**5**), `RumbleWallet 162` (**1**), `RumbleWalletDev 333` (**1**)
+* **browser.name**: `RumbleWalletDev` (**2.1k**), `okhttp` (**14**), `RumbleWallet` (**1**)
+* **client_os** / **client_os.name**: `iOS` (**2.1k**)
+* **environment**: `staging` (**2.1k**), `production` (**32**)
+* **handled**: `yes` (**2.1k**)
+* **level**: `error` (**2.1k**)
+* **mechanism**: `generic` (**2.1k**)
+* **os**: `Ubuntu Linux 24.04` (**2.1k**)
+* **os.name**: `Ubuntu Linux` (**2.1k**)
+* **runtime**: `node v20.19.4` (**2.1k**), `node v22.20.0` (**1**)
+* **runtime.name**: `node` (**2.1k**)
+* **server_name**: `walletstg2` (**2.1k**), `walletstg3` (**12**), `walletstg1` (**11**), `walletprd3` (**1**)
+* **transaction**: `POST /api/v1/swaps/registerTxs` (**2.1k**), `POST /api/v1/wallets` (**19**), `PATCH /api/v1/wallets/:id` (**11**), `POST /api/v1/seed-phrases/connect/verify` (**6**), `POST /api/v1/device-ids` (**1**)
+* **url**: `https://wallet-8s4anfsr6it9.rumble.com/api/v1/swaps/registerTxs` (**2.1k**), `https://wallet-8s4anfsr6it9.rumble.com/api/v1/wallets` (**15**), `https://wallet-8s4anfsr6it9.rmbl.ws/api/v1/seed-phrases/connect/verify` (**5**), and several other `wallet-8s4anfsr6it9.rmbl.ws/api/v1/wallets/<uuid>` entries with small counts, plus `https://wallet-9p1aan4nff.rmbl.ws/api/v1/seed-phrases/connect/verify` (**1**).
+* **user**: `127.0.0.1` (**2.1k**)
+
+## Other tabs (what they showed)
+
+* **Activity:** 0 (no activity entries visible)
+* **User Feedback:** 0 entries
+* **Attachments:** none visible
+* **All Events:** listed as 2.1k events; page provides filtering/pagination (the capture didn’t expand the full list of 2.1k)
+* **Merged Issues:** “Fingerprints included in this issue (1)” with fingerprint label `80a9d2045822c373107e6f1c591b9c59`, and actions including **Unmerge**, **Compare**, **Collapse All**, and a link to “View latest event”
+* **Similar Issues:** tabpanel shown, but no similar issues listed (empty)
+* **Replays:** 0 replays listed (tabpanel empty)
+
+## Sentry instance info
+
+* **Sentry version:** `25.8.0`
+* **Commit:** `ad3ec8b`

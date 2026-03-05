@@ -1,0 +1,15 @@
+Rumble - Address Sentry False Positives
+
+CONTEXT
+we had a previous task which is similar to this - ✓ Chore: Address PROD Logs False positives
+the task linked is about logs, this time it's about 500 errors
+
+TASK
+We want to make sure we don't have false positives on 500 errors / internal server errors / internal exceptions thrown and not catched - things such as auth errors / validation of non key fields e.g. user/address lookups.
+
+FULL CONTEXT - slack
+Read Slack: _tether-indexer-docs/_tasks/5-march-26-fix-Rumble-Address-Sentry-False-Positives/slack
+Please check the above link in slack - please address these so that we don't get spammed by sentry anymore.
+
+REMARKS
+Please also see if you can find any low hanging fruits somewhere (same cases in the code), search the codebase for similar occurrences.
