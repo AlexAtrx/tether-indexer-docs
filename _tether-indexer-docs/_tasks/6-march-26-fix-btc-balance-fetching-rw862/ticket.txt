@@ -1,0 +1,20 @@
+TICKET: RW-862 - Balance fetching
+URL: https://app.asana.com/1/45238840754660/project/1212521145936484/task/1213070122230817
+Priority: High
+Severity: Critical
+Type: Bug
+Area: Wallet & Tipjars logic (BE - Backend)
+Section: In-Progress
+Assignee: Alex Atrash
+Due: 2026-02-17 (overdue)
+Affected Version: 3.0.1 247
+Environment: staging
+
+DESCRIPTION (from Asana):
+There are multiple cases when the app behavior isn't correct:
+- Balance not catching
+- Some networks don't display in the Holding screen (e.g BTC On Chain)
+- Wallet can disappear
+- USD balance shows 0, but the crypto balance display
+- Total balance is 0
+- Need time to display full balance

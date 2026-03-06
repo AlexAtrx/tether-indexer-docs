@@ -1,0 +1,26 @@
+MEETING DISCUSSION (2026-03-06) - BTC Balance Inconsistency
+
+PROBLEM:
+- BTC balance intermittently drops to zero on Android while iOS shows the correct amount.
+- Example: Android shows $277 total, iOS shows $308.64 for the same user profile.
+- BTC is the missing delta - when the BTC client fails to connect or returns zero, it's excluded from the total.
+
+ROOT CAUSE:
+- v1 architecture used the backend for balance resolution with aggressive caching. Users rarely saw zero balances.
+- v2 queries the Bitcoin node directly (no backend cache). This should be faster, but when the node doesn't respond, balance shows zero.
+- The BTC client intermittently fails to connect or returns zero, leading to a missing or stale balance.
+- There are no logs yet capturing this failure, so the cause isn't fully visible.
+- The issue isn't with the UI but with the backend or RPC connection layer not reliably fetching BTC balances.
+- Balance updates happen automatically and via pull-to-refresh, but BTC specifically still behaves inconsistently due to the unreliable client connection.
+
+AGREED PLAN:
+1. Short-term (FE): Cache the last known BTC balance locally. Display cached value when node/RPC call fails instead of invalidating and showing zero.
+2. Long-term (BE): Investigate and stabilize Bitcoin node connectivity and RPC reliability.
+
+CAVEATS:
+- Spark balances cannot be cached the same way since unclaimed funds aren't visible to the backend.
+- No logs currently capture the RPC failure, making debugging harder. Adding logging is a prerequisite for the long-term fix.
+
+RELATED TICKETS:
+- [Send] BTC Transaction fee displays as 0 on details page (possibly same root cause pattern)
+- Rumble - [Send] BTC transactions are logged with incorrect amounts

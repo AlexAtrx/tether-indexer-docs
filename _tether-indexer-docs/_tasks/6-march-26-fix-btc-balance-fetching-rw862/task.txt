@@ -1,0 +1,53 @@
+Read all contents of this directory: ticket.txt, meeting-notes.txt. Understand the full context before proceeding.
+
+---
+
+TASK: Investigate and fix BTC balance intermittently dropping to zero (RW-862)
+
+YOU HAVE ACCESS TO THE CODEBASE. Use it.
+
+CONTEXT:
+The Rumble Wallet app (v2) queries the Bitcoin node directly for balance, with no backend caching (unlike v1). When the BTC node or RPC fails to respond, the balance is invalidated and displays as zero. This causes the total wallet balance to mismatch across Android and iOS, depending on which platform's request succeeded.
+
+The team agreed on a two-phase fix:
+1. FE cached-balance fallback (short-term UX protection)
+2. BE node/RPC stabilization (long-term root cause fix)
+
+Your job is to investigate the backend side: the RPC connection layer, how BTC balances are fetched, and why the node intermittently fails.
+
+INVESTIGATION STEPS:
+
+1. FIND THE BTC BALANCE FETCHING CODE
+   - Search for where BTC balance is resolved in v2. Look for RPC calls to the Bitcoin node.
+   - Likely in wdk-* repos or rumble-app-node. Search for keywords: "balance", "btc", "bitcoin", "rpc", "electrum", "node".
+   - Identify the function(s) responsible for querying the BTC node and returning balance to the client.
+
+2. TRACE THE FAILURE PATH
+   - What happens when the BTC node doesn't respond? Is there a timeout? Does it return zero, null, or throw?
+   - Is the error caught and handled, or does it silently fall through to a zero/default value?
+   - Is there any retry logic? If so, how many retries and what's the backoff?
+
+3. CHECK FOR LOGGING GAPS
+   - The team noted there are NO logs capturing this failure. Find out why.
+   - Is the error being swallowed? Is there a catch block that doesn't log?
+   - Identify where logging should be added to capture RPC failures.
+
+4. COMPARE v1 vs v2 APPROACH
+   - If v1 code or references are available, compare how v1 resolved BTC balance (backend cache with aggressive caching).
+   - Understand what caching layer was removed in v2 and whether any of it can be reintroduced.
+
+5. CHECK NODE CONNECTION CONFIG
+   - How is the BTC node connection configured? (host, port, timeout, connection pooling)
+   - Is there a health check or circuit breaker for the BTC RPC connection?
+   - Are there multiple node endpoints or is it a single point of failure?
+
+6. ASSESS SPARK BALANCE CAVEAT
+   - The team noted Spark balances can't be cached the same way because unclaimed funds aren't visible to the backend.
+   - Identify how Spark balance fetching differs from BTC and confirm this limitation.
+
+DELIVERABLE:
+After investigation, provide:
+- A concise summary of findings (what code is responsible, where it fails, why no logs)
+- Specific file paths and line numbers where changes are needed
+- A recommended fix approach for the BE side (logging + connection stability + optional caching)
+- Any risks or dependencies to flag
