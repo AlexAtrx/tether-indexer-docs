@@ -1,0 +1,9 @@
+Your task is to execute the plan:
+_tether-indexer-docs/_tasks/17-march-26-Migration-Reconciliation-Job/build-plan.md
+
+Read the ticket to get the best branch name in which you will execute the plan:
+_tether-indexer-docs/_tasks/17-march-26-Migration-Reconciliation-Job/build-plan.md
+
+In ALL involved local repos, create the same branch based on 'dev' and execute in the new branch. 
+
+Do NOT commit any code. 

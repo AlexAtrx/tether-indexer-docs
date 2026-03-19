@@ -1,0 +1,26 @@
+Balance fetching
+
+Description:
+There are multiple cases when the app behavior isn't correct
+
+    Balance not catching
+    some networks don't display in the Holding screen (e.g BTC On Chain)
+    Wallet can disappear
+    USD balance shows 0, but the crypto balance display
+    Total balance is 0
+    need time to display full balance
+
+---
+
+Update (2026-03-06) - Meeting findings:
+
+Root cause: v2 queries the Bitcoin node directly (no backend cache like v1). When the node/RPC fails to respond, the balance is invalidated and shows zero, causing total balance mismatches across Android/iOS.
+
+Agreed plan:
+- Short-term (FE): Cache the last known BTC balance locally. Display cached value when node/RPC call fails instead of showing zero.
+- Long-term (BE): Investigate and stabilize Bitcoin node connectivity and RPC reliability.
+
+Notes:
+- v1 used backend balance resolution with aggressive caching, so users rarely saw zero.
+- Spark balances cannot be cached the same way since unclaimed funds aren't visible to the backend.
+- No logs currently capture the RPC failure, making debugging harder.

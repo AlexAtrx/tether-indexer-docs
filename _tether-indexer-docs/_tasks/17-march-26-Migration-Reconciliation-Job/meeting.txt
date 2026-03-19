@@ -1,0 +1,23 @@
+Issue discussed in a meeting: 
+
+Here’s the full picture so far:  
+
+- **Symptom:** Some users can’t access the app post‑migration. They get stuck at the loading screen because the app creates a new wallet that doesn’t match the backend record. The backend rejects the session since the wallet ID or address ownership doesn’t align.  
+- **Root cause candidates:**  
+  1. **Address/account index mismatch** — frontend derived a wallet using a wrong index, causing a different address than the backend expects.  
+  2. **Duplicate address registration** — backend throws `ERR_ADDRESS_ALREADY_EXISTS`, indicating the address already belongs to another user.  
+  3. **Frontend re‑initialization** — app may be generating a fresh wallet instead of reusing the migrated one when local state is missing or corrupted.  
+- **Impact:** Users are effectively locked out; some may see different wallet addresses or missing balances.  
+- **Diagnostics:**  
+  - Metric proposal: expose `address_conflict_total` (chain, env labels) to track spikes.  
+  - Reconciliation job: cross‑verify frontend‑migrated addresses vs backend canonical mapping.  
+  - Logs: need user‑ID tagging in Sentry for v2 to correlate reports with backend traces.  
+- **Next steps:**  
+  - Get usernames/user IDs of affected accounts.  
+  - Inspect logs for `ERR_ADDRESS_ALREADY_EXISTS` since Thursday to identify migration failures.  
+  - Confirm Sentry tagging by user/email is active in v2.  
+  - Implement reconciliation service and metric dashboard for visibility.  
+
+This aligns with what Eddy, George, and Usman discussed — the issue is migration integrity between frontend‑generated wallets and backend canonical state.
+
+

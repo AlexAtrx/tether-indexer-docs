@@ -1,0 +1,12 @@
+### Context
+1- Read the ticket: _tether-indexer-docs/_tasks/17-march-26-Balance-fetching/ticket.txt
+2- Read slack messages: _tether-indexer-docs/_tasks/17-march-26-Balance-fetching/slack.txt
+3-
+The PRs I raised for this are:
+https://github.com/tetherto/wdk-indexer-wrk-base/pull/96
+https://github.com/tetherto/wdk-indexer-wrk-btc/pull/107
+
+### Task
+- Understand the entire issue along with the screenshots and the logs and peopls' chat. 
+- Check my fix PRs and check the comments on them. 
+- Tell me if the fix does do the job complitely or not. 

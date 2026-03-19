@@ -1,0 +1,46 @@
+again we have problem again
+Test video screeshots: _tether-indexer-docs/_tasks/17-march-26-Balance-fetching/screenshots
+the addresses don’t show
+balance not fetching
+
+can you display logs
+[4:08 PM]using the devtool
+[4:08 PM]gversion68
+
+Wallet logs: _tether-indexer-docs/_tasks/17-march-26-Balance-fetching/rumble-wallet-2026-03-03 (1).log
+
+are these errors the ones you see when refreshing?
+[4:10 PM][useWalletValidation] Cleared wallet belonging to different user {"currentUserEmail":"***"}
+18:38:26 WARN  [hooks/useWalletValidation] [useWalletValidation] Wallet validation timed out - proceeding anyway
+19:00:05 ERROR [api/IntegrityAPI] Failed to parse response as JSON {"status":200,"url":"https://auth190181.rumble.com/revoke-token","parseError":"JSON Parse error: Unexpected character: r"}
+19:00:05 ERROR [api/IntegrityAPI] Request failed {"status":200,"data":{},"name":"ApiError"}[4:10 PM]integrity fails
+[4:10 PM]@Ashot Kirakosyan should we disable it on staging?
+
+it should be disabled in the workflow no? 
+[4:13 PM]it disabled in TF version
+Screen: _tether-indexer-docs/_tasks/17-march-26-Balance-fetching/IMG_6352.png
+
+19:02:14 WARN  [useHomeCallbacks] Balance refetch timed out or failed {}
+@Gohar Grigoryan if you restart the app what happens
+
+after killing and openinig it is ok
+
+ah ok so we might just detect that error
+[4:18 PM]and display screen to prompt a restart
+[4:18 PM]for now...
+[4:18 PM]what do you think
+[4:18 PM]@Neme cc
+
+yeah, but I don’t know whats the problem it is load a little more on this release to display balance
+
+I got this issue again
+
+restarting fixes it yes?
+
+yes
+[9:00 PM]but after login get such thing not good
+
+Rumble QA got this on prod
+
+prod version is still with staging rpcs
+[9:49 PM]let's see in next version

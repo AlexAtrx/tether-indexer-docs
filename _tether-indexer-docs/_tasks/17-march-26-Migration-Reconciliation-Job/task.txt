@@ -1,0 +1,12 @@
+## Contxt 
+
+Read the tickt _tether-indexer-docs/_tasks/17-march-26-Migration-Reconciliation-Job/ticket.txt
+
+Read the meeting disucssion _tether-indexer-docs/_tasks/17-march-26-Migration-Reconciliation-Job/meeting.txt
+
+Understand the issue well. 
+
+## Task
+
+Analyise what would be the isue from the local code, and how we can solve it. 
+Put your results into analysis.md in this directory. 

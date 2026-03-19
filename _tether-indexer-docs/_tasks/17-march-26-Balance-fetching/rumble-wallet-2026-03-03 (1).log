@@ -1,0 +1,61 @@
+18:33:49 WARN  [IntegrityService] App Integrity DISABLED via environment variable (using Basic Auth fallback)
+18:33:49 WARN  [api/IntegrityAPI] App Integrity DISABLED via config (using Basic Auth fallback)
+18:33:49 WARN  [config/analytics] Missing environment variable: EXPO_PUBLIC_FACEBOOK_APP_ID
+18:33:49 WARN  [config/analytics] Missing environment variable: EXPO_PUBLIC_FACEBOOK_CLIENT_TOKEN
+18:33:49 WARN  [config/analytics] Missing environment variable: EXPO_PUBLIC_APPSFLYER_DEV_KEY
+18:33:49 WARN  [config/analytics] Missing environment variable: EXPO_PUBLIC_APPSFLYER_ANDROID_APP_ID
+18:33:49 WARN  [config/analytics] Missing environment variable: EXPO_PUBLIC_APPSFLYER_IOS_APP_ID
+18:33:50 WARN  [config/analyticsProviders] Facebook App ID not configured - skipping FB provider
+18:33:50 WARN  [config/analyticsProviders] AppsFlyer Dev Key not configured - skipping AF provider
+18:33:50 WARN  [analytics/setup] No analytics providers registered. To enable, set env vars:
+  - EXPO_PUBLIC_FACEBOOK_APP_ID (Facebook)
+  - EXPO_PUBLIC_APPSFLYER_DEV_KEY (AppsFlyer)
+  - EXPO_PUBLIC_APPSFLYER_ANDROID_APP_ID (AppsFlyer Android)
+  - EXPO_PUBLIC_APPSFLYER_IOS_APP_ID (AppsFlyer iOS)
+18:37:28 WARN  [hooks/useWalletValidation] [useWalletValidation] Wallet validation timed out - proceeding anyway
+18:37:46 ERROR [api/IntegrityAPI] Failed to parse response as JSON {"status":200,"url":"https://auth190181.rumble.com/revoke-token","parseError":"JSON Parse error: Unexpected character: r"}
+18:37:46 ERROR [api/IntegrityAPI] Request failed {"status":200,"data":{},"name":"ApiError"}
+18:37:46 WARN  [queries/auth] Failed to revoke token {"status":200,"data":{},"name":"ApiError"}
+18:37:47 WARN  [config/analyticsProviders] Facebook App ID not configured - skipping FB provider
+18:37:47 WARN  [config/analyticsProviders] AppsFlyer Dev Key not configured - skipping AF provider
+18:37:47 WARN  [config/analyticsProviders] Facebook App ID not configured - skipping FB provider
+18:37:47 WARN  [config/analyticsProviders] AppsFlyer Dev Key not configured - skipping AF provider
+18:37:47 WARN  [analytics/setup] No analytics providers registered. To enable, set env vars:
+  - EXPO_PUBLIC_FACEBOOK_APP_ID (Facebook)
+  - EXPO_PUBLIC_APPSFLYER_DEV_KEY (AppsFlyer)
+  - EXPO_PUBLIC_APPSFLYER_ANDROID_APP_ID (AppsFlyer Android)
+  - EXPO_PUBLIC_APPSFLYER_IOS_APP_ID (AppsFlyer iOS)
+18:37:47 WARN  [analytics/setup] No analytics providers registered. To enable, set env vars:
+  - EXPO_PUBLIC_FACEBOOK_APP_ID (Facebook)
+  - EXPO_PUBLIC_APPSFLYER_DEV_KEY (AppsFlyer)
+  - EXPO_PUBLIC_APPSFLYER_ANDROID_APP_ID (AppsFlyer Android)
+  - EXPO_PUBLIC_APPSFLYER_IOS_APP_ID (AppsFlyer iOS)
+18:38:23 WARN  [hooks/useWalletValidation] [useWalletValidation] Cleared wallet belonging to different user {"currentUserEmail":"***"}
+18:38:26 WARN  [hooks/useWalletValidation] [useWalletValidation] Wallet validation timed out - proceeding anyway
+19:00:05 ERROR [api/IntegrityAPI] Failed to parse response as JSON {"status":200,"url":"https://auth190181.rumble.com/revoke-token","parseError":"JSON Parse error: Unexpected character: r"}
+19:00:05 ERROR [api/IntegrityAPI] Request failed {"status":200,"data":{},"name":"ApiError"}
+19:00:05 WARN  [queries/auth] Failed to revoke token {"status":200,"data":{},"name":"ApiError"}
+19:00:07 WARN  [config/analyticsProviders] Facebook App ID not configured - skipping FB provider
+19:00:07 WARN  [config/analyticsProviders] AppsFlyer Dev Key not configured - skipping AF provider
+19:00:07 WARN  [config/analyticsProviders] Facebook App ID not configured - skipping FB provider
+19:00:07 WARN  [config/analyticsProviders] AppsFlyer Dev Key not configured - skipping AF provider
+19:00:07 WARN  [analytics/setup] No analytics providers registered. To enable, set env vars:
+  - EXPO_PUBLIC_FACEBOOK_APP_ID (Facebook)
+  - EXPO_PUBLIC_APPSFLYER_DEV_KEY (AppsFlyer)
+  - EXPO_PUBLIC_APPSFLYER_ANDROID_APP_ID (AppsFlyer Android)
+  - EXPO_PUBLIC_APPSFLYER_IOS_APP_ID (AppsFlyer iOS)
+19:00:07 WARN  [analytics/setup] No analytics providers registered. To enable, set env vars:
+  - EXPO_PUBLIC_FACEBOOK_APP_ID (Facebook)
+  - EXPO_PUBLIC_APPSFLYER_DEV_KEY (AppsFlyer)
+  - EXPO_PUBLIC_APPSFLYER_ANDROID_APP_ID (AppsFlyer Android)
+  - EXPO_PUBLIC_APPSFLYER_IOS_APP_ID (AppsFlyer iOS)
+19:01:06 WARN  [hooks/useWalletValidation] [useWalletValidation] Cleared wallet belonging to different user {"currentUserEmail":"***"}
+19:01:06 WARN  [RootLayout] [RootLayout] Persisted activeWalletId does not match current user - clearing it {"activeWalletId":"gohar.grigoryan+69v@tether.io","currentUserEmail":"***","walletStatus":"ready"}
+19:01:08 WARN  [hooks/useWalletValidation] [useWalletValidation] Wallet validation timed out - proceeding anyway
+19:01:15 ERROR [backupService] All backup restore attempts failed {"encryptionKeyNotFound":"***","nonPrfBackupCount":2,"prfLegacyBackupCount":0}
+19:01:15 ERROR [WalletFlow] Restore failed: {}
+19:01:15 ERROR [WalletFlow] Restore error details: {"errorMessage":"Encryption key not found on this device. Please enter your recovery phrase manually to restore your wallet.","errorType":"Error","option":"icloud","backupType":"new"}
+19:01:15 ERROR [errorHandler] Error in performRestore: {}
+19:01:58 WARN  [useHomeCallbacks] Balance refetch timed out or failed {}
+19:02:14 WARN  [useHomeCallbacks] Balance refetch timed out or failed {}
+19:02:27 WARN  [useHomeCallbacks] Balance refetch timed out or failed {}

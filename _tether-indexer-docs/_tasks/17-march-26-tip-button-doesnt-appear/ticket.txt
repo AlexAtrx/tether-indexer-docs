@@ -1,0 +1,14 @@
+[Tip jar] Tip button doesn't appear on the Rumble and Send Tip button is inactive after following the channel, user
+
+Environment: [App version:  iOS: v3.0.1 339 Used device: , iPhone 17 pro max, IOS version 26.2]
+Description 
+When creating a new user or creating a new channel and starting to follow it, on the web the tip button doesn't appear and in the app send tip displays as inactive. After relogin the button appears
+Note: I am not sure is it from our side or Rumble side, but as far as I now it is important I am creating this issue
+ Steps to Reproduce 
+On the web create a new user or channel
+Start following it
+ Actual Result  Tip button doesn't appear.
+Check on the app
+ Actual Result  Send tip button is inactive
+ Expected Result  Tip button should appear and send tip button should be active
+
