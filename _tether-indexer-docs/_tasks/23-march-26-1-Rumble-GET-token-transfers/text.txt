@@ -1,0 +1,9 @@
+The ticket: 
+https://app.asana.com/1/45238840754660/project/1210540875949204/task/1213746973227038?focus=true
+Get all its data. 
+
+Investigate the code locally. 
+Get the root cause.
+Propose a fix.
+Save your proposed output in a fil here with name `output-[current timestamp].md`
+Only concise results.
