@@ -1,0 +1,15 @@
+## Context
+
+on Rumble Prod we have a warning Job already running - syncTransferExec from many days which is worth investigating
+
+----
+2026-03-07T10:54:40: {"level":40,"time":1772880880000,"pid":2274446,"hostname":"walletprd2","name":"wrk-data-shard-proc-w-1-2-d25ef988-abb4-4b91-9ea6-3ba553c8ef00","errorCode":"ERR_JOB_ALREADY_RUNNING","job":"syncTransfersExec","msg":"Job already running, skipping this execution"}
+2026-03-07T10:54:40: {"level":40,"time":1772880880000,"pid":2077179,"hostname":"walletprd1","name":"wrk-data-shard-proc-w-0-0-b8f4f8c9-2c4d-4202-86ff-82e442fbd27d","errorCode":"ERR_JOB_ALREADY_RUNNING","job":"syncTransfersExec","msg":"Job already running, skipping this execution"}
+2026-03-07T10:54:40: {"level":40,"time":1772880880000,"pid":2077271,"hostname":"walletprd1","name":"wrk-data-shard-proc-w-0-1-ceb61de2-1a4b-4633-9b48-fd529c89c7a6","errorCode":"ERR_JOB_ALREADY_RUNNING","job":"syncTransfersExec","msg":"Job already running, skipping this execu
+----
+
+Check logs: _tether-indexer-docs/_tasks/20-match-26-investigate/Explore-logs-2026-03-09 21_47_24.txt
+
+## Task
+
+Analyse and find out what the issue is.
