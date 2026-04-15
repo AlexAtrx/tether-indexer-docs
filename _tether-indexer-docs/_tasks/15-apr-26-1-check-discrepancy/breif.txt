@@ -1,0 +1,13 @@
+I found a discrepancy in the response from the backend against the mempool
+
+Here is more detail about it. The user doesn't recall how did it happen other than it's a purchase made via MoonPay. Could we check how the transactions were marked as successful when the mempool didn't? (edited) 
+
+Asana ticket to check: https://app.asana.com/1/45238840754660/project/1212521145936484/task/1213878209840670/comment/1214068851486680?focus=true
+
+This is on staging env but using real money to transact. We want to assert this is an outlier and that there are no similar cases neither on staging nor prod
+
+Check the ticket contents including all the comments and even the images attached to it and look into the images to understand exactly what the problem is.
+
+Then, check the mempool and the backend logs to find out how this transaction was processed and why it was marked as successful in the backend while it wasn't in the mempool.
+
+Find out.
