@@ -1,0 +1,25 @@
+For this ticket:
+_tether-indexer-docs/_tasks/8-apr-26-1-
+
+We raised this PR:
+https://github.com/tetherto/wdk-data-shard-wrk/pull/205
+
+I was tole by tech lead:
+"
+I don't think we should show partial balances
+[1:59 PM]they pollute the charts with wrong data
+"
+
+I answered:
+"
+I agree, and the better fix is to carry forward the last known balance for failed tokens.
+Sometime ago I wrote a PR that caches the last known balance but you guys were not on board with that, and you required the app to handle it.
+Do you still see it as such and should I forward the ticket to app?
+"
+
+A sofware engineer asked:
+"
+Hey Alex, it is understandable that the RPC request fails randomly rarely, but if we retry fetching balances every 6 hours (4 times in a day AFAIU), then this data should be fetched at least one of the time during the day. Maybe there is a different underlying issue that's causing this?
+"
+
+Go through all context and give me a concise, constructive answer to the last question.
