@@ -1,0 +1,61 @@
+## Ticket
+
+[Analytics] Xaxis is incorrect on Asset trend chart
+Asana: https://app.asana.com/1/45238840754660/project/1212521145936484/task/1213244394019831
+
+Environment: iOS v3.0.1 280, iPhone 17 Pro Max, iOS 26.2.1
+
+Steps to reproduce:
+1. Go to the Analytics screen
+2. Check the Asset trend chart
+3. Change the asset
+4. Change the interval
+5. Observe the X-axis value
+
+Actual result: X-axis value is incorrect
+Expected result: Correct value should display
+
+---
+
+## Current state
+
+- Aliaksei raised a frontend fix PR: https://github.com/tetherto/rumble-wallet-app-mobile/pull/998
+- QA (Gohar) confirmed it's NOT fixed after that PR
+- Aliaksei then identified a deeper backend issue: the `/api/v1/balance/trend` endpoint returns an empty response even though the user has balance data (visible in tx history)
+- He suspects this shares a root cause with: https://app.asana.com/1/45238840754660/project/1212521145936484/task/1213243397743073
+
+Aliaksei's comment (2026-04-08):
+> "There is a problem with trends, the response is empty, but the balance is available (see tx history)."
+
+Failing curl:
+  curl 'https://wallet-8s4anfsr6it9.rumble.com/api/v1/balance/trend?tokens=usdt&tokens=btc&tokens=xaut&tokens=usat&range=all' \
+    -H 'x-authtoken: ...' -H 'authorization: Bearer ...'
+
+---
+
+## Relevance to Usman's partial fix
+
+Usman's PR (https://github.com/tetherto/wdk-data-shard-wrk/pull/186) partially fixed the failing `syncBalances` job which is the backend job responsible for populating balance trend data.
+
+Key points from the March 5 meeting/analysis (_tasks/2-march-2026/5-march-26-fix-Usman-ticket/task.txt):
+- The syncBalances job makes excessive RPC calls and takes >1 hour under load
+- Usman's fix addressed one subset of failures but the root cause (performance/scalability) remains
+- The balance trends endpoint was returning empty entries under stress-test conditions, tied to the same balances job problems
+- Production appeared stable at the time, but the issue was expected to resurface at scale
+
+The current ticket confirms it has resurfaced: the trend endpoint is returning empty data on production for real users.
+
+---
+
+## Task
+
+Run a complete root-cause analysis on why the `/api/v1/balance/trend` endpoint returns empty data. This is NOT just a frontend X-axis formatting issue — the backend is not serving trend data at all.
+
+Areas to investigate:
+1. The `syncBalances` job — is it completing successfully? Check logs for failures, timeouts, or ERR_JOB_ALREADY_RUNNING warnings (same pattern seen with syncTransfersExec in March)
+2. The balance trend data storage — are balance snapshots being written to the DB? For affected users, is the data missing entirely or present but not returned?
+3. The `/api/v1/balance/trend` endpoint handler — trace the code path from request to response. What query does it run? What conditions cause an empty result?
+4. Usman's partial fix — review PR #186 changes and identify what was left unaddressed
+5. The related task (1213243397743073) — confirm whether it shares the same root cause
+
+Propose a complete fix that addresses the root cause, not just the symptoms.

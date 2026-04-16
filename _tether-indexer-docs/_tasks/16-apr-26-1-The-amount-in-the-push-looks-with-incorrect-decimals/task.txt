@@ -1,0 +1,7 @@
+Gig into this:
+https://app.asana.com/1/45238840754660/project/1212521145936484/task/1214000621998015?focus=true
+
+Analyze all the screenshots and all the attachments on the logs. 
+Go through the relavant local codebase and understand it very well.
+Get to the root of the problem.
+Write your analysis in the file in this directory.
