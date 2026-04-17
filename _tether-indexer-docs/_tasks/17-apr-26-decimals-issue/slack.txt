@@ -1,0 +1,44 @@
+Saved for laterAliaksei Shaltykou  [1:50 PM]
+@Francesco C. Hey! Who could I ask from BE team to look on the notifications. There are a few problems when tokens are displayed with too many decimals.
+
+[Notifications] The amount in the push looks with incorrect decimals
+[Notification] the sum of the sending amount of BTC is too long on "token transfer initiated" notification
+cc @Eddy WM
+9 repliesAliaksei Shaltykou  [3:05 PM]
+@Eddy WM
+Francesco C.  [3:06 PM]
+@Alex
+Saved for laterEddy WM  [3:06 PM]
+Hey @Usman Khan @Alex 
+
+If anyone can have a look at this, it'll be great!
+Alex  [10:47 PM]
+@Aliaksei Shaltykou @Eddy WM
+From the ticket and code, the bug is a type/precision mismatch at the API /api/v2/notifications, not a template bug and not something only FE can fix.
+
+We have 2 separate notification paths with different amount sources:
+
+:white_check_mark: Successful path
+"Transfer Successful" is emitted internally from the indexer (rumble-data-shard-wrk). The tx.amount arrives as a pre-formatted string from the EVM indexer, so interpolation is clean.
+
+:x:  Failing path
+
+"Token Transfer Initiated" is emitted by app POST to /api/v2/notifications. 
+The schema at rumble-app-node here and here declares amount: { type: 'number' } which is a JS float64. 
+The mobile app is computing rawUnits / 10 ** decimals in floating point (e.g. 26882800 / 1e9 === 0.026882800000000002), the backend schema accepts it, the ork layer (rumble-ork-wrk) here forwards it unchanged, and the template does ${amount} on the Number, exposing the IEEE-754 artifact verbatim.
+
+
+Fix priority:
+1. Mobile app: send pre-formatted amount as a string (formatUnits(raw, decimals)).
+2. Schema: change amount to { type: 'string', pattern: '^[0-9]+(\\.[0-9]+)?$' } at both endpoints.
+3. Template: defensive formatting with token-aware decimals. Don't hardcode toFixed(6) . This differs by chain/token.
+
+This is not a trivial fix.
+cc @Vigan @Usman Khan @Francesco C.
+Alex  [10:17 AM]
+@Francesco C. this may need a ticket also, if @Vigan is on board with the problem/solution presented :point_up:
+Francesco C.  [2:01 PM]
+I believe in the transaction list we should have all decimals and the frontend should do the number formatting, that's what we do in Tether Wallet as well
+[2:02 PM]for push notification we should do the formatting on our side
+[2:02 PM]@Alex can you create a ticket to just implement number formatting for push notifications and link it here? (edited) 
+[2:02 PM]thanks

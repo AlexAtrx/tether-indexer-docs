@@ -1,0 +1,5 @@
+Create a ticket for the discussed bug and analysis shared by me (Alex) here:
+
+_tether-indexer-docs/_tether-indexer-docs/_tasks/17-apr-26-decimals-issue/slack.txt
+
+Put the ticket in a file in this directory, not on Asana yet.
