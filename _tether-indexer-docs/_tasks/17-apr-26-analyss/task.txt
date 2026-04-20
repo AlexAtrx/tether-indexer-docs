@@ -1,0 +1,65 @@
+in Slack:
+
+
+Dev 1
+
+:hammer_and_wrench: Definitive Fix for Transaction History on Bitcoin and other UTXO chains
+
+We've had a few issues related to transaction history where some transactions are not showing.
+The current implementation relies on the app sending addresses individually to be tracked on the backend to later fetch the transaction history data.
+
+In reality, a BIP39 BTC wallet can have an infinite number of address generated, depending on the index being used. 
+
+Instead of us tracking a single address individually on the backend, I suggest we track the entire xpub (extended public key) that we can get from the wallet (mnemonic seed phrase)
+
+The blockbook API provides an endpoint that tracks transaction history from an xpub. 
+I've used this endpoint in the past on other projects I've worked on  (Trust Wallet for instance) and it's much more reliable way of tracking historical transactions of all generated addresses belonging to a wallet.
+
+The same way we've used the blockbook API to fix the Bitcoin balances issues we used to have, this can also fix these intermittent transaction history issues.
+
+----
+
+Dev 2
+
+This issue is related to this same problem.
+https://app.asana.com/1/45238840754660/project/1212521145936484/task/1214077903141396?focus=true
+
+---
+
+Dev 3
+I thought that in rumble wallet we always reuse the same address for UX purposes, isn't this the case? (edited)
+
+---
+
+Dev 1
+
+We've seen cases where after splits there's a need to track more than one address.
+
+@Anton Kurdo you can come and elaborate the case you found about this issue.
+---
+
+Dev 3: 
+
+1) Standard Case
+A  ──────┬──────  Recipient    
+         │                     
+         │                     
+         └──────  A (change)   
+
+
+
+2) Multiple UTXOs to spend
+
+                               
+ A   ────┐    ┌───── Recipient 
+         │    │                
+         │    │                
+ B   ────┼────┴───── A (change)
+         │                     
+         │                     
+ C   ────┘                     (edited)
+[12:33 PM]@Alex do we handle case 2?
+
+---
+
+See Asana ticket and analyzed the whole discussion and look at the local code and give me a clear answer.
