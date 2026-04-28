@@ -2,6 +2,33 @@
 
 **Ticket:** https://app.asana.com/1/45238840754660/project/1212521145936484/task/1213704628745111
 
+## Latest status (2026-04-20)
+
+- **2026-04-20 10:24 / 10:37** — Alex posted the log findings on the Asana ticket and asked the FE side (via Eddy WM) to run the two in-repo investigations (trace `[QRCodeDisplay]` upstream; grep for `bc1q` / `p2wpkh` / segwit derivation).
+- **2026-04-20 11:05** — Eddy WM replied **without running the investigation**. His assumption: *"this wallet might have been created long time ago, and possibly a very old in the address generation on wdk side since nobody else has been able to reproduce this issue in another (new) wallet."*
+- **What that means:** Eddy is implicitly redirecting the fix away from a current FE code change and toward a legacy / migration framing — which dovetails with the linked RW-1409 reconciliation ticket but does NOT answer the decisive question (where the FE currently sources `bc1qgm7k56…` from).
+- **Ticket is still in In-Progress; priority still High; assignee still Alex.**
+
+## What to do next — ranked
+
+1. **Test Eddy's theory before accepting or rejecting it** — this is cheap and unblocks the decision:
+   - Pull `createdAt` for wallet `95f4b950-3601-4ebc-9387-225377d72a28` (the `unrelated` wallet for `pagZrxLHnhU`). Usman's 2026-03-19 12:47 payload shows `createdAt: 1767985547939` → **2026-01-10 06:25 UTC**. That *is* several weeks old by WDK standards but not necessarily "legacy".
+   - Cross-check against `wdk-lib-bitcoin` git history for when BTC derivation moved from bip84 / segwit (`bc1q…`) to bip86 / taproot (`bc1p…`). If the switch post-dates `2026-01-10`, Eddy's theory is plausible; if it pre-dates it, the theory is wrong and we're back to a live FE bug.
+   - Also compare to the `5 local vs 4 backend` delta in the log — the 5th wallet (the one holding the segwit address) must have a creation timestamp somewhere in local storage.
+
+2. **Reply to Eddy with the outcome of (1)**, not with another ask. Two possible replies:
+   - **If theory holds** (BTC derivation switched after this wallet was created): acknowledge it, redirect the fix path to RW-1409 / migration, and escalate via Alex's previously-floated fallback on the FE side — "display only addresses that are registered with the backend" — as a belt-and-braces guard for other stale wallets. Close this ticket once RW-1409 lands.
+   - **If theory fails** (derivation was already taproot when this wallet was created): push back — this is an active FE bug, the in-repo investigation is still owed, and the ticket stays on the FE side.
+
+3. **Regardless of (1) outcome**, the FE-side guard ("only render receive addresses present in the `/wallets` response") is worth doing — it's the cleanest way to prevent repeat reports while reconciliation catches up. That's Alex's original Slack fallback. Consider proposing it as a separate small FE ticket rather than bundling it here.
+
+4. Lower-priority, only if (1) doesn't settle it:
+   - Run the `/wallets` eventually-consistency check (Usman's 1-wallet vs 2-wallet snapshot mystery from 2026-03-19).
+   - Still-missing: the 2026-04-02 Slack analysis thread and the second unnamed related ticket (see `missing-context.md`).
+
+---
+
+
 ## What we know
 - Staging user `klemensqwerty` (userId `pagZrxLHnhU`, email klemens.andrew@gmail.com) received 0.00021337 BTC ($15.82) in tx `f0fcd10294218e84b06e457e3fd740ca70188d84944e45e4aba43a59c2b10d95` on 2026-03-18 11:10 UTC — confirmed on-chain (mempool.space).
 - The **balance** shows correctly on the BTC holdings screen, so the backend has indexed the UTXO — but **no transaction entry** appears in either the BTC holdings "Latest transactions" feed or the global Transactions list.

@@ -1,8 +1,15 @@
 # Missing context
 
-- [ ] **Slack thread**: "we need data shard as well — https://tether-to.slack.com/archives/C0A5DFYRNBB/p1776165950367319?thread_ts=1776091206.320369&cid=C0A5DFYRNBB" — **Need from Alex:** export of the linked Slack thread (channel `C0A5DFYRNBB`, thread ts `1776091206.320369`). Francesco's comment quotes someone saying the data shard also needs the fix; the originating message and any follow-ups are not in the ticket. **Source:** Francesco Canessa comment, 2026-04-14T11:30:49Z.
-- [ ] **Logs (Grafana / Loki)**: queries `{job="pm2", level!="20"} |= "[DEP0170] DeprecationWarning: The URL mongodb"` (prod) and `{agent="alloy", env="staging", level!="20"} |= "DeprecationWarning: The URL mongodb"` (staging) are referenced but no log snippet or screenshot is attached. **Need from Alex:** a sample log line confirming exactly which service emitted the leak and what username/host/db appear (so we know the surface area). **Source:** description.
-- [ ] **Production incident details**: "this happened in production during a deployment and Rumble had to rotate the db password as people from the Tether team saw the prod db password" — **Need from Alex:** date/timestamp of the deployment that caused the leak and which indexer service printed it. Useful for verifying the fix retroactively. **Source:** description.
-- [ ] **Suggested fix reference**: Vigan suggested using https://github.com/bitfinexcom/bfx-facs-db-mongo/tree/feature/mongodb-v6-driver — branch is referenced but not pinned to a commit. **Need from Alex / Vigan:** confirm whether that branch is the agreed dependency target, or if it was merged/renamed since 2026-03-04. **Source:** description.
-- [ ] **PR link**: ticket is in section "PR MERGED + DEPLOYED TO DEV" but no PR URL is in the description or comments. **Need from Alex:** link to the merged PR(s) on indexer + data-shard repos so the fix can be reviewed and we can confirm it covers both code paths. **Source:** section state, 2026-04-15.
-- [ ] **Data shard repo / service**: Francesco's last comment implies a separate "data shard" service also needs the fix. **Need from Alex:** confirm whether the merged PR already covers the data shard, or if a follow-up is required there. **Source:** Francesco Canessa comment, 2026-04-14T11:30:49Z.
+## Resolved (filled in 2026-04-20)
+
+- ~~**Slack thread** (`C0A5DFYRNBB` / ts `1776091206.320369`)~~ — pasted by Alex, saved to `slack-thread.md`.
+- ~~**Merged PR URLs**~~ — captured from the Slack thread:
+  - https://github.com/tetherto/wdk-ork-wrk/pull/115
+  - https://github.com/tetherto/wdk-indexer-wrk-base/pull/104
+- ~~**Pinning decision**~~ — branch name (not commit hash) per Vigan; tether-wallet security-review guidance to pin by commit hash was knowingly pushed back on. See `slack-thread.md`.
+
+## Still open
+
+- [ ] **Data shard follow-up**: Vigan said "we need data shard as well" both in the Slack thread and in the Asana comment, but the merged PRs only cover `wdk-ork-wrk` and `wdk-indexer-wrk-base`. **Need from Alex:** which repo is "the data shard" (likely `wdk-data-shard-wrk` or similar — confirm via `repos.md`), and whether anyone has opened a PR there yet. **Source:** Vigan, Slack thread + Francesco's Asana comment 2026-04-14.
+- [ ] **Real log snippet showing the leak**: only the Loki queries are in the ticket — no sample line. Useful if we need to verify the fix retroactively or check whether other services (data shard, anything else still on the old `bfx-facs-db-mongo` master) are still leaking. **Need from Alex:** one Loki hit from prod or staging, before/after the fix. **Source:** description.
+- [ ] **Production incident timestamp**: "this happened in production during a deployment" — exact deployment date and which indexer service emitted the leaked URL is not recorded. Low priority now that PRs are merged, but useful for the post-incident write-up. **Source:** description.

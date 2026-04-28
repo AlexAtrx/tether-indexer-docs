@@ -180,3 +180,19 @@ Priority changed Critical → High.
 
 ## 2026-04-16T13:39 — Eddy WM (comment)
 > The priority level for this item is changed to now high, since this is mainly a backend related item that affects only one user, and can be fixed on the backend without any change on the app.
+
+## 2026-04-20T10:24 — Alex Atrash (comment)
+> Hey @Eddy WM
+> The decisive open question is where the FE gets `bc1qgm7k56yqdzzn30vzzxrjnle6nkdn2wgt0m9ph2` from, since `/wallets` doesn't contain it? Is there a way to know that?
+> The log we have is from the exact session where the video shows the FE serving that address via the Receive flow. So the network call that populated the QR code is almost certainly in there.
+> The address `bc1qgm7k56…` does not appear anywhere in the log. Not in any WalletAPI, RumbleAPI, or other response. No endpoint returned it during the session.
+> From the logs, the mobile app is not getting `bc1qgm7k56…` from a backend endpoint at all. It's coming from client-local state.
+
+## 2026-04-20T10:37 — Alex Atrash (comment)
+> @Eddy WM
+> You guys need to do these 2 in-repo investigations:
+> 1. In the mobile repo, find the component behind `[QRCodeDisplay]` and trace which store supplies the bitcoin address it renders.
+> 2. Grep the same repo for `bc1q` / `p2wpkh` / segwit address derivation. The `/wallets` endpoint hands back taproot (`bc1p`), but the Receive flow is clearly still producing segwit. That split is the bug.
+
+## 2026-04-20T11:05 — Eddy WM (comment)
+> My assumption here is this wallet might have been created long time ago, and possibly a very old in the address generation on wdk side since nobody else has been able to reproduce this issue in another (new) wallet
