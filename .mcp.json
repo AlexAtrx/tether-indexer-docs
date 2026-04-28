@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "sentry": {
+      "type": "stdio",
+      "command": "/Users/alexa/.local/bin/sentry-mcp-rumble",
+      "args": []
+    }
+  }
+}
