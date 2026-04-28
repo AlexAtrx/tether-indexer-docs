@@ -26,7 +26,7 @@ local: `_tasks/20-apr-26-2-tip-button-inactive-after-follow/`
 ### 3. [Backend - Transactions] Received BTC transaction doesn't display
 [RW-1428](https://app.asana.com/0/0/1213704628745111) · Rumble Wallet V3 / In-Progress · High
 > Test user on staging received BTC at address `bc1qgm7k56y...m9ph2`, but the backend has no record of that address (Usman's wallets dump shows none of the involved addresses). Alex posted Slack analysis on 2026-04-02 and asked Andrey for provenance; Andrey offered his staging credentials on 2026-04-06. Next: log in with Andrey's creds, trace where the address came from (wrong env, missing wallet entry, or migration leftover).
-local: `_tasks/20-apr-26-1-received-btc-transaction-doesnt-display/`
+local: `_tasks/28-apr-26-2-received-btc-transaction-doesnt-display/`
 
 ### 4. [Backend] Migration Reconciliation Job
 [RW-1409](https://app.asana.com/0/0/1213680013630981) · Rumble Wallet V3 / In-Progress · High

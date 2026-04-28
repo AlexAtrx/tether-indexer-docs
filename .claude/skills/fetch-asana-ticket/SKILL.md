@@ -38,20 +38,30 @@ Never print the token. Never commit it anywhere under `_INDEXER/`.
 
 Root: `/Users/alexa/Documents/repos/tether/_INDEXER/_tether-indexer-docs/_tasks/`
 
-Folder name format: `DD-mon-YY-N-short-kebab-title/`
+Folder name format: `DD-mon-YY-<TICKET-NUMBER>-<kebab-title>/`
 
 - `DD` — two-digit day of today (today's date, not the ticket's created_at)
 - `mon` — three-letter lowercase month (`jan`, `feb`, `mar`, `apr`, ...)
 - `YY` — two-digit year
-- `N` — sequence number for today, starting at `1`. If other folders already
-  exist for today with sequence `1..K`, use `K+1`.
-- `short-kebab-title` — 3–7 kebab-cased words derived from the Asana ticket
-  title. Strip punctuation. Example: ticket "The amount in the push looks with
-  incorrect decimals" becomes `The-amount-in-the-push-looks-with-incorrect-decimals`
-  or shorter like `amount-in-push-incorrect-decimals`. Follow the style of
-  existing folders in `_tasks/`.
+- `<TICKET-NUMBER>` — the ticket identifier, e.g. `RW-1683`, `WDK-842`,
+  `BUG-217`. Source it from (in order of preference):
+  1. A custom field whose `name` looks like "Ticket ID", "Key", "Issue ID",
+     or matches the regex `^[A-Z]+-\d+$` in `display_value`.
+  2. A tag matching `^[A-Z]+-\d+$`.
+  3. The ticket title or description if it begins with / contains
+     `^[A-Z]+-\d+\b`.
+  If no ticket number can be found, fall back to `NOID` and flag this in
+  `missing-context.md` so Alex can rename the folder.
+- `<kebab-title>` — the full Asana ticket title, lowercased, with all
+  non-alphanumeric runs replaced by a single dash, leading/trailing dashes
+  stripped. Do not abbreviate or shorten — keep every word from the title so
+  the folder is searchable. Example: ticket "The amount in the push looks
+  with incorrect decimals" → `the-amount-in-the-push-looks-with-incorrect-decimals`.
 
-Example: `20-apr-26-1-mempool-vs-backend-discrepancy/`
+Example: `28-apr-26-RW-1683-the-amount-in-the-push-looks-with-incorrect-decimals/`
+
+If the folder name you'd create already exists, append `-2`, `-3`, ... (don't
+overwrite).
 
 ## Folder contents to produce
 
@@ -283,8 +293,6 @@ Keep it under ~10 lines.
 - Never print, commit, or leak the Asana token.
 - Don't edit any code in the repo as part of this skill. This skill only
   gathers context.
-- If the folder name you'd create already exists, pick the next `N` (don't
-  overwrite).
 - Rate-limit: Asana API allows ~150 req/min for a PAT. If you batch many
   attachment-detail calls, that's fine for a single ticket, but don't parallel-
   fetch more than ~10 at once.

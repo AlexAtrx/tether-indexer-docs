@@ -1,9 +1,0 @@
-Canonical reference: `_docs/___TRUTH.md` (use when needed)
-
-1. Read this summary I have written from our meeting discussing this bug but not sure if it does explain it well enough: 
-_docs/_tasks/27-feb-26-2-trx-not-showing/meeting.txt
-
-2. Focus on the Slack discussion that the tester has and what the developers are saying to her:
-_docs/_tasks/27-feb-26-2-trx-not-showing/slack-chat.txt
-
-3. Think well and analyze the potential culprit and tell me what the fix can be. 
