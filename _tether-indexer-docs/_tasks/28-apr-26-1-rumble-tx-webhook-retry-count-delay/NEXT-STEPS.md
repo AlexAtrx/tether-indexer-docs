@@ -23,7 +23,7 @@
 - Confirmation: flat retries (matching the floated numbers) vs exponential (which Francesco said was "ideal")
 
 ## Before starting work
-1. Re-read the diff in `github-pr.md` and pull `workers/proc.shard.data.wrk.js` from the merged PR #179 to see the current shape of the iteration / retry block.
+1. ~~Re-read the diff in `github-pr.md` and pull `workers/proc.shard.data.wrk.js` from the merged PR #179 to see the current shape of the iteration / retry block.~~ **Done 2026-04-28** — see "Post-merge state" section in `github-pr.md`. Key finding: the tx-hash path in `_isTxCompleted` (lines 356–373) never returns `retry: true`, so on a missing/unconfirmed tx the loop's retry block doesn't run and the hook stays `PENDING` forever. The loop's retry block currently hard-codes `this.gaslessMaxRetries` / `this.gaslessRetryDelay` for every retry.
 2. In `rumble-data-shard-wrk`, locate `_processTxWebhook`, `blockchainSvc.getTransactionFromChain`, and the existing `gaslessMaxRetries` / `gaslessRetryDelay` config — that's the template to mirror.
 3. Enumerate the supported chains and propose per-chain `retryCount` / `retryDelay` (likely add to `workers/lib/utils/constants.js` next to `TX_WEBHOOK_STATUS`). Use Slack values as starting points (ETH-class `15s × 10`, BTC `5m × 10`) and ping Francesco to confirm flat-vs-exponential before coding.
 4. On max retries, write `TX_WEBHOOK_STATUS.FAILED` via `updateStatus` (don't `del`) — matches PR #179's new contract.

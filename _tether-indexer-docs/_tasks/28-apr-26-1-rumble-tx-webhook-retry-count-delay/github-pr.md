@@ -82,3 +82,50 @@ Also adds `req.status = TX_WEBHOOK_STATUS.PENDING` on insert.
 1. The PR already gives us a place to write `FAILED` to (the status column). The follow-up needs the **tx-hash** code path (the one that today returns `{ isCompleted: false, transaction: null }` from `blockchainSvc.getTransactionFromChain`) to actually increment `retryCount` and respect a per-chain max — mirroring how the gasless path already does it via `gaslessMaxRetries`.
 2. Per-chain values likely belong alongside `gaslessMaxRetries` / `gaslessRetryDelay` in `constants.js` (or wherever those are sourced — confirm at implementation time).
 3. Once max retries hit, set `status = FAILED` (don't `del`) for parity with PR #179's new contract.
+
+## Post-merge state of `workers/proc.shard.data.wrk.js` (verified 2026-04-28)
+
+Local checkout: `rumble-data-shard-wrk` is on `dev`, with `e6467ec Merge pull request #179` and the squashed feature commits (`679e65c save txwebhooks upon completion/instead of deletion`, `ff0ec1e improve txwebhook processing`) in history. The current file is post-PR-179.
+
+### Iteration loop (`_processTxWebhooksJob`, lines 232–335)
+
+- Cursor: `this.db.txWebhookRepository.getTxWebhooks()` (line 234).
+- The `retryAt`-gated skip is **gone** (PR #179's removal is in effect).
+- Inside the loop: `const txResult = await this._isTxCompleted(txHook)` (line 243).
+- Retry branch (lines 244–273) — runs **only when `txResult?.retry` is true**:
+  - `retryCount = (txHook.retryCount || 0) + 1`
+  - `retryAt = Date.now() + this.gaslessRetryDelay`
+  - If `retryCount >= this.gaslessMaxRetries` → `updateStatus(..., FAILED, Date.now())`.
+  - Else → `save({ ...txHook, status: PENDING, retryCount, retryAt })`.
+  - Both paths wrap in a `unitOfWork` with rollback on error.
+- Completed branch (lines 275–331) — runs only when `txResult.isCompleted` is true. After posting to Rumble, calls `updateStatus(..., COMPLETED, Date.now())`.
+- **No `else` branch** for the case where `isCompleted=false` AND `retry` is missing/falsy — that's the gap (see below).
+
+### `_isTxCompleted` (lines 337–374) — this is where RW-1525 has to land
+
+Two paths:
+
+1. **Gasless path** (`isTransactionReceipt === true`, lines 343–354):
+   - Calls `getGasLessTransactionReceipt`. If no `hash` yet → `return { isCompleted: false, retry: true }`. ← retries are capped via the loop's retry branch.
+   - If `hash` present → falls through and continues with the rewritten `transactionHash`.
+
+2. **Tx-hash path** (lines 356–373):
+   - Calls `getTransactionFromChain(blockchain, token, transactionHash)`.
+   - Filters by `from`/`to`. Bitcoin special-case: matches by `to` only and patches `from`.
+   - Returns `{ isCompleted: !!(transaction && transaction.timestamp), transaction }`.
+   - **Never sets `retry: true`.** So when the chain returns no rows (unconfirmed tx, non-existent hash, or filter mismatch), `isCompleted` is false and `retry` is undefined → the loop falls through both branches and **the tx-hook stays `PENDING` with the same `retryCount` forever**. This is exactly what Usman's PR-comment flagged.
+
+### Config values currently in scope
+
+Set in `init()` (lines 67–68):
+- `this.gaslessMaxRetries = this.conf.wrk?.gaslessMaxRetries || 3`
+- `this.gaslessRetryDelay = this.conf.wrk?.gaslessRetryDelay || 10_000`
+
+Both are flat (no exponential), no per-chain variation. The retry block in the loop hard-codes use of these two for *every* retry — there's no chain-aware fork yet.
+
+### What the fix needs to add (concrete)
+
+1. **`_isTxCompleted` tx-hash path:** when the chain has no matching tx, return `{ isCompleted: false, retry: true, blockchain }` (or carry the chain through some other channel) instead of `{ isCompleted: false, transaction: null }`.
+2. **Loop retry branch:** when `retry` was triggered by the tx-hash path, look up `retryCount` / `retryDelay` from a new per-chain map (likely in `workers/lib/utils/constants.js` next to `TX_WEBHOOK_STATUS`) instead of the flat gasless constants. Keep using gasless constants when the trigger was the gasless-receipt path.
+3. **Discard policy:** the existing `updateStatus(..., FAILED, ...)` already does the right thing — no change needed there.
+4. Initial Slack values (confirm with Francesco before coding): ETH-class `15s × 10`, BTC `5m × 10`. Slack also mentioned exponential as "ideal" — flat-vs-exponential needs an explicit decision.
