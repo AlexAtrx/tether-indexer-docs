@@ -1,0 +1,34 @@
+This ticket:
+_tether-indexer-docs/_tasks/28-apr-26-1-rumble-tx-webhook-retry-count-delay
+
+
+Has this correct analysis (verified):
+-----
+
+• Correct analysis: _isTxCompleted() only emits retry: true when isTransactionReceipt is true and the gasless receipt is not found. For plain transactionHash webhooks, a missing/unconfirmed/non-existent tx from getTransactionFromChain() falls through to { isCompleted: false, transaction: null } with no retry flag. _processTxWebhooksJob()
+only increments retryCount, sets retryAt, and marks FAILED inside the txResult.retry branch, so invalid or never-indexed plain hashes remain PENDING indefinitely.
+
+Correct fix: extend the retry flow to the plain transactionHash branch, but with tx-hash-specific per-chain policy instead of reusing gasless settings blindly.
+
+Concretely:
+
+1. Add tx webhook retry config, e.g. txWebhookRetryPolicyByBlockchain:
+    - default / ETH-class: maxRetries: 10, retryDelay: 15000
+    - bitcoin: maxRetries: 10, retryDelay: 300000
+    - allow config override from conf.wrk.
+2. In _processTxWebhooksJob(), choose retry policy from:
+    - existing gaslessMaxRetries / gaslessRetryDelay when txHook.isTransactionReceipt
+    - new per-chain tx-hash policy otherwise.
+3. Make _isTxCompleted() return retry: true for plain tx-hash misses too, after getTransactionFromChain() returns no matching completed transaction.
+4. Keep current terminal behavior from PR #179:
+    - before max retries: save row as PENDING with incremented retryCount and computed retryAt
+    - at max retries: updateStatus(transactionHash, TX_WEBHOOK_STATUS.FAILED, Date.now())
+    - on success: COMPLETED
+
+The important part is not just adding constants; the missing behavioral change is that the plain tx-hash “not found / not completed” result must enter the same retry-and-eventual-fail path.
+-----
+
+Based on this analysis I want you to write the coding of the fix.
+Check out the latest development branch of a new on-board repository first and then create a new branch with a proper name before you write any code.
+Make sure the branch name is similar in all involved repositories.
+Do not commit or push any code for the moment.

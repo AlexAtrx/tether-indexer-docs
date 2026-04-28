@@ -1,0 +1,22 @@
+# Rumble - Add blockchain specific retryCount/retryDelay for tx webhook
+
+- **URL:** https://app.asana.com/1/45238840754660/project/1210540875949204/task/1213868590256377
+- **GID:** 1213868590256377
+- **Projects:**
+  - Rumble Wallet V3 — section `ToDo - Dev`
+  - WDK Indexer and Wallet Backends — section `TO DO`
+- **Assignee:** Alex Atrash (inbox)
+- **Status:** open
+- **Created:** 2026-03-30T12:30:01Z (by Usman Khan)
+- **Modified:** 2026-04-27T23:55:32Z
+- **Due:** —
+- **Tags:** —
+- **Custom fields:**
+  - WDK: `WDK-1344`
+  - RW: `RW-1525`
+  - Priority: High
+  - Area / Project: Rumble
+  - Sprint: Sprint 1
+  - Stack: BE - Backend
+  - Task Type: Task
+  - Task Progress: In Progress
