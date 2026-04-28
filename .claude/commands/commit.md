@@ -113,10 +113,12 @@ EOF
 PR content rules:
 
 - **Title**: `<type>: <concise summary>` with optional ticket suffix, ≤72 chars, no em dashes.
+- **Audience**: write so a product owner and a reviewing developer can both follow it. Stay at the behavior / outcome level. **Do not** name files, classes, functions, or fields. **Do not** quote code. **Do not** describe the diff line by line.
+- **Length**: keep the body tight. Three short sections (Context, Changes, Why) of a couple of sentences or a short bullet list each is enough. If a section would just restate another, drop it.
 - **Body** structure (omit a section if it doesn't apply):
-  - **Context** — what prompted the change. If a bug, describe the bug and its symptom. Include the Asana / ticket link when present in the conversation.
-  - **Changes** — bullet list of what changed in *this* repo. Each repo's PR body is repo-specific.
-  - **Why** — the reasoning / tradeoff.
+  - **Context** — what prompted the change. If a bug, describe the symptom and the impact, not the code path. If a ticket is referenced, render it as `Ticket: [<ticket title>](<url>)` (plus any short ID suffix like `RW-1525 / WDK-1344`) so the title is the clickable link. Do **not** paste the raw URL on its own line.
+  - **Changes** — bullet list of *what behavior changed* in this repo, in plain language. Each repo's PR body is repo-specific. No file paths, no symbol names.
+  - **Why** — the reasoning / tradeoff, in one or two sentences.
 - **Do not** include "Test plan", "How to test", or a testing checklist unless the change is risky enough to warrant manual verification steps. If you do include it, keep it tight.
 - **Do not** include AI attribution, "Generated with Claude Code", or co-author lines.
 - No em dashes anywhere.
