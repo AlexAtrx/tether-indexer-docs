@@ -62,3 +62,17 @@ tag, commit, or PR view.
 **Summary:** Prefers local clones under this `_INDEXER` workspace, then falls
 back to `gh` or shallow git clones for remote reads. This skill is read-only and
 does not push, open PRs, or edit `/tmp/tetherto-cache/` clones.
+
+### Address PR Comments
+
+**Triggers:** any request to evaluate, address, reply to, push back on, refactor
+for, fix, commit, push, or otherwise handle GitHub PR review comments. Also use
+when Alex asks for short Slack-ready answers about PR comments.
+
+**Skill file:** `.agents/skills/address-pr-comments/SKILL.md`
+
+**Summary:** Links the PR to its original ticket/context, reads thread-aware
+GitHub review comments, decides which comments deserve code changes versus
+short replies, applies scoped local refactors on the PR branch, commits and
+pushes only when asked, and uses Alex's concise human reply style with no AI or
+co-author attribution.

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Address PR Comments"
+  short_description: "Handle PR review feedback in Alex's style"
+  default_prompt: "Use $address-pr-comments to review and address PR feedback without over-explaining."
