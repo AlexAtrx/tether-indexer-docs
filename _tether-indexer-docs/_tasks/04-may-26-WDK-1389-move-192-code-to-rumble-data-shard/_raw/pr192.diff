@@ -1,0 +1,405 @@
+diff --git a/package.json b/package.json
+index 19a2e74..b912def 100644
+--- a/package.json
++++ b/package.json
+@@ -12,6 +12,7 @@
+     "test:coverage": "brittle --coverage \"tests/**/*.test.js\"",
+     "posttest": "npm run lint",
+     "migration": "node scripts/migration-cli.js",
++    "wallet-anomaly-report": "node scripts/wallet-anomaly-report-cli.js",
+     "prepare": "husky"
+   },
+   "repository": {
+diff --git a/scripts/wallet-anomaly-report-cli.js b/scripts/wallet-anomaly-report-cli.js
+new file mode 100644
+index 0000000..f71fdd6
+--- /dev/null
++++ b/scripts/wallet-anomaly-report-cli.js
+@@ -0,0 +1,170 @@
++#!/usr/bin/env node
++
++'use strict'
++
++const fs = require('fs')
++const path = require('path')
++const { EventEmitter } = require('events')
++const { parseArgs } = require('util')
++
++const MongoFacility = require('@bitfinex/bfx-facs-db-mongo')
++
++const MongoWalletRepository = require('../workers/lib/db/mongodb/repositories/wallets')
++const { buildWalletAnomalyReport } = require('../workers/lib/wallet.anomaly.report')
++
++const HELP = `
++Usage:
++  node scripts/wallet-anomaly-report-cli.js [options]
++
++Options:
++  --db-name <name>            Exact database name to scan.
++  --wtype <wtype>             Required with --rack when dedicatedDb=true and --db-name is omitted.
++  --rack <rack>               Required with --wtype when dedicatedDb=true and --db-name is omitted.
++  --out, -o <file>            Also save the JSON report to a local file.
++
++Examples:
++  npm run wallet-anomaly-report -- --db-name wdk_data_shard_prod
++  npm run wallet-anomaly-report -- --wtype data --rack 1 --out ./tmp/report.json
++`.trim()
++
++const ensureDirPath = (filepath) => {
++  const outDir = path.dirname(filepath)
++  fs.mkdirSync(outDir, { recursive: true })
++}
++
++const createFacilityCaller = (root) => {
++  return new class FacCaller extends EventEmitter {
++    constructor () {
++      super()
++      this.ctx = { root }
++    }
++  }()
++}
++
++const sanitizeDbNamePart = (value) => {
++  return value.replace(/[.\s/\\$-]/g, '_')
++}
++
++const getMongoDbName = (conf, argv) => {
++  if (argv.dbName) {
++    return argv.dbName
++  }
++
++  if (!conf?.database) {
++    throw new Error('ERR_MONGODB_DATABASE_NOT_CONFIGURED')
++  }
++
++  if (!conf.dedicatedDb) {
++    return conf.database
++  }
++
++  if (!argv.wtype || !argv.rack) {
++    throw new Error('ERR_MONGODB_DB_NAME_REQUIRED: use --db-name or --wtype with --rack')
++  }
++
++  const postfix = `${sanitizeDbNamePart(argv.wtype)}_${sanitizeDbNamePart(argv.rack)}`
++  return `${conf.database}_${postfix}`
++}
++
++const startMongoWalletSource = async (argv) => {
++  const facCaller = createFacilityCaller(argv.root)
++  const facility = new MongoFacility(
++    facCaller,
++    { ns: argv.ns },
++    { env: argv.env }
++  )
++
++  if (!facility.conf) {
++    throw new Error('ERR_MONGODB_FACILITY_NO_CONF')
++  }
++
++  const dbName = getMongoDbName(facility.conf, argv)
++
++  await new Promise((resolve, reject) => {
++    facility.start((err) => (err ? reject(err) : resolve()))
++  })
++
++  const db = facility.cli.db(dbName)
++  const repo = new MongoWalletRepository(
++    db,
++    facility.getDriver().ReadPreference.PRIMARY,
++    null,
++    facility.conf.operations || {}
++  )
++
++  return {
++    metadata: {
++      engine: 'mongodb',
++      dbName
++    },
++    wallets: repo.iterateActiveWallets(),
++    close: async () => {
++      await new Promise((resolve) => facility.stop(() => resolve()))
++    }
++  }
++}
++
++const DEFAULT_ROOT = process.cwd()
++
++const parseCliArgs = () => {
++  const { values } = parseArgs({
++    options: {
++      help: { type: 'boolean', short: 'h' },
++      out: { type: 'string', short: 'o' },
++      'db-name': { type: 'string' },
++      wtype: { type: 'string' },
++      rack: { type: 'string' }
++    },
++    allowPositionals: false
++  })
++
++  const out = values.out ? path.resolve(values.out) : null
++  if (out && fs.existsSync(out) && fs.statSync(out).isDirectory()) {
++    throw new Error(`ERR_OUT_PATH_INVALID: ${out}`)
++  }
++
++  return {
++    help: !!values.help,
++    env: 'production',
++    ns: 'm0',
++    root: DEFAULT_ROOT,
++    out,
++    dbName: values['db-name'] || null,
++    wtype: values.wtype || null,
++    rack: values.rack || null
++  }
++}
++
++const writeReport = (report, outpath) => {
++  const json = JSON.stringify(report, null, 2)
++
++  if (outpath) {
++    ensureDirPath(outpath)
++    fs.writeFileSync(outpath, `${json}\n`, 'utf8')
++  }
++
++  process.stdout.write(`${json}\n`)
++}
++
++const main = async () => {
++  const argv = parseCliArgs()
++
++  if (argv.help) {
++    process.stdout.write(`${HELP}\n`)
++    return
++  }
++
++  const source = await startMongoWalletSource(argv)
++
++  try {
++    const report = await buildWalletAnomalyReport(source.wallets, source.metadata)
++    writeReport(report, argv.out)
++  } finally {
++    await source.close()
++  }
++}
++
++main().catch((err) => {
++  process.stderr.write(`${err.stack || err.message}\n`)
++  process.exitCode = 1
++})
+diff --git a/tests/unit/wallet.anomaly.report.unit.test.js b/tests/unit/wallet.anomaly.report.unit.test.js
+new file mode 100644
+index 0000000..526c664
+--- /dev/null
++++ b/tests/unit/wallet.anomaly.report.unit.test.js
+@@ -0,0 +1,102 @@
++'use strict'
++
++const test = require('brittle')
++
++const {
++  REASONS,
++  buildWalletAnomalyReport,
++  getWalletAnomalyReasons,
++  parseAccountIndex
++} = require('../../workers/lib/wallet.anomaly.report')
++
++const createAsyncGenerator = (items) => {
++  return (async function * () {
++    for (const item of items) {
++      yield item
++    }
++  })()
++}
++
++test('getWalletAnomalyReasons flags only the agreed anomaly rules', async t => {
++  t.alike(
++    getWalletAnomalyReasons({ type: 'unrelated', accountIndex: '3' }),
++    [REASONS.UNRELATED_ACCOUNT_INDEX_NOT_ZERO]
++  )
++
++  t.alike(
++    getWalletAnomalyReasons({ type: 'user', accountIndex: 100 }),
++    [REASONS.USER_ACCOUNT_INDEX_100]
++  )
++
++  t.alike(getWalletAnomalyReasons({ type: 'unrelated', accountIndex: 0 }), [])
++  t.alike(getWalletAnomalyReasons({ type: 'user', accountIndex: 0 }), [])
++  t.alike(getWalletAnomalyReasons({ type: 'channel', accountIndex: 100 }), [])
++  t.alike(getWalletAnomalyReasons({ type: 'unrelated' }), [])
++})
++
++test('parseAccountIndex returns integers and ignores malformed values', async t => {
++  t.is(parseAccountIndex(undefined), null)
++  t.is(parseAccountIndex(null), null)
++  t.is(parseAccountIndex(''), null)
++  t.is(parseAccountIndex('7'), 7)
++  t.is(parseAccountIndex(100), 100)
++  t.is(parseAccountIndex('abc'), null)
++  t.is(parseAccountIndex('1.5'), null)
++})
++
++test('buildWalletAnomalyReport returns summary counts and flagged wallet details', async t => {
++  const report = await buildWalletAnomalyReport(createAsyncGenerator([
++    {
++      id: 'wallet-unrelated-1',
++      userId: 'user-1',
++      type: 'unrelated',
++      accountIndex: '5',
++      addresses: { ethereum: '0x1111111111111111111111111111111111111111' }
++    },
++    {
++      id: 'wallet-user-1',
++      userId: 'user-2',
++      type: 'user',
++      accountIndex: 100,
++      addresses: { bitcoin: 'bc1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqw9e75r' }
++    },
++    {
++      id: 'wallet-ok-1',
++      userId: 'user-3',
++      type: 'user',
++      accountIndex: 0,
++      addresses: { ethereum: '0x2222222222222222222222222222222222222222' }
++    }
++  ]), { engine: 'mongodb', dbName: 'wdk_data_shard_prod' })
++
++  t.is(report.metadata.engine, 'mongodb')
++  t.is(report.summary.totalWalletsScanned, 3)
++  t.is(report.summary.totalFlaggedWallets, 2)
++  t.is(report.summary.unrelatedAccountIndexNotZero, 1)
++  t.is(report.summary.userAccountIndex100, 1)
++  t.is(report.results.length, 2)
++
++  t.alike(report.results[0], {
++    walletId: 'wallet-unrelated-1',
++    userId: 'user-1',
++    type: 'unrelated',
++    accountIndex: 5,
++    channelId: null,
++    name: null,
++    enabled: null,
++    addresses: { ethereum: '0x1111111111111111111111111111111111111111' },
++    reasonFlagged: REASONS.UNRELATED_ACCOUNT_INDEX_NOT_ZERO
++  })
++
++  t.alike(report.results[1], {
++    walletId: 'wallet-user-1',
++    userId: 'user-2',
++    type: 'user',
++    accountIndex: 100,
++    channelId: null,
++    name: null,
++    enabled: null,
++    addresses: { bitcoin: 'bc1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqw9e75r' },
++    reasonFlagged: REASONS.USER_ACCOUNT_INDEX_100
++  })
++})
+diff --git a/workers/lib/wallet.anomaly.report.js b/workers/lib/wallet.anomaly.report.js
+new file mode 100644
+index 0000000..2d310a9
+--- /dev/null
++++ b/workers/lib/wallet.anomaly.report.js
+@@ -0,0 +1,103 @@
++'use strict'
++
++const REASONS = {
++  UNRELATED_ACCOUNT_INDEX_NOT_ZERO: 'UNRELATED_ACCOUNT_INDEX_NOT_ZERO',
++  USER_ACCOUNT_INDEX_100: 'USER_ACCOUNT_INDEX_100'
++}
++
++const FILTERS = [
++  'type=unrelated with accountIndex != 0',
++  'type=user with accountIndex = 100'
++]
++
++const parseAccountIndex = (accountIndex) => {
++  if (accountIndex === undefined || accountIndex === null || accountIndex === '') {
++    return null
++  }
++
++  const numeric = Number(accountIndex)
++  return Number.isInteger(numeric) ? numeric : null
++}
++
++const getWalletAnomalyReasons = (wallet) => {
++  const reasons = []
++  const accountIndex = parseAccountIndex(wallet?.accountIndex)
++
++  if (wallet?.type === 'unrelated' && accountIndex !== null && accountIndex !== 0) {
++    reasons.push(REASONS.UNRELATED_ACCOUNT_INDEX_NOT_ZERO)
++  }
++
++  if (wallet?.type === 'user' && accountIndex === 100) {
++    reasons.push(REASONS.USER_ACCOUNT_INDEX_100)
++  }
++
++  return reasons
++}
++
++const mapWalletAnomalyResult = (wallet, reasonFlagged) => ({
++  walletId: wallet?.id || null,
++  userId: wallet?.userId || null,
++  type: wallet?.type || null,
++  accountIndex: parseAccountIndex(wallet?.accountIndex),
++  channelId: wallet?.channelId || null,
++  name: wallet?.name || null,
++  enabled: wallet?.enabled ?? null,
++  addresses: wallet?.addresses || {},
++  reasonFlagged
++})
++
++const incrementReasonCounter = (summary, reason) => {
++  switch (reason) {
++    case REASONS.UNRELATED_ACCOUNT_INDEX_NOT_ZERO:
++      summary.unrelatedAccountIndexNotZero++
++      break
++    case REASONS.USER_ACCOUNT_INDEX_100:
++      summary.userAccountIndex100++
++      break
++    default:
++      break
++  }
++}
++
++const buildWalletAnomalyReport = async (wallets, metadata = {}) => {
++  const summary = {
++    totalWalletsScanned: 0,
++    totalFlaggedWallets: 0,
++    unrelatedAccountIndexNotZero: 0,
++    userAccountIndex100: 0
++  }
++  const results = []
++
++  for await (const wallet of wallets) {
++    summary.totalWalletsScanned++
++
++    const reasons = getWalletAnomalyReasons(wallet)
++    if (reasons.length === 0) {
++      continue
++    }
++
++    summary.totalFlaggedWallets++
++
++    for (const reason of reasons) {
++      results.push(mapWalletAnomalyResult(wallet, reason))
++      incrementReasonCounter(summary, reason)
++    }
++  }
++
++  return {
++    generatedAt: new Date().toISOString(),
++    filters: FILTERS,
++    metadata,
++    summary,
++    results
++  }
++}
++
++module.exports = {
++  FILTERS,
++  REASONS,
++  buildWalletAnomalyReport,
++  getWalletAnomalyReasons,
++  mapWalletAnomalyResult,
++  parseAccountIndex
++}
