@@ -11,24 +11,40 @@ This command is meant to be run once in the morning. It is fine for a ticket to 
 
 ## Output format (target)
 
+Plain text only. No markdown, no Slack mrkdwn, no auto-formatted links. The user pastes this into Slack and applies formatting (bold, links) by hand. Keep it minimal so manual linking is fast: each bullet has the raw ticket title on the bullet line, and the bare URL on the line directly underneath it.
+
 ```
 Daily Update [<Month D, YYYY>]
 
 Working on Today
-- [<ticket title>](<asana-permalink>)
-- [<ticket title>](<asana-permalink>)
-- ...
+
+- <ticket title>
+<asana-permalink>
+
+- <ticket title>
+<asana-permalink>
 
 Plans for Tomorrow
-- [<ticket title>](<asana-permalink>)
-- ...
+
+- <ticket title>
+<asana-permalink>
 ```
+
+Formatting rules:
+
+- No asterisks, no underscores, no backticks, no `#` headings. The date line and section labels are unstyled.
+- No GFM link syntax (`[text](url)`) and no Slack link syntax (`<url|text>`). Just the raw URL on its own line below the title.
+- No brackets, parentheses, or angle brackets around the URL. Bare URL only.
+- Bullet character is `-` (hyphen + space) at the start of the title line. The URL line is flush-left, no indent, directly under the title.
+- One blank line between entries for readability.
+- One blank line between section labels (`Working on Today`, `Plans for Tomorrow`) and the first entry below them.
+- No em dashes anywhere (workspace global rule). If you need a separator inside prose, use a colon or parentheses.
 
 Rules for the body:
 
 - Title is the **raw Asana task name**, no truncation, no editing. Stripping a `Rumble - ` prefix is fine if the line gets unwieldy, but only if the ticket clearly reads naturally without it.
+- The title line may end with a short parenthetical tag like `(no sprint)` when the ticket is included from outside the current sprint (see Step 3).
 - Every bullet is a real ticket from the freshly-refreshed TODO. No invented bullets like "Reviewed a bunch of PRs" unless the user adds them by hand after the fact.
-- No em dashes anywhere (workspace global rule). If you need a separator inside prose, use a colon or parentheses.
 - Date is today, formatted like `May 6, 2026`.
 
 ## Step 1. Refresh the TODO file from Asana
@@ -96,7 +112,7 @@ Sort the same way as Today (priority then modified_at desc). Cap at 3 by default
 
 ## Step 4. Render and archive
 
-1. Build the output text following the format at the top of this file. Use the ticket's `permalink_url` for each bullet's link target. Keep the title as the link text.
+1. Build the output text following the plain-text format at the top of this file. Each ticket is two lines: title on the bullet line, raw `permalink_url` on the next line.
 
 2. Determine the archive path:
    ```
@@ -104,9 +120,9 @@ Sort the same way as Today (priority then modified_at desc). Cap at 3 by default
    ```
    The directory `_daily-updates/` may not exist yet on first run; create it. If a file for today already exists, **overwrite it** (running `/daily-updates` twice in one morning should produce one canonical artifact for that date, not append).
 
-3. Write the rendered text to that file verbatim.
+3. Write the rendered text to that file verbatim. The file extension stays `.md` for tooling compatibility, but the contents are plain text.
 
-4. Print the same text to chat, fenced as a code block so Alex can copy-paste it cleanly into Slack or wherever the stand-up goes.
+4. Print the same text to chat, fenced as a triple-backtick code block. The fence is for clean copy-paste only; the user copies the contents of the fence and pastes into Slack, where they apply bold/link formatting manually.
 
 5. After the code block, in plain prose, add a one-line footer noting:
    - The archive path.
