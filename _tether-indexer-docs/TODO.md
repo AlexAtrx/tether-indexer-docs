@@ -1,10 +1,10 @@
 # Asana TODO — assigned to Alex (Tether Indexer)
 
-Generated: 2026-05-07 09:20 UTC
+Generated: 2026-05-11 (manual update — security sweep spinoffs added)
 Source: Asana `users/me` task list (incomplete only)
 Refresh: ask Claude to "refresh my Asana TODOs".
 
-**Summary:** 24 assigned tasks (21 real + 3 placeholder) across 3 projects. 7 in flight (DEV IN PROGRESS / In Review / PR Open / PR Merged-deployed-to-dev). 8 High priority (1 Critical), 8 Medium, 5 unset.
+**Summary:** 35 assigned tasks (32 real + 3 placeholder) across 3 projects. 7 in flight. 19 High priority (1 Critical), 8 Medium, 5 unset. The 11 new items are per-repo follow-ups to RW-1682 (Tron security ticket), one per backend repo with open high/critical Dependabot alerts.
 
 ---
 
@@ -28,7 +28,7 @@ Refresh: ask Claude to "refresh my Asana TODOs".
 
 ### 4. Rumble - Security - Fix Tron Indexer High Vulnerabilities
 [RW-1682](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1213478780310237) · WDK Indexer:DEV IN PROGRESS · Sprint 1 · in flight
-> Both Dependabot alerts on wdk-indexer-wrk-tron are already closed on main; current `npm audit` is clean for high/critical (10 lows, all rooted in elliptic <=6.6.1 with no upstream patch). Need to write up the verification, decide whether to spin off the elliptic chain as its own ticket, then close this. Fastify upgrade (RW-1680) is the prerequisite for the next round.
+> Narrow Tron scope is done (Dependabot #3, #7 closed; main is clean for high/critical). 11 per-repo follow-ups created in Sprint 1 for the broader sweep (see "Security sweep follow-ups" section). Fastify upgrade (RW-1680) is the prerequisite for the app-node items. Pending Francesco's sign-off on scope; once that lands this ticket can be closed.
 > local: `_tasks/04-may-26-RW-1682-rumble-security-fix-tron-indexer-high-vulnerabilities/`
 
 ### 5. Rumble - Silence the remaining Sentry False Positives - (#3)
@@ -55,6 +55,24 @@ Refresh: ask Claude to "refresh my Asana TODOs".
 - [ ] [\[Backend Transactions\] After sending BTC on-chain from staging to prod, tx is not reflected in history but balance updates](https://app.asana.com/1/45238840754660/project/1212521145936484/task/1214077903141396) — `RW-1622` · High · Sprint 1 · Rumble Wallet:To Triage
 - [ ] [\[Balance - Backend\] Investigate why BTC balances not updating for users buying from MoonPay](https://app.asana.com/1/45238840754660/project/1212521145936484/task/1214097552937526) — `RW-1632` · High · Sprint 1 · Rumble Wallet:To Triage
 - [ ] [\[Bckend - Tip jar\] Tip button doesn't appear and Send Tip is inactive after following the channel](https://app.asana.com/1/45238840754660/project/1212521145936484/task/1213391745549211) — `RW-1120` · High · Sprint 1 · Rumble Wallet:Completed *(flagged: section says Completed but still incomplete in Asana)*
+
+## Security sweep follow-ups (Sprint 1)
+
+Per-repo follow-ups to [RW-1682](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1213478780310237). All assigned to Alex, High priority, Sprint 1, Area=Rumble, in WDK Backends. Counts are open high/critical Dependabot alerts at 2026-05-11. Fastify upgrade (RW-1680) is the prerequisite for the app-node items.
+
+- [ ] [rumble-promo-wrk - Security - Fix High/Critical Vulnerabilities](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1214716439993136) · 11 alerts · High · Sprint 1
+- [ ] [wdk-indexer-wrk-spark - Security - Fix High/Critical Vulnerabilities](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1214716470029391) · 10 alerts · High · Sprint 1
+- [ ] [wdk-indexer-wrk-evm - Security - Fix High/Critical Vulnerabilities](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1214716589484670) · 9 alerts · High · Sprint 1
+- [ ] [wdk-indexer-wrk-btc - Security - Fix High/Critical Vulnerabilities](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1214716566892701) · 6 alerts · High · Sprint 1
+- [ ] [rumble-app-node - Security - Fix High/Critical Vulnerabilities](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1214716461893028) · 4 alerts · High · Sprint 1 · waits on RW-1680
+- [ ] [wdk-app-node - Security - Fix High/Critical Vulnerabilities](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1214716566376368) · 3 alerts · High · Sprint 1 · waits on RW-1680
+- [ ] [wdk-indexer-app-node - Security - Fix High/Critical Vulnerabilities](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1214716462372233) · 3 alerts · High · Sprint 1 · waits on RW-1680
+- [ ] [rumble-data-shard-wrk - Security - Fix High/Critical Vulnerabilities](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1214716566857326) · 2 alerts · High · Sprint 1
+- [ ] [rumble-ork-wrk - Security - Fix High/Critical Vulnerabilities](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1214716555228120) · 1 alert · High · Sprint 1
+- [ ] [wdk-ork-wrk - Security - Fix High/Critical Vulnerabilities](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1214716491270754) · 1 alert · High · Sprint 1
+- [ ] [wdk-data-shard-wrk - Security - Fix High/Critical Vulnerabilities](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1214716439793573) · 1 alert · High · Sprint 1
+
+Repos with 0 open high/critical alerts (no ticket needed): rumble-wallet-lib-passkey, wdk-indexer-wrk-{base,solana,ton}, wdk-indexer-processor-wrk, wdk, wdk-wallet, wdk-wallet-{btc,evm,solana,spark,ton,tron,tron-gasfree}, wdk-react-native-core, wdk-protocol-fiat-moonpay, wdk-protocol-swap-velora-evm.
 
 ## Medium / Low — To Do
 - [ ] [Rumble - Push notifications: format token amounts server-side (fix decimal/precision artifacts)](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1214119276348483) · Medium · WDK Indexer:TO DO - Medium + Low Prio
