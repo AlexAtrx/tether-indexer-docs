@@ -92,7 +92,52 @@ overwrite).
 From the URL, extract `<task_gid>` (the number after `/task/`). Confirm it looks
 like a long numeric id.
 
-### 2. Fetch the task
+### 2. Check if the ticket is already fetched (early exit)
+
+**Always run this check before any further API calls.** It prevents re-fetching
+a ticket that already lives under `_tasks/`, which is the default — Alex should
+not have to ask each time whether the ticket has been pulled before.
+
+Use the `task_gid` extracted from the URL to grep every existing `_raw/task.json`:
+
+```bash
+grep -l "\"gid\": \"<task_gid>\"" \
+  /Users/alexa/Documents/repos/tether/_INDEXER/_tether-indexer-docs/_tasks/*/_raw/task.json \
+  2>/dev/null
+```
+
+**If grep returns a path** (the parent directory of that `_raw/task.json` is the
+existing task folder):
+
+1. Compute today's prefix as `DD-mon-YY-` using today's date (the same format
+   used at folder creation time).
+2. If the existing folder's leading `DD-mon-YY-` differs from today's prefix,
+   rename the folder so only the date prefix changes — keep the rest
+   (`<TICKET-NUMBER>-<kebab-title>` and any `-2` / `-3` collision suffix)
+   identical:
+   ```bash
+   mv "<old_folder_path>" "<parent>/<today_prefix><rest_of_old_name>"
+   ```
+   If the prefix already matches today, skip the rename.
+3. Report back to Alex: a one-liner saying the ticket was already fetched, plus
+   the (possibly renamed) folder path. Do not list contents or re-summarise.
+4. **Stop the skill here.** Do NOT fetch stories, attachments, images, or
+   re-write any of the markdown files. The whole point of this check is to
+   avoid clobbering existing analysis.
+
+**If grep returns nothing**, the ticket has not been fetched before — proceed
+to step 3.
+
+**If grep returns more than one match** (rare; usually means the ticket was
+fetched twice with a `-2` suffix), don't try to merge them. List all matches to
+Alex and ask which folder to refresh; do not auto-rename in this case.
+
+**Force re-fetch:** if Alex's request explicitly says "re-fetch", "refresh",
+"force", "redo", or similar, skip this early-exit check and run the full fetch
+flow, but still write into the existing folder name rather than creating a new
+one (preserve their notes if any).
+
+### 3. Fetch the task
 
 ```bash
 curl -s -H "Authorization: Bearer $TOKEN" \
@@ -102,7 +147,7 @@ curl -s -H "Authorization: Bearer $TOKEN" \
 Save the raw JSON response to `<folder>/_raw/task.json` (create `_raw/` for raw
 fetches — useful later for re-processing without re-hitting the API).
 
-### 3. Fetch stories (comments + system events)
+### 4. Fetch stories (comments + system events)
 
 ```bash
 curl -s -H "Authorization: Bearer $TOKEN" \
@@ -118,7 +163,7 @@ Write `comments.md` as a chronological list. Include only:
   `due_date_changed`, `attachment_added`
   — these carry signal for triage.
 
-### 4. Fetch attachments list
+### 5. Fetch attachments list
 
 ```bash
 curl -s -H "Authorization: Bearer $TOKEN" \
@@ -135,7 +180,7 @@ curl -s -H "Authorization: Bearer $TOKEN" \
   "https://app.asana.com/api/1.0/attachments/<attachment_gid>?opt_fields=name,resource_subtype,download_url,view_url,host,permanent_url,parent.gid,size,created_at"
 ```
 
-### 5. Also pull comment-level attachments
+### 6. Also pull comment-level attachments
 
 Some Asana comments have their own attachments (pasted screenshots inside a
 comment). Those appear as `attachment_added` system stories or via
@@ -143,7 +188,7 @@ comment). Those appear as `attachment_added` system stories or via
 "attached", or any `attachment_added` system story, fetch
 `attachments?parent=<story_gid>` too, and merge the results.
 
-### 6. Download each attachment
+### 7. Download each attachment
 
 For each attachment with a non-empty `download_url`:
 
@@ -165,7 +210,7 @@ If `download_url` is empty and the host is `external` (URL attachment), don't
 download — instead record the external URL in `missing-context.md` under a
 "External links to review" section.
 
-### 7. Write `ticket.md`
+### 8. Write `ticket.md`
 
 ```markdown
 # <task title>
@@ -183,13 +228,13 @@ download — instead record the external URL in `missing-context.md` under a
 - **Custom fields:** <name: display_value, ...>
 ```
 
-### 8. Write `description.md`
+### 9. Write `description.md`
 
 The raw `notes` field (plain text). If `notes` is empty but `html_notes` has
 content, convert the HTML to reasonable Markdown (preserve headings, lists,
 links, code).
 
-### 9. Analyse images
+### 10. Analyse images
 
 For each file in `<folder>/images/`, open it with the `Read` tool and produce a
 section in `image-analysis.md`:
@@ -214,7 +259,7 @@ Be concrete — extract numbers, hashes, error strings verbatim. These
 screenshots are usually the only record of the state Alex saw; they need to be
 readable from text alone later.
 
-### 10. Flag missing context → `missing-context.md`
+### 11. Flag missing context → `missing-context.md`
 
 Scan the description, every comment, and the image analysis for references to
 things that are NOT included in what you just fetched. Explicitly flag each
@@ -248,7 +293,7 @@ No external references or missing artifacts detected. The ticket is
 self-contained.
 ```
 
-### 11. Write `NEXT-STEPS.md`
+### 12. Write `NEXT-STEPS.md`
 
 A short hand-off note for the next session that opens this folder:
 
@@ -274,7 +319,7 @@ above first** before digging into the codebase. If nothing is missing, jump to
 investigation.
 ```
 
-### 12. Report back
+### 13. Report back
 
 In the final chat response, give Alex:
 

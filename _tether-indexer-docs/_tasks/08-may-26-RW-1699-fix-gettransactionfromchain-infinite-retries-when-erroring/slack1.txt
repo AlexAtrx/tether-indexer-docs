@@ -1,0 +1,2 @@
+getTransactionFromChain throws instead of returning {retry:true}. I'll fix that as part of this ticket.[5:56 PM]I think you can proceed with the fix then
+[5:56 PM]I will tell Andrei to ignore these errors for now

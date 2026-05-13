@@ -1,38 +1,12 @@
 # Missing context
 
-The Asana ticket is three lines and the PR-revert PR has no body or comments.
-Most of the gaps below are about *why* and *exactly where*, not *what* — the
-diff itself is captured in `_raw/pr192.diff`.
+Updated 2026-05-12. Originally captured open questions before the port. All resolved.
 
-- [ ] **People / decisions:** "was reverted" — PR #211 reverted #192 on
-  2026-04-30 with no explanation in the body or comments, and no Asana
-  back-reference. **Need from Alex / Francesco:** the reason. Was the script
-  buggy? Wrong target repo? Performance issue when run against prod? The
-  answer changes whether we port the same code verbatim, port-with-fix, or
-  rebuild differently. **Source:** description.
-- [ ] **Environments / systems:** ticket says "Rumble Data Shard" but does not
-  say which branch of `tetherto/rumble-data-shard-wrk` to target, nor whether
-  the script needs to run against staging, prod, or both. **Need from Alex:**
-  target branch (likely `dev`) and which env(s) this script is expected to run
-  on. **Source:** description.
-- [ ] **Repo-shape mismatch:** `rumble-data-shard-wrk/workers/lib/db/mongodb/repositories/wallets.js`
-  is 1666 bytes vs. 6693 bytes in `wdk-data-shard-wrk`, with a different file
-  set (txwebhook, userdata, wallets vs. address.checkpoint, user.balances,
-  user.data, users, wallet.balances, wallet.transfers, wallets). The CLI in
-  PR #192 calls `MongoWalletRepository` from the wdk version. **Need from
-  Alex:** confirm the rumble wallets repo exposes a way to scan active wallets
-  with `type` and `accountIndex` fields, or accept that part of the port is
-  adding the missing methods.
-  **Source:** code comparison, see `pr-context.md`.
-- [ ] **Test layout:** wdk has `tests/unit/`, rumble has flat `tests/`. **Need
-  from Alex:** preference for adding `tests/unit/` in rumble or placing the
-  new test at the top level. **Source:** code comparison.
-- [ ] **External tickets:** description references PR #192 only. PR #192 has
-  substantive review history from `SargeKhan` and `francesco-ubq`. Captured
-  inline in `pr-context.md` so a future session can read the merged-form
-  rationale without re-fetching from GitHub.
-- [ ] **Same anomaly logic still relevant?** the script was a one-off for a
-  migration. **Need from Alex:** is the migration that this script reports on
-  still being run on Rumble? If the migration already ran cleanly on Rumble,
-  this whole task may be obsolete. **Source:** PR #192 body ("This is for
-  wallet reconciliation. ... migration wallet anomalies").
+## Resolved
+
+- [x] **Why was #192 reverted?** Confirmed (without needing Francesco's reply): the revert was about repo placement, not a bug. WDK repos are public/general; Rumble-specific code lives in `rumble-*` repos. Francesco filed `WDK-1389` titled "Move #192 code to Rumble Data Shard" the same day he opened revert PR #211, which is consistent with this reading. Saved as memory `project-wdk-vs-rumble-repo-split`.
+- [x] **Repo-shape mismatch / scan capability** — `rumble-data-shard-wrk` wallets.js extends the wdk base class via `require('@tetherto/wdk-data-shard-wrk/workers/lib/db/mongodb/repositories/wallets.js')`, so `iterateActiveWallets()` is inherited. No scope-add needed.
+- [x] **Test directory convention** — rumble uses flat `tests/` with the `.unit.test.js` suffix. Port test landed at `tests/wallet.anomaly.report.unit.test.js` with require fixed to `../workers/lib/wallet.anomaly.report`.
+- [x] **Target branch** — `dev`. PR opened against `tetherto/rumble-data-shard-wrk:dev`.
+- [x] **Migration relevance on Rumble** — rumble adopted the `accountIndex` schema via PR #115 on 2025-12-13 without a data-fix migration. The same anomaly classes the CLI flags are possible on rumble's data. Report is useful unless Francesco confirms a separate manual cleanup already ran.
+- [x] **PR review history of #192** — captured inline in `pr-context.md`. Merged-form (mongo-only, simplified) is what was ported.
