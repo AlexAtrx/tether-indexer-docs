@@ -1,0 +1,21 @@
+# Rumble - Security - Fix Tron Indexer High Vulnerabilities
+
+- **URL:** https://app.asana.com/1/45238840754660/project/1210540875949204/task/1213478780310237
+- **GID:** 1213478780310237
+- **Project:** WDK Indexer and Wallet Backends (also Rumble Wallet)
+- **Section:** DEV IN PROGRESS (in WDK Indexer and Wallet Backends); To Triage (in Rumble Wallet)
+- **Assignee:** Alex Atrash (inbox)
+- **Status:** open
+- **Created:** 2026-03-02T04:29:29.855Z
+- **Modified:** 2026-05-07T08:29:24.295Z
+- **Due:** —
+- **Tags:** —
+- **Custom fields:**
+  - WDK: WDK-1237
+  - RW: RW-1682
+  - TWV11: TWV11-165
+  - Priority: High
+  - Area / Project: Rumble
+  - Sprint: Sprint 1
+  - Task Type: Task
+  - Progress State: BACKLOG

@@ -1,0 +1,5 @@
+# Missing context
+
+- [ ] **Dependabot alert list:** "11 open at 2026-05-11" — the actual package + severity list lives at https://github.com/tetherto/rumble-promo-wrk/security/dependabot and is not snapshotted in the ticket. **Need from Alex (or just pull):** the current list of alerts and which can be upgraded without breaking the worker. **Source:** description.
+- [ ] **Companion sibling tickets:** the parent "Security - Fix Tron Indexer High Vulnerabilities" (https://app.asana.com/1/45238840754660/project/1210540875949204/task/1213478780310237) is marked complete (✓ in description) and there is a sibling local task folder `08-may-26-RW-1682-rumble-security-fix-tron-indexer-high-vulnerabilities/` that may have useful upgrade notes / patterns. **Need from Alex:** confirm those notes are reusable here.
+- [ ] **Repo branch / release target:** ticket doesn't say which branch to land fixes on or whether a release-bump is needed. **Need from Alex:** target branch + version-bump policy for `rumble-promo-wrk`.
