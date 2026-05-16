@@ -6,7 +6,7 @@ argument-hint: <pr-url> (defaults to wdk-data-shard-wrk/pull/192 if omitted)
 # Context
 
 Project: **INDEXER** (workspace root: `/Users/alex/Documents/repos/indexer/`).
-Canonical truth doc: `_tether-indexer-docs/___TRUTH.md` (aka `_docs/___TRUTH.md`). Refer to it when needed.
+Canonical workspace context: root `AGENTS.md` plus `.claude/hotspots.md` and `.claude/architecture.md`. `_tether-indexer-docs/___TRUTH.md` was folded into `AGENTS.md`.
 PR author: **AlexAtrx**. Commenters may be anyone. You are helping AlexAtrx respond.
 PR under review: $ARGUMENTS
 If `$ARGUMENTS` is empty, default to `https://github.com/tetherto/wdk-data-shard-wrk/pull/192`.
@@ -42,7 +42,7 @@ If `$ARGUMENTS` is empty, default to `https://github.com/tetherto/wdk-data-shard
 4. **For each remaining comment**, do this — using only information you can verify in the PR diff, the checked-out code, the repo history, or existing conversation:
    - Pull an **identifiable excerpt** of the comment (5-30 words, verbatim).
    - Read the exact file/line the comment targets on the PR branch; walk callers/consumers if relevant.
-   - Consult `.claude/hotspots.md` and `___TRUTH.md` when the topic overlaps (RW-1526, RW-1601, dual ingestion, etc.).
+   - Consult `.claude/hotspots.md` and `AGENTS.md` when the topic overlaps (RW-1526, RW-1601, dual ingestion, etc.).
    - **Classify** as one of:
      - `actionable` — valid concern, code needs to change
      - `unclear` — comment is ambiguous; needs a clarifying question back

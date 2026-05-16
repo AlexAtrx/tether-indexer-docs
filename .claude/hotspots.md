@@ -1,6 +1,6 @@
 # Known hotspots & weak points
 
-Snapshot from `___TRUTH.md` (last updated 2026-04-16). If you're about to change code near any of these areas, read the linked sources first.
+Maintained hotspot summary for the `_INDEXER` workspace. If you're about to change code near any of these areas, read the linked sources first.
 
 ## RW-1526 — `sparkDepositAddress` pollutes BTC history (open, 2026-04-15)
 
@@ -78,7 +78,7 @@ Notification dedupe and manual-notification idempotency are memory-only. Restart
 - `_wdk_docker_network_v2/README.md` says `make up`; Makefile `up` only runs Mongo + Redis. `up-all` is the full stack.
 - Public indexer chain whitelist is broader than the set of chain worker repos in the workspace.
 
-## Open TODOs (from TRUTH §8)
+## Open TODOs
 
 - Separate main-BTC-address transfers from `sparkDepositAddress` transfers (RW-1526).
 - Save balance snapshots on partial success (persist `tokenBalances` even when aggregated balance is null).

@@ -17,6 +17,8 @@ client → wdk-indexer-app-node (HTTP)
        → chain indexer topic RPC (`{blockchain}:{token}`)
 ```
 
+Rumble notifications follow the same wallet/user shape via `rumble-app-node` → `rumble-ork-wrk` → `rumble-data-shard-wrk` → chain indexer (see `.claude/CLAUDE.md` "Service layering" for the full diagram and the rule).
+
 ## Proc / API split
 
 Every service has two worker types:

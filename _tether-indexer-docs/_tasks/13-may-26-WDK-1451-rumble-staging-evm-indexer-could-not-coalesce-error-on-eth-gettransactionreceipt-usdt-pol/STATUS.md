@@ -1,13 +1,14 @@
-# Status — 2026-05-13
+# Status — 2026-05-15
 
-Root cause investigated, fix landed locally, two draft PRs opened.
+Root cause investigated, fix split across two repos, draft PRs opened.
 
 ## Pull requests
 
-- `rumble-data-shard-wrk` — https://github.com/tetherto/rumble-data-shard-wrk/pull/217
-- `rumble-ork-wrk` — https://github.com/tetherto/rumble-ork-wrk/pull/150
+- `rumble-app-node` — https://github.com/tetherto/rumble-app-node/pull/210 — fastify schema validates `transactionHash` and `transactionReceiptId` per chain at the HTTP API boundary. Branch `WDK-1451-validate-tx-hash-in-notifications-schema`.
+- `rumble-data-shard-wrk` — https://github.com/tetherto/rumble-data-shard-wrk/pull/217 — cron try/catch around `_isTxCompleted`, defense-in-depth check in `storeTxWebhook`, drain migration. Branch `WDK-1451-validate-tx-webhook-hash-and-fix-retry`.
+- `rumble-ork-wrk` — closed (https://github.com/tetherto/rumble-ork-wrk/pull/150). Reviewer pointed out the ork is an internal HRPC service; the HTTP API is rumble-app-node. Moved validation up there. Shard guard still covers the MoonPay internal-RPC path that bypasses the HTTP layer.
 
-Both target `dev`, branch `WDK-1451-validate-tx-webhook-hash-and-fix-retry`. Currently in draft.
+Both open PRs target `dev` and are in draft.
 
 ## What landed
 
@@ -19,11 +20,14 @@ Both target `dev`, branch `WDK-1451-validate-tx-webhook-hash-and-fix-retry`. Cur
 - `migrations/mongodb/2026-05-13_drain-invalid-tx-webhooks.js` (new) — marks PENDING records with invalid hash as FAILED, supports `--dry-run`.
 - Unit tests: new `tests/tx-hash.util.unit.test.js` plus added cases in `tests/proc.shard.data.wrk.unit.test.js` (throw → retry, placeholder rejection, empty receipt id rejection, gasless receipt id accept).
 
-### rumble-ork-wrk
-- `workers/api.ork.wrk.js` — new `_assertValidWebhookTxHash(payload, isTransactionReceipt)` called before every `_addTxWebhook` site in `sendNotification` and `sendNotificationV2`.
-- `workers/lib/tx-hash.util.js` (new) — duplicate of the shard helper; both repos are independent.
-- Updated test fixtures in `tests/unit/api.ork.wrk.unit.js` to use proper 0x+64hex hashes for webhook-creating tests.
-- `tests/unit/api.ork.wrk.tx-hash-validation.unit.test.js` (new) — RANT/TIP rejection, valid-hash accept, receipt-id accept.
+### rumble-app-node (new)
+- `workers/lib/schemas/tx-hash.js` (new) — exports `txHashValidationRules`, a list of JSON-schema `allOf` clauses that apply a per-chain `pattern` to `transactionHash` and `transactionReceiptId` based on the request's `blockchain`. EVM (`0x` + 64 hex), bitcoin/spark/tron (64 hex), solana (base58 43–88), ton (hex or base64).
+- `workers/lib/server.js` — spreads `txHashValidationRules` into the existing `allOf` arrays of both `/api/v1/notifications` and `/api/v2/notifications` route schemas.
+- `tests/tx-hash-schema.unit.test.js` (new) — AJV-based unit tests confirming per-chain accept/reject behaviour.
+- Test fixtures in `tests/http.node.wrk.intg.test.js` updated from `'0xHash'` / `'0xReceiptId'` placeholders to proper 0x+64hex values so the existing happy-path tests still pass under the new patterns.
+
+### rumble-ork-wrk (dropped)
+The ork-side validation PR (#150) was closed after reviewer feedback. Reasoning: `api.ork.wrk.js` is an internal HRPC service, not the HTTP API boundary that rumble-server hits. The fastify schema in rumble-app-node is the real API layer, and that's where the format check belongs. The shard guard remains as defense-in-depth for the MoonPay internal-RPC path (`rumble-app-node/workers/lib/services/moonpay.utils.js` calls `sendNotification` on the ork directly, bypassing the HTTP schema).
 
 ## Backing-store question — resolved
 
@@ -31,7 +35,7 @@ Both target `dev`, branch `WDK-1451-validate-tx-webhook-hash-and-fix-retry`. Cur
 
 ## What's left
 
-1. Get reviews on both PRs and merge them in this order: ork first (closes the door), then shard (handles the queue side).
+1. Get reviews on both open PRs. Merge order: app-node first (closes the public door), then shard (cron try/catch + drain).
 2. On staging, after both merges deploy, run:
    - `npm run migration -- 2026-05-13_drain-invalid-tx-webhooks --dry-run` to confirm only the 4 placeholders are flagged
    - `npm run migration -- 2026-05-13_drain-invalid-tx-webhooks` to mark them FAILED

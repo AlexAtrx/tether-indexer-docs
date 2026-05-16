@@ -68,8 +68,8 @@ All extend `@tetherto/wdk-indexer-wrk-base` (shared scaffold, Hyperswarm plumbin
 
 ## Docs
 
-`_tether-indexer-docs/` holds engineering truth, tasks, diagrams.
-- `___TRUTH.md` is the authoritative running summary.
+`_tether-indexer-docs/` holds tasks, diagrams, setup notes, and investigation artifacts.
+- Root `AGENTS.md` is the durable cross-agent workspace summary.
 - `_tasks/` is organised by date prefix (e.g. `17-apr-26-decimals-issue`).
 - `analysis-2026-01-14/` has architecture / data-flow / component-dependencies mermaid + SVG.
 - `app_setup/` has quick-start and local-run procedures.

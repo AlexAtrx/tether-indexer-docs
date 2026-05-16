@@ -18,3 +18,5 @@ yarn-error.*
 *.pem
 *.tsbuildinfo
 dev/
+
+dump.rdb

@@ -1,41 +1,12 @@
 # Asana TODO — assigned to Alex (Tether Indexer)
 
-Generated: 2026-05-12 (Sprint 1 snapshot pulled from Asana; rest of file is from 2026-05-11)
+Generated: 2026-05-15 14:14 UTC
 Source: Asana `users/me` task list (incomplete only)
 Refresh: ask Claude to "refresh my Asana TODOs".
 
-**Summary:** 35 assigned tasks (32 real + 3 placeholder) across 3 projects. 7 in flight. 19 High priority (1 Critical), 8 Medium, 5 unset. The 11 RW-1682 spinoffs are split: 4 in Sprint 1 (all sharing CVE-2025-59844 sonarqube-scan-action bump; PRs open), 7 in Sprint 2 (npm dependency-tree work and RW-1680-blocked app-node items).
+**Summary:** 37 assigned tasks (34 real, 3 placeholder) across 2 projects. 5 in progress, 15 high priority, 2 blocked.
 
----
-
-## Sprint 1 — Asana snapshot (2026-05-12)
-
-12 open Sprint 1 tickets assigned to Alex: 7 in flight (PR open / dev in progress), 5 in To Do / Triage. All High priority.
-
-**Changes since the 2026-05-11 snapshot below:**
-- RW-1699 (`getTransactionFromChain` retries) — **completed in Asana** on 2026-05-11; stale "Critical in flight" entry below.
-- RW-1680 (Update Fastify plug ins) — now **Sprint 1 / High** in Asana; the lower entry still has it under Medium / Low.
-- RW-1120 (Tip jar) — Rumble Wallet section is `Completed` but the task is still incomplete in Asana (same flag as before).
-
-### In flight (7)
-- [ ] [Move #192 code to Rumble Data Shard](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1214430872139370) — `WDK-1389` · High · WDK Backends:DEV IN PROGRESS
-      local: `_tasks/04-may-26-WDK-1389-move-192-code-to-rumble-data-shard/`
-- [ ] [\[Backend - Transactions\] Received BTC transaction doesn't display](https://app.asana.com/1/45238840754660/project/1212521145936484/task/1213704628745111) — `RW-1428` · High · Rumble Wallet:In-Progress
-      local: `_tasks/28-apr-26-2-received-btc-transaction-doesnt-display/`
-- [ ] [Rumble - Security - Fix Tron Indexer High Vulnerabilities](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1213478780310237) — `RW-1682` / `WDK-1237` · High · WDK Backends:PR OPEN
-      local: `_tasks/04-may-26-RW-1682-rumble-security-fix-tron-indexer-high-vulnerabilities/`
-- [ ] [rumble-ork-wrk - Security - Fix High/Critical Vulnerabilities](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1214716555228120) — `WDK-1440` · High · WDK Backends:PR OPEN · [PR #149](https://github.com/tetherto/rumble-ork-wrk/pull/149)
-- [ ] [wdk-ork-wrk - Security - Fix High/Critical Vulnerabilities](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1214716491270754) — `WDK-1439` · High · WDK Backends:PR OPEN · [PR #132](https://github.com/tetherto/wdk-ork-wrk/pull/132)
-- [ ] [rumble-data-shard-wrk - Security - Fix High/Critical Vulnerabilities](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1214716566857326) — `WDK-1437` · High · WDK Backends:PR OPEN · [PR #215](https://github.com/tetherto/rumble-data-shard-wrk/pull/215)
-- [ ] [wdk-data-shard-wrk - Security - Fix High/Critical Vulnerabilities](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1214716439793573) — `WDK-1436` · High · WDK Backends:PR OPEN · [PR #221](https://github.com/tetherto/wdk-data-shard-wrk/pull/221)
-
-### To Do / Triage (5)
-- [ ] [Campaign BE work](https://app.asana.com/1/45238840754660/project/1212521145936484/task/1214395948381748) — `RW-1691` · High · Rumble Wallet:To Triage
-- [ ] [\[Backend Transactions\] After sending BTC on-chain from staging to prod, tx not in history but balance updates](https://app.asana.com/1/45238840754660/project/1212521145936484/task/1214077903141396) — `RW-1622` · High · Rumble Wallet:To Triage
-- [ ] [\[Balance - Backend\] Investigate why BTC balances not updating for users buying from MoonPay](https://app.asana.com/1/45238840754660/project/1212521145936484/task/1214097552937526) — `RW-1632` · High · Rumble Wallet:To Triage
-- [ ] [\[Bckend - Tip jar\] Tip button doesn't appear and Send Tip is inactive after following the channel](https://app.asana.com/1/45238840754660/project/1212521145936484/task/1213391745549211) — `RW-1120` · High · Rumble Wallet:Completed *(flagged: section says Completed but still incomplete in Asana)*
-- [ ] [Rumble - Update Fastify plug ins](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1213226894059885) — `RW-1680` / `WDK-1168` · High · Sprint 1 · WDK Backends:TO DO - lower prio (RW:To Triage)
-      local: `_tasks/06-may-26-RW-1680-rumble-update-fastify-plug-ins/`
+> Tasks that live in both WDK Backends and Rumble Wallet projects are shown with both ids, e.g. `WDK-1168 / RW-1680`.
 
 ---
 
@@ -43,86 +14,83 @@ Refresh: ask Claude to "refresh my Asana TODOs".
 
 > Up to 5 items. These are what Alex talks through in the next stand-up.
 
-### 1. Provide commands to delete a transaction that is not on the mempool anymore
-[RW-1699](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1214518529430430) · WDK Indexer:DEV IN PROGRESS · Critical · in flight
-> Andrei is hitting `ERR_GET_TX_FROM_CHAIN_FAILED` for a BTC tx that fell out of the mempool (likely underpriced). Need a runbook plus a safe delete command. Posted three blocking questions back to Andrei: did the watcher already auto-flip the tx to `failed` (line 259 in proc.shard.data.wrk.js), which shard holds the record, and what did Andrei already try. Waiting on his reply before writing the command.
+### 1. [Backend - Transactions] Received BTC transaction doesn't display
+`RW-1428` · [Asana](https://app.asana.com/1/45238840754660/project/1212521145936484/task/1213704628745111) · Rumble Wallet:In-Progress · High · In Progress
+> Received BTC tx on staging never showed up in the user's history but balance did; user-side repro never landed and the task has been quiet since early April. Likely needs a nudge or close as not-reproducible.
 
-### 2. Move #192 code to Rumble Data Shard
-[1214430872139370](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1214430872139370) · WDK Indexer:DEV IN PROGRESS · Sprint 1 · High · in flight
-> wdk-data-shard-wrk PR #192 (migration-reporting script) was reverted in #211 with an empty body, so before porting it to rumble-data-shard-wrk I asked the original author whether the revert was a real bug, a perf issue, or just landed in the wrong repo, and whether the migration has already run on Rumble (in which case the task is obsolete). Waiting on context.
-> local: `_tasks/04-may-26-WDK-1389-move-192-code-to-rumble-data-shard/`
+### 2. [Send] Latest transactions are displayed after several minutes after confirmation
+`RW-1706` · [Asana](https://app.asana.com/1/45238840754660/project/1212521145936484/task/1214576130837779) · Rumble Wallet:In-Progress · High · In Progress
+> User-reported lag between confirmation and the tx showing in the list. Innowise explained that the backend indexer pipeline (chain event then index then expose) is what delays it; QA was asked to verify on prod. Priority was dropped in the meantime so this is now low-effort triage.
 
-### 3. [Backend - Transactions] Received BTC transaction doesn't display
-[RW-1428](https://app.asana.com/1/45238840754660/project/1212521145936484/task/1213704628745111) · Rumble Wallet:In-Progress · Sprint 1 · High · in flight
-> User Andrey reports a received BTC tx that does not show up in history; backend has no trace of the address `bc1qgm7k56...`. Asked QA how the user obtained that address since it does not match anything we have indexed. Picking back up after they replied with credentials to repro on staging.
-> local: `_tasks/28-apr-26-2-received-btc-transaction-doesnt-display/`
+### 3. [Send] '8e-7 XAUT' transfer amount displays in the notification for '< $0.01 Plasma' transfer
+`RW-1670` · [Asana](https://app.asana.com/1/45238840754660/project/1212521145936484/task/1214269983129054) · Rumble Wallet:In-Progress · Medium · In Progress
+> Push notification renders tiny XAUT amounts in scientific form (8e-7) instead of a normal decimal. Reproduced again last week on BTC Spark too. This is the server-side amount formatting fix tracked alongside WDK-1353.
 
-### 4. Rumble - Security - Fix Tron Indexer High Vulnerabilities
-[RW-1682](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1213478780310237) · WDK Indexer:DEV IN PROGRESS · Sprint 1 · in flight
-> Narrow Tron scope is done (Dependabot #3, #7 closed; main is clean for high/critical). 11 per-repo follow-ups created in Sprint 1 for the broader sweep (see "Security sweep follow-ups" section). Fastify upgrade (RW-1680) is the prerequisite for the app-node items. Pending Francesco's sign-off on scope; once that lands this ticket can be closed.
-> local: `_tasks/04-may-26-RW-1682-rumble-security-fix-tron-indexer-high-vulnerabilities/`
+### 4. [Transactions] BTC received transactions appear in transaction list with delay
+`RW-1720` · [Asana](https://app.asana.com/1/45238840754660/project/1212521145936484/task/1214638250128106) · Rumble Wallet:In-Progress · Medium · In Progress
+> BTC received tx lags in the list while balance updates immediately. Innowise flagged this as a duplicate of RW-1706 and Mo agreed; we asked Eddy on May 13 to confirm so we can merge or close.
 
-### 5. Rumble - Silence the remaining Sentry False Positives - (#3)
-[1213662485884824](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1213662485884824) · WDK Indexer:PR MERGED + DEPLOYED TO DEV · Sprint 1 · High · soaking on dev
-> rumble-app-node PR #198 added FST_ERR_VALIDATION, RPC client closed, and CHANNEL_CLOSED filters on top of the existing status-code/HRPC filter. Resolved all 22 Sentry issues from this ticket; the two `/balance` and `/wallets/balances` timeouts had zero events in 30 days so closed those too. Just monitoring on dev now; will close once it bakes for a release cycle.
+### 5. Refactoring - Move JWT userId request param fallback to rumble layer
+`WDK-1408` · [Asana](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1214564483403277) · WDK Backends:DEV IN PROGRESS · Medium · In Progress
+> Refactor to move JWT userId fallback from WDK into the Rumble layer (so WDK can be open-sourced cleanly). PRs are open at rumble-app-node#181 and wdk-app-node#91; Francesco reassigned testing and finalisation to Alex on May 13.
 
 ---
 
 ## In progress / In review
-- [ ] [Provide commands to delete a transaction that is not on the mempool anymore](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1214518529430430) — `RW-1699` · Critical · WDK Indexer:DEV IN PROGRESS
-- [ ] [Move #192 code to Rumble Data Shard](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1214430872139370) · High · Sprint 1 · WDK Indexer:DEV IN PROGRESS
-      local: `_tasks/04-may-26-WDK-1389-move-192-code-to-rumble-data-shard/`
-- [ ] [\[Backend - Transactions\] Received BTC transaction doesn't display](https://app.asana.com/1/45238840754660/project/1212521145936484/task/1213704628745111) — `RW-1428` · High · Sprint 1 · Rumble Wallet:In-Progress
-      local: `_tasks/28-apr-26-2-received-btc-transaction-doesnt-display/`
-- [ ] [Rumble - Security - Fix Tron Indexer High Vulnerabilities](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1213478780310237) — `RW-1682` · Sprint 1 · WDK Indexer:DEV IN PROGRESS
-      local: `_tasks/04-may-26-RW-1682-rumble-security-fix-tron-indexer-high-vulnerabilities/`
-- [ ] [Rumble - Silence the remaining Sentry False Positives - (#3)](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1213662485884824) · High · Sprint 1 · WDK Indexer:PR MERGED + DEPLOYED TO DEV
-- [ ] [Rumble - \[Send\] BTC transactions are logged with incorrect amounts](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1212744757896562) · Medium · Sprint 1 · WDK Indexer:PR OPEN - IN REVIEW (V1 Bugs:Blocked)
-- [ ] [Fix ork discovery empty-list failure after restart (Jan 5 prod issue) - handle ERR_TOPIC_LOOKUP_EMPTY](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1212700198741856) · Medium · WDK Indexer:PR MERGED + DEPLOYED TO DEV
+
+- [ ] [[Analytics] Xaxis is incorrect on Asset trend chart](https://app.asana.com/1/45238840754660/project/1212521145936484/task/1213244394019831) · `WDK-1346` / `RW-955` · Medium · Rumble Wallet:Completed
+      progress: Done
+      note: sits in a Completed/Done Asana section but is still marked incomplete
+- [ ] [Fix ork discovery empty-list failure after restart (Jan 5 prod issue) - handle ERR_TOPIC_LOOKUP_EMPTY](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1212700198741856) · `WDK-1012` · Medium · WDK Backends:PR MERGED + TESTED ON DEV
+      note: sits in a Completed/Done Asana section but is still marked incomplete
+- [ ] [[Bckend - Tip jar] Tip button doesn't appear on the Rumble and Send Tip button is inactive after following the channel, user](https://app.asana.com/1/45238840754660/project/1212521145936484/task/1213391745549211) · `RW-1120` · High · Rumble Wallet:Completed
+      note: sits in a Completed/Done Asana section but is still marked incomplete
 
 ## High priority — To Do
-- [ ] [Shared - Bugfix - purgeUserData doesn't reset deletedAt](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1213882531683489) · High · Sprint 2 · WDK Indexer:TO DO
-- [ ] [Campaign BE work](https://app.asana.com/1/45238840754660/project/1212521145936484/task/1214395948381748) — `RW-1691` · High · Sprint 1 · Rumble Wallet:To Triage
-- [ ] [\[Backend Transactions\] After sending BTC on-chain from staging to prod, tx is not reflected in history but balance updates](https://app.asana.com/1/45238840754660/project/1212521145936484/task/1214077903141396) — `RW-1622` · High · Sprint 1 · Rumble Wallet:To Triage
-- [ ] [\[Balance - Backend\] Investigate why BTC balances not updating for users buying from MoonPay](https://app.asana.com/1/45238840754660/project/1212521145936484/task/1214097552937526) — `RW-1632` · High · Sprint 1 · Rumble Wallet:To Triage
-- [ ] [\[Bckend - Tip jar\] Tip button doesn't appear and Send Tip is inactive after following the channel](https://app.asana.com/1/45238840754660/project/1212521145936484/task/1213391745549211) — `RW-1120` · High · Sprint 1 · Rumble Wallet:Completed *(flagged: section says Completed but still incomplete in Asana)*
 
-## Security sweep follow-ups
-
-Per-repo follow-ups to [RW-1682](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1213478780310237). All assigned to Alex, High priority, Area=Rumble, in WDK Backends. Counts are open high/critical Dependabot alerts at 2026-05-11. Fastify upgrade (RW-1680) is the prerequisite for the app-node items.
-
-### Sprint 1 — SonarQube action bump (4) — PRs open
-All share the same fix: `SonarSource/sonarqube-scan-action@v5 → @v6` in `.github/workflows/build.yml`. Closes CVE-2025-59844. Same PR body / risk note in each.
-- [ ] [rumble-ork-wrk - Security - Fix High/Critical Vulnerabilities](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1214716555228120) · 1 alert · High · Sprint 1 · [PR #149](https://github.com/tetherto/rumble-ork-wrk/pull/149)
-- [ ] [wdk-ork-wrk - Security - Fix High/Critical Vulnerabilities](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1214716491270754) · 1 alert · High · Sprint 1 · [PR #132](https://github.com/tetherto/wdk-ork-wrk/pull/132)
-- [ ] [wdk-data-shard-wrk - Security - Fix High/Critical Vulnerabilities](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1214716439793573) · 1 alert · High · Sprint 1 · [PR #221](https://github.com/tetherto/wdk-data-shard-wrk/pull/221)
-- [ ] [rumble-data-shard-wrk - Security - Fix High/Critical Vulnerabilities](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1214716566857326) · 2 alerts (1 closed by PR, 1 pending: `fast-xml-builder` transitive) · High · Sprint 1 · [PR #215](https://github.com/tetherto/rumble-data-shard-wrk/pull/215)
-
-### Sprint 2 — deferred (7)
-npm dependency-tree work and RW-1680-blocked app-node items.
-- [ ] [rumble-promo-wrk - Security - Fix High/Critical Vulnerabilities](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1214716439993136) · 11 alerts (incl. critical `tether-wrk-base` with no published fix) · High · Sprint 2
-- [ ] [wdk-indexer-wrk-spark - Security - Fix High/Critical Vulnerabilities](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1214716470029391) · 10 alerts (incl. runtime axios 1.x to 1.15.x) · High · Sprint 2
-- [ ] [wdk-indexer-wrk-evm - Security - Fix High/Critical Vulnerabilities](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1214716589484670) · 9 alerts (dev transitives + undici) · High · Sprint 2
-- [ ] [wdk-indexer-wrk-btc - Security - Fix High/Critical Vulnerabilities](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1214716566892701) · 6 alerts (dev transitives) · High · Sprint 2
-- [ ] [rumble-app-node - Security - Fix High/Critical Vulnerabilities](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1214716461893028) · 4 alerts · High · Sprint 2 · waits on RW-1680
-- [ ] [wdk-app-node - Security - Fix High/Critical Vulnerabilities](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1214716566376368) · 3 alerts · High · Sprint 2 · waits on RW-1680
-- [ ] [wdk-indexer-app-node - Security - Fix High/Critical Vulnerabilities](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1214716462372233) · 3 alerts · High · Sprint 2 · waits on RW-1680
-
-Repos with 0 open high/critical alerts (no ticket needed): rumble-wallet-lib-passkey, wdk-indexer-wrk-{base,solana,ton}, wdk-indexer-processor-wrk, wdk, wdk-wallet, wdk-wallet-{btc,evm,solana,spark,ton,tron,tron-gasfree}, wdk-react-native-core, wdk-protocol-fiat-moonpay, wdk-protocol-swap-velora-evm.
+- [ ] [wdk-app-node - Security - Fix High/Critical Vulnerabilities](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1214716566376368) · `WDK-1438` · WDK Backends:TO DO · due —
+- [ ] [wdk-indexer-wrk-btc - Security - Fix High/Critical Vulnerabilities](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1214716566892701) · `WDK-1446` · WDK Backends:TO DO · due —
+- [ ] [wdk-indexer-wrk-evm - Security - Fix High/Critical Vulnerabilities](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1214716589484670) · `WDK-1443` · WDK Backends:TO DO · due —
+- [ ] [wdk-indexer-wrk-spark - Security - Fix High/Critical Vulnerabilities](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1214716470029391) · `WDK-1445` · WDK Backends:TO DO · due —
+- [ ] [Shared - Bugfix - purgeUserData doesn't reset deletedAt](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1213882531683489) · `WDK-1315` · WDK Backends:TO DO · due —
+      local: `_tasks/15-may-26-WDK-1315-shared-bugfix-purgeuserdata-doesn-t-reset-deletedat/`
+- [ ] [[Balance - Backend] Investigate why BTC balances not updating for users buying from MoonPay](https://app.asana.com/1/45238840754660/project/1212521145936484/task/1214097552937526) · `RW-1632` · Rumble Wallet:To Triage · due —
+- [ ] [[Backend Transactions]After sending BTC on-chain from the staging build to the production build, the transaction is not reflected in the transaction history, but the balance is updated](https://app.asana.com/1/45238840754660/project/1212521145936484/task/1214077903141396) · `RW-1622` · Rumble Wallet:To Triage · due —
+- [ ] [Rumble - Testing - Create cross-service E2E integration test suite](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1212919215237588) · `WDK-1085` / `RW-1729` · WDK Backends:TO DO · due —
+- [ ] [Campaign BE work](https://app.asana.com/1/45238840754660/project/1212521145936484/task/1214395948381748) · `RW-1691` · Rumble Wallet:To Triage · due —
+      local: `_tasks/13-may-26-RW-1691-campaign-be-work/`
+- [ ] [Check why Sentry Rumble is not receiving data](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1214842519965679) · `WDK-1462` · WDK Backends:TO DO · due —
+- [ ] [rumble-promo-wrk - Security - Fix High/Critical Vulnerabilities](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1214716439993136) · `WDK-1441` · WDK Backends:TO DO · due —
+      local: `_tasks/13-may-26-WDK-1441-rumble-promo-wrk-security-fix-high-critical-vulnerabilities/`
+- [ ] [wdk-indexer-app-node - Security - Fix High/Critical Vulnerabilities](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1214716462372233) · `WDK-1444` · WDK Backends:TO DO · due —
 
 ## Medium / Low — To Do
-- [ ] [Rumble - Push notifications: format token amounts server-side (fix decimal/precision artifacts)](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1214119276348483) · Medium · WDK Indexer:TO DO - Medium + Low Prio
-- [ ] [Rumble - investigate and solve ERR_WALLET_BALANCE_FAILURE_CCY error in staging](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1214094490463459) — `RW-1625` · Medium · WDK Indexer:TO DO - Medium + Low Prio (RW:ToDo - Dev)
-- [ ] [\[Push Notifications\] Amount mismatch between "Transfer Initiated" and "Transfer Successful" notifications](https://app.asana.com/1/45238840754660/project/1212521145936484/task/1213989533989558) — `RW-1598` · Medium · Rumble Wallet:To Triage
-- [ ] [\[Assets\] Only 1 dot is displayed for filter 7D and 1M](https://app.asana.com/1/45238840754660/project/1212521145936484/task/1213823149664564) — `RW-1486` · Medium · Rumble Wallet:To Triage
-- [ ] [Rumble - Implement an endpoint to return the list of transactions based on wallet signature](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1213663338730898) · Medium · WDK Indexer:TO DO - Medium + Low Prio
-- [ ] [Rumble - BE - stop push notifications when received amount <$0.1 for tip or normal receive](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1213139196226601) — `RW-886` · Medium · WDK Indexer:TO DO - Medium + Low Prio (RW:To Triage)
-- [ ] [BE to persist failed transactions](https://app.asana.com/1/45238840754660/project/1212521145936484/task/1213139196226597) — `RW-885` · Rumble Wallet:To Triage
-- [ ] [Rumble - Update Fastify plug ins](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1213226894059885) — `RW-1680` · WDK Indexer:TO DO (RW:To Triage)
-      local: `_tasks/06-may-26-RW-1680-rumble-update-fastify-plug-ins/`
-- [ ] [\[Analytics\] Xaxis is incorrect on Asset trend chart](https://app.asana.com/1/45238840754660/project/1212521145936484/task/1213244394019831) — `RW-955` · Medium · Task Progress: Done · Rumble Wallet:Completed *(flagged: Task Progress=Done but Asana still flags incomplete)*
+
+- [ ] [Onboarding drop-off metric: daily first-time shard assignments vs wallets created](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1214756103889646) · `WDK-1450` · Medium · WDK Backends:TO DO
+- [ ] [Rumble - BE - stop push notifications when received amount <$0.1 for tip or normal receive](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1213139196226601) · `WDK-1197` / `RW-886` · Medium · Rumble Wallet:To Triage
+- [ ] [Rumble - Push notifications: format token amounts server-side (fix decimal/precision artifacts)](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1214119276348483) · `WDK-1353` · Medium · WDK Backends:TO DO - lower prio
+- [ ] [[Assets] Only 1 dot is displayed for filter 7D and 1M](https://app.asana.com/1/45238840754660/project/1212521145936484/task/1213823149664564) · `RW-1486` · Medium · Rumble Wallet:To Triage
+- [ ] [Rumble - Remove Autobase layer](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1214563205562819) · `WDK-1407` / `RW-1731` · WDK Backends:TO DO - lower prio
+- [ ] [rumble-app-node - Security - Fix High/Critical Vulnerabilities](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1214716461893028) · `WDK-1442` / `RW-1732` · WDK Backends:TO DO
+- [ ] [Rumble DEV - Address environment slow restart](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1213475123348181) · `WDK-1229` / `RW-1730` · WDK Backends:TO DO
+- [ ] [[Push Notifications] Amount mismatch between “Transfer Initiated” and “Transfer Successful” notifications](https://app.asana.com/1/45238840754660/project/1212521145936484/task/1213989533989558) · `RW-1598` · Medium · Rumble Wallet:To Triage
+- [ ] [Rumble - investigate and solve ERR_WALLET_BALANCE_FAILURE_CCY error in staging](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1214094490463459) · `WDK-1352` / `RW-1625` · Medium · Rumble Wallet:ToDo - Dev
+- [ ] [BE to persist failed transactions](https://app.asana.com/1/45238840754660/project/1212521145936484/task/1213139196226597) · `RW-885` · Rumble Wallet:To Triage
+- [ ] [Plan: adapt Rumble Promo Worker to reusable code and integrate with Rumble Backend API](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1214776665413533) · `WDK-1453` · WDK Backends:TO DO
+      local: `_tasks/13-may-26-WDK-1453-plan-adapt-rumble-promo-worker-to-reusable-code-and-integrate-with-rumble-backend-api/`
+- [ ] [Rumble - Implement an endpoint to return the list of transactions based on wallet signature](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1213663338730898) · `WDK-1283` · Medium · WDK Backends:TO DO - lower prio
+
+## Blocked / Deferred
+
+- [ ] [Rumble - Update Fastify plug ins](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1213226894059885) · `WDK-1168` / `RW-1680` · WDK Backends:TO DO
+      local: `_tasks/12-may-26-WDK-1168-rumble-update-fastify-plug-ins/`
+      reason: flagged Blocked
+- [ ] [Implement: Rumble App Node API + Promo Worker refactor for configurable multi-campaign reusable code](https://app.asana.com/1/45238840754660/project/1210540875949204/task/1214776932455068) · `WDK-1454` · WDK Backends:TO DO
+      local: `_tasks/13-may-26-WDK-1454-implement-rumble-app-node-api-promo-worker-refactor-for-configurable-multi-campaign-reusable-code/`
+      reason: flagged Blocked
 
 ## Placeholder / onboarding
-- [ ] [Task 1](https://app.asana.com/1/45238840754660/task/1211860486771104) · due 2025-11-06 **OVERDUE**
-- [ ] [Task 2](https://app.asana.com/1/45238840754660/task/1211860486771106) · due 2025-11-07 **OVERDUE**
-- [ ] [Task 3](https://app.asana.com/1/45238840754660/task/1211860486771108) · due 2025-11-10 **OVERDUE**
+
+- [ ] [Task 1](https://app.asana.com/1/45238840754660/task/1211860486771104) · due 2025-11-06
+- [ ] [Task 2](https://app.asana.com/1/45238840754660/task/1211860486771106) · due 2025-11-07
+- [ ] [Task 3](https://app.asana.com/1/45238840754660/task/1211860486771108) · due 2025-11-10
