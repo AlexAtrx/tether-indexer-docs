@@ -35,9 +35,9 @@ only for actually sending the tokens. The motivation:
   it synchronously to Rumble, which is the source of truth.
 - Rumble validates everything (status, geo, budget, anti-abuse, eligibility) and synchronously
   returns **OK** (with the amount/token to pay) or **rejected** (with a structured reason).
-- On OK, wallet-BE **durably schedules a payout on its own side** and then responds to the wallet
-  app ("received") — wallet-BE owns the queue/worker and the on-chain submission. Rumble does not
-  call wallet-BE; there is no payout endpoint exposed by wallet-BE.
+- On OK, wallet-BE responds to the wallet app ("received") and **schedules a payout on its own
+  side** — wallet-BE owns the queue/worker and the on-chain submission. Rumble does not call
+  wallet-BE; there is no payout endpoint exposed by wallet-BE.
 - After the payout attempt resolves, wallet-BE calls Rumble with the outcome (settled or failed)
   so Rumble can record the destination address and tx_hash for audit, and release budget on
   failure.
@@ -54,11 +54,9 @@ only for actually sending the tokens. The motivation:
        │                            │                                 │ commit claim row,
        │                            │                                 │ debit budget
        │                            │ ◄── 200 {claimId, amount,       │
-       │                            │         token} ─────────────────│   (or 409 {errorCode})
+       │ ◄── ok ────────────────────│         token} ─────────────────│   (or 409 {errorCode})
        │                            │                                 │
-       │                            │ durably enqueue payout          │
-       │ ◄── ok ────────────────────│                                 │
-       │                            │ look up the                     │
+       │                            │ enqueue payout, look up the     │
        │                            │ user's wallet address locally,  │
        │                            │ submit on-chain tx              │
        │                            │                                 │
@@ -111,8 +109,7 @@ endpoints under `/-wallet/webhook/` like `transaction-init` are unaffected.)
   Wallet-BE's own IP is **not** what we want here — pass the end user's IP.
 - **Responses:**
   - `200 {"data": {"claimId": "...", "amount": "10.00", "token": "USAT"}}` — Rumble has committed
-    the redemption. Wallet-BE: durably enqueue the payout, then respond OK to the wallet app and
-    proceed to §2.
+    the redemption. Wallet-BE: respond OK to the wallet app, then proceed to §2.
   - `409 {"error": {"code": "<reason>", "message": "..."}}` — rejected. Wallet-BE surfaces the
     reason to the wallet app. Reason codes:
     - `CODE_NOT_FOUND` — code doesn't exist
@@ -135,10 +132,10 @@ locally (it owns that mapping) — Rumble doesn't need to fetch or carry it duri
 
 After Rumble returns OK, wallet-BE:
 
-1. Durably enqueues a payout on whatever internal queue/worker pattern wallet-BE prefers.
-2. Responds OK to the wallet app ("received, you'll see tokens shortly") after enqueue succeeds —
-   the wallet app's redeem request returns *before* the on-chain tx is submitted; users see the
-   tokens land via the existing transaction push channel.
+1. Responds OK to the wallet app immediately ("received, you'll see tokens shortly").
+2. Enqueues a payout on whatever internal queue/worker pattern wallet-BE prefers — the wallet
+   app's redeem request returns *before* the on-chain tx is submitted; users see the tokens land
+   via the existing transaction push channel.
 3. Looks up the user's wallet address locally for the target blockchain.
 4. Submits the on-chain transfer for `amount` of `token` to that address.
 
@@ -191,8 +188,7 @@ claim.
 ### 5. (Decommission) Drop `promo_campaigns` and `promo_codes`
 
 The old promo service has been off for months and has no outstanding codes, so this is just
-dead-code cleanup. Land it after the new flow is feature-flagged, tested, and stable in production
-unless the team explicitly confirms no rollback path depends on the old tables. Wallet-BE:
+dead-code cleanup — can land any time. Wallet-BE:
 
 - Drops the `promo_campaigns` + `promo_codes` tables.
 - Removes the local code-validation logic and the old eligibility round-trip
