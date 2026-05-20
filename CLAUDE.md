@@ -49,3 +49,47 @@ description, and links each item to its local `_tasks/<folder>/` if one
 exists. Uses the same Asana token as the fetch skill at
 `/Users/alexa/Documents/repos/brain_v1/projects/tether/.asana-token`. Does
 not touch the brain_v1 TODO file.
+
+### Access Dev Server
+
+**Triggers:** any message asking to look at, run commands on, or operate the
+Rumble dev VM. Examples:
+
+- "ssh into rumble-dev" / "check rumble-dev" / "what's PM2 doing on dev"
+- "tail the indexer log on dev" / "show me the ork log"
+- "restart the orks on dev" / "is everything online on dev"
+- Any investigation that requires looking at the actual server state (live
+  PM2 list, on-disk config, restart timing, real logs).
+
+**Skill file:** `.claude/skills/access-dev-server/SKILL.md`
+
+**Summary:** Codifies the SSH access pattern for `rumble-dev` (Tailscale-
+resolved, default key, login user `alexa`, `sudo -u work` for everything
+PM2/wdk-related), the on-disk layout under `/home/work/wdk/` and
+`/home/work/.pm2/`, the heredoc pattern needed for multi-line scripts,
+common recipes (PM2 list, logs, restart, health check), and a hard
+cleanup rule: never leave AI-authored files or scripts on the server —
+prefer stdin/heredoc over writing to disk, and if `/tmp/` was used, `rm`
+before the session ends.
+
+### Access Staging Servers
+
+**Triggers:** any message asking to look at, run commands on, or operate
+the wallet staging cluster (`walletstg1` / `walletstg2` / `walletstg3`).
+Examples:
+
+- "ssh into walletstg1" / "check walletstg2" / "what's on staging"
+- "tail the rumble-app-node log on staging" / "show staging caddy config"
+- "who's the redis sentinel master in staging" / "is staging healthy"
+- Any investigation that requires looking at staging server state.
+
+**Skill file:** `.claude/skills/access-staging-servers/SKILL.md`
+
+**Summary:** Codifies the SSH access pattern for the 3-node staging
+cluster — Yubikey-gated SSH aliases, login user `alexs`, service user
+`fcanessa` (NOT `work` like dev), PM2_HOME=`/srv/data/pm2`, the app at
+`/srv/data/staging/rumble-app-node` (3 worker replicas per box on
+ports 3000/3001/3002 behind Caddy at :443), Redis Sentinel cluster
+`mystreams` over a Wireguard mesh, on-disk layout, common recipes
+(worker listing, log tail, Caddy/Sentinel inspection, controlled
+rolling restart), and the same hard cleanup rule as the dev skill.

@@ -1,5 +1,11 @@
 # Wallet Campaign Builder — Wallet Backend Spec
 
+> SUPERSEDED IN PART (2026-05-20): §3 ("Once the on-chain tx is broadcast...
+> call Rumble's settled webhook") is wrong. Rumble TL confirmed settled fires
+> only after a status=1 receipt is observed on chain; failed now also fires on
+> a post-broadcast revert or dropped tx. See `latest-specs-changes.md` §3 for
+> the corrected contract.
+
 ## Context
 
 Rumble is building a **Wallet Campaign Builder**: an admin tool where internal staff create promo
@@ -145,6 +151,10 @@ Rumble's redeem response instead of a local `promo_codes` row.
 
 ### 3. (New) Notify Rumble on successful payout
 
+> SUPERSEDED 2026-05-20: settled fires only after a status=1 receipt is
+> observed on chain (the tx mined into a block). See `latest-specs-changes.md`
+> §3.
+
 Once the on-chain tx is broadcast (no need to wait for block confirmation), call Rumble's settled
 webhook so Rumble can record the tx hash and destination address for audit.
 
@@ -183,6 +193,12 @@ recovery/audit.
 Note on retries: wallet-BE may retry the on-chain submission itself before deciding it's failed.
 Once wallet-BE decides "I've given up", call this webhook. Do *not* call §3 and §4 for the same
 claim.
+
+> AMENDED 2026-05-20: §3 and §4 are still mutually exclusive per claim, but
+> with the corrected settled-on-mined semantics, §4 now also fires when a
+> broadcast tx mines with status=0 (reverted) or is dropped from the mempool
+> without ever landing. The "exactly one fires per claim" invariant holds.
+> See `latest-specs-changes.md` §3.
 
 
 ### 5. (Decommission) Drop `promo_campaigns` and `promo_codes`

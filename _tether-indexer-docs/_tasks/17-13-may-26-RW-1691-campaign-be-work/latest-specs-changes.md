@@ -70,3 +70,20 @@ will return you
 ---
 
 Are they clear to you?
+
+## 3: Settled = mined, not broadcast (clarified by Rumble TL on 2026-05-20)
+
+Followed up on the ambiguous wording in `campaign-builder-wallet-backend-spec-by-rumble-backend-lead.md` §3 ("Once the on-chain tx is broadcast (no need to wait for block confirmation), call Rumble's settled webhook"). Asked Rumble TL to clarify A (mempool/broadcast) vs B (mined on chain).
+
+His reply:
+
+> B sounds better, sorry for the confusion. I missed this part when I was reviewing the doc, sorry.
+
+So the contract is now:
+- `settled` webhook fires only after a status=1 receipt is observed on chain (the tx was mined into a block).
+- `failed` webhook is no longer mutually exclusive after broadcast. If a broadcast tx mines with status=0 (reverted), or is dropped from the mempool and never lands, `failed` fires.
+- `§3` and `§4` together cover the full outcome space; for a given claim, exactly one fires once a terminal chain state is observed.
+
+This changes the wallet-BE state machine from `queued -> paying -> broadcast -> notified` to `queued -> paying -> broadcast -> mined -> notified` and reshapes the observer/reconciler logic. Implementation lands on `feat/rw-1691-campaign-builder-v2` (PR tetherto/rumble-promo-wrk#46).
+
+Open question for Andre: confirm Rumble's `campaign-claim-failed` endpoint accepts a claim whose `claimId` may already have been broadcast (i.e. their accounting can release budget for a claim that briefly looked in-flight on chain). The wallet side now sends `failed` in that scenario; needs to be a no-op on a missing/stale claim and not double-charge anyone.
