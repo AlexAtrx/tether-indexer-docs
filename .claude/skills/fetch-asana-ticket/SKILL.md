@@ -38,8 +38,21 @@ Never print the token. Never commit it anywhere under `_INDEXER/`.
 
 Root: `/Users/alexa/Documents/repos/tether/_INDEXER/_tether-indexer-docs/_tasks/`
 
-Folder name format: `DD-mon-YY-<TICKET-NUMBER>-<kebab-title>/`
+Folder name format: `NN-DD-mon-YY-<TICKET-NUMBER>-<kebab-title>/`
 
+- `NN` — monotonically increasing chronological prefix that places the folder
+  at the end of the sorted `_tasks/` listing. `NN` is never reused: if Alex
+  archives old task folders out of `_tasks/`, the next ticket still gets the
+  next number after the all-time max, not the next number after what is
+  currently visible. To make this survive archiving, the highest-ever-used
+  `NN` is persisted to a counter file:
+  `/Users/alexa/Documents/repos/_tether/_INDEXER/.claude/skills/fetch-asana-ticket/.last-nn`
+  (do not delete it). Compute the next `NN` as
+  `max(<counter file value>, <highest NN currently in _tasks/>) + 1`. The
+  current-folder fallback is only there in case the counter file is missing
+  or out of sync with a manually created folder — the counter file is the
+  source of truth going forward. If both are empty, start at `01`. Zero-pad
+  to two digits (`01`–`99`); it extends naturally past `99`.
 - `DD` — two-digit day of today (today's date, not the ticket's created_at)
 - `mon` — three-letter lowercase month (`jan`, `feb`, `mar`, `apr`, ...)
 - `YY` — two-digit year
@@ -58,10 +71,44 @@ Folder name format: `DD-mon-YY-<TICKET-NUMBER>-<kebab-title>/`
   the folder is searchable. Example: ticket "The amount in the push looks
   with incorrect decimals" → `the-amount-in-the-push-looks-with-incorrect-decimals`.
 
-Example: `28-apr-26-RW-1683-the-amount-in-the-push-looks-with-incorrect-decimals/`
+Example: `24-28-apr-26-RW-1683-the-amount-in-the-push-looks-with-incorrect-decimals/`
+
+Helper to compute the next `NN` and persist it:
+
+```bash
+TASKS_DIR=/Users/alexa/Documents/repos/_tether/_INDEXER/_tether-indexer-docs/_tasks
+COUNTER_FILE=/Users/alexa/Documents/repos/_tether/_INDEXER/.claude/skills/fetch-asana-ticket/.last-nn
+
+# Highest NN currently visible in _tasks/ (ignores the 0- month-bucket folders).
+CURRENT_MAX=$(ls -1 "$TASKS_DIR" 2>/dev/null \
+  | grep -E '^[0-9]{2}-' \
+  | sed -E 's/^([0-9]{2})-.*/\1/' \
+  | sort -n | tail -1)
+
+# Highest NN ever used. Survives archiving folders out of _tasks/.
+PERSISTED=$(cat "$COUNTER_FILE" 2>/dev/null | tr -d '[:space:]')
+
+LAST_NN=$(printf '%s\n%s\n' "${CURRENT_MAX:-0}" "${PERSISTED:-0}" | sort -n | tail -1)
+NEXT_NN=$(printf "%02d" $((10#$LAST_NN + 1)))
+```
+
+**Persist the counter** as soon as you commit to using `NEXT_NN` (i.e. right
+after the `mkdir` for a fresh fetch or the `mv` for an early-exit rename):
+
+```bash
+mkdir -p "$(dirname "$COUNTER_FILE")"
+printf '%s\n' "$NEXT_NN" > "$COUNTER_FILE"
+```
+
+Writing the counter is what guarantees the number is never reused, even after
+Alex archives old folders. Do this in BOTH the fresh-fetch branch (step 3+)
+and the already-fetched rename branch (step 2).
 
 If the folder name you'd create already exists, append `-2`, `-3`, ... (don't
-overwrite).
+overwrite). The `NN` you computed should not collide because it is always
+`max + 1`, but the `<TICKET>-<title>` portion may still collide if the same
+ticket was previously fetched under a different prefix — in that case the
+early-exit in step 2 handles it.
 
 ## Folder contents to produce
 
@@ -109,19 +156,29 @@ grep -l "\"gid\": \"<task_gid>\"" \
 **If grep returns a path** (the parent directory of that `_raw/task.json` is the
 existing task folder):
 
-1. Compute today's prefix as `DD-mon-YY-` using today's date (the same format
-   used at folder creation time).
-2. If the existing folder's leading `DD-mon-YY-` differs from today's prefix,
-   rename the folder so only the date prefix changes — keep the rest
-   (`<TICKET-NUMBER>-<kebab-title>` and any `-2` / `-3` collision suffix)
-   identical:
+1. Compute the next `NN` using the helper bash snippet in the "Output
+   location and folder naming" section. The next `NN` must be `max(counter
+   file, current_max_in_tasks) + 1` — never reuse a number, even if the
+   existing folder you are about to rename has a much smaller `NN` and even
+   if older folders have been archived out of `_tasks/`.
+2. Compute today's date prefix as `DD-mon-YY` using today's date.
+3. Identify the existing folder's **identity slug** — everything after the
+   `NN-DD-mon-YY-` head, which is `<TICKET-NUMBER>-<kebab-title>` plus any
+   `-2`/`-3` collision suffix. Older folders may have no `NN-` prefix (just
+   `DD-mon-YY-...`); strip whichever leading prefix shape they have.
+4. Build the new folder name: `<NEXT_NN>-<today_prefix>-<identity_slug>`. The
+   point is that an already-fetched ticket, when re-encountered, jumps to the
+   end of the list with today's date — Alex always sees the most recently
+   touched tickets at the bottom of `_tasks/`.
+5. If the new name differs from the existing one, `mv` the folder:
    ```bash
-   mv "<old_folder_path>" "<parent>/<today_prefix><rest_of_old_name>"
+   mv "<old_folder_path>" "<parent>/<new_name>"
    ```
-   If the prefix already matches today, skip the rename.
-3. Report back to Alex: a one-liner saying the ticket was already fetched, plus
+   If the new name equals the existing one (the folder is already the latest
+   with today's date), skip the rename.
+6. Report back to Alex: a one-liner saying the ticket was already fetched, plus
    the (possibly renamed) folder path. Do not list contents or re-summarise.
-4. **Stop the skill here.** Do NOT fetch stories, attachments, images, or
+7. **Stop the skill here.** Do NOT fetch stories, attachments, images, or
    re-write any of the markdown files. The whole point of this check is to
    avoid clobbering existing analysis.
 
