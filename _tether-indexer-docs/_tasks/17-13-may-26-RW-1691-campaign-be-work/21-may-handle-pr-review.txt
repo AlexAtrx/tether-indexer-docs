@@ -1,0 +1,19 @@
+These 2 PRs:
+https://github.com/tetherto/rumble-app-node/pull/211
+https://github.com/tetherto/rumble-promo-wrk/pull/46
+
+Are for this feature (only scan through quickly):
+_tether-indexer-docs/_tasks/17-13-may-26-RW-1691-campaign-be-work
+
+Particularly this explains the current code (read and understand):
+_tether-indexer-docs/_tasks/17-13-may-26-RW-1691-campaign-be-work/METHOD-MAP.md
+_tether-indexer-docs/_tasks/17-13-may-26-RW-1691-campaign-be-work/WALKTHROUGH.md
+
+I got this live PR review with the team and it's important:
+_tether-indexer-docs/_tasks/17-13-may-26-RW-1691-campaign-be-work/21-may-live-pr-review.txt
+
+Understand it and tell me about each point: 
+1- if it makes sense (right or not)
+2- if doing it is possible with the whole feature in mind 
+
+Give me a concise output for now.

@@ -32,10 +32,13 @@ There is no per-host role split — they're identical replicas. The only
 "live" asymmetry is which box currently holds the Redis Streams Sentinel
 master (rotates; query Sentinel rather than hard-coding).
 
-Only the HTTP wallet layer lives here. Orks, data shards, chain indexers,
-processor workers are NOT on these boxes — they must run on other staging
-infra reached over the WG mesh. If you're investigating something that
-requires ork/shard/indexer logs, this is not the right environment.
+**The full WDK / Rumble stack runs on every staging box.** Each of
+walletstg1/2/3 hosts the HTTP wallet layer *plus* the orks, data shards,
+chain indexers, processor workers, and any other supporting workers — they
+are not isolated to other staging infra. If you're investigating
+ork/shard/indexer behaviour on staging, this skill IS the right
+environment; pick whichever box you need (or check all three, since
+each instance is a full replica).
 
 ## Identity model (read before doing anything)
 
@@ -61,9 +64,18 @@ ssh walletstg1 'whoami; hostname; uptime'
 
 ## What runs on each box (identical layout)
 
+Every staging box is a full WDK/Rumble replica — the HTTP layer plus all
+internal workers. When in doubt, `pm2 list` as fcanessa to see the full
+inventory on that host; treat the items below as the always-present core.
+
 - **3× `rumble-app-node` worker processes** bound to `127.0.0.1:3000`,
   `:3001`, `:3002`. Process title: `wrk-node-http-<pid>`. cwd:
   `/srv/data/staging/rumble-app-node`.
+- **Orks, data shards, chain indexers, processor workers** — the rest of
+  the WDK / Rumble service graph (`*-ork-wrk`, `*-data-shard-wrk`,
+  `*-indexer-wrk-{chain}`, `*-indexer-processor-wrk`, etc.) all run under
+  the same fcanessa PM2 daemon. They are NOT split off onto separate
+  boxes; every staging host carries the full stack.
 - **Caddy** on `:443` (`tls internal`) reverse-proxying / load-balancing
   across the three worker ports. Config: `/etc/caddy/Caddyfile`.
 - **Docker containers:**
@@ -295,10 +307,9 @@ files, scripts, or markers on staging boxes.** Concretely:
 - **Dev (`rumble-dev`)** — single box, full WDK stack (orks, shards,
   chain indexers, app nodes), service user `work`, deployed via
   `wdk-be-deploy`. Use the `access-dev-server` skill.
-- **Staging (`walletstg1/2/3`)** — three-box HA cluster running ONLY
-  `rumble-app-node` behind Caddy, service user `fcanessa`, deployed via
-  `rumble_staging_deployment/deployer`. Use this skill.
-
-If the user's question is about staging chain indexers / orks / shards,
-neither skill currently covers it — say so and ask where that lives
-rather than guessing.
+- **Staging (`walletstg1/2/3`)** — three-box HA cluster, each box runs
+  the full WDK/Rumble stack (rumble-app-node behind Caddy, orks, data
+  shards, chain indexers, processor workers — all under fcanessa's PM2
+  daemon), deployed via `rumble_staging_deployment/deployer`. Use this
+  skill for anything that needs to look at staging, including chain
+  indexers / orks / shards.

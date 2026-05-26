@@ -1,0 +1,4 @@
+interface:
+  display_name: "Access Staging Servers"
+  short_description: "Inspect wallet staging safely over SSH"
+  default_prompt: "Use $access-staging-servers to inspect wallet staging PM2 state, logs, or ORK lookup data."

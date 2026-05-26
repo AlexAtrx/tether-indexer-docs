@@ -152,6 +152,20 @@ tag, commit, or PR view.
 back to `gh` or shallow git clones for remote reads. This skill is read-only and
 does not push, open PRs, or edit `/tmp/tetherto-cache/` clones.
 
+### Access Staging Servers
+
+**Triggers:** any request to inspect, verify, reproduce, or diagnose behavior
+on the wallet staging cluster (`walletstg1`, `walletstg2`, `walletstg3`),
+including staging PM2 state, live logs, deployed config, Caddy routing, Redis
+Sentinel, or staging Mongo/ORK/shard lookup data.
+
+**Skill file:** `.agents/skills/access-staging-servers/SKILL.md`
+
+**Summary:** Connects to the wallet staging cluster over SSH, runs read-only
+checks safely, uses `fcanessa`'s PM2 daemon correctly, and provides a
+redaction-safe Mongo lookup workflow for ORK/data-shard investigations. Avoids
+leaving files on staging and requires confirmation before disruptive actions.
+
 ### Address PR Comments
 
 **Triggers:** any request to evaluate, address, reply to, push back on, refactor
