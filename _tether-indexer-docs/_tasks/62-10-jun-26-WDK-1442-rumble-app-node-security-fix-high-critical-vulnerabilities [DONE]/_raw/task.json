@@ -1,0 +1,136 @@
+{
+  "data": {
+    "gid": "1214716461893028",
+    "assignee": {
+      "gid": "1211860479278717",
+      "name": "Alex Atrash"
+    },
+    "assignee_status": "inbox",
+    "completed": false,
+    "created_at": "2026-05-11T14:26:45.584Z",
+    "custom_fields": [
+      {
+        "gid": "1209456551951728",
+        "name": "WDK",
+        "display_value": "WDK-1442"
+      },
+      {
+        "gid": "1209460639325103",
+        "name": "Priority",
+        "display_value": "High"
+      },
+      {
+        "gid": "1214271881897360",
+        "name": "Area / Project",
+        "display_value": "Rumble"
+      },
+      {
+        "gid": "1214298841654994",
+        "name": "Sprint",
+        "display_value": "Sprint 2"
+      },
+      {
+        "gid": "1214412319013887",
+        "name": "Blocked?",
+        "display_value": null
+      },
+      {
+        "gid": "1212521145936507",
+        "name": "Priority",
+        "display_value": null
+      },
+      {
+        "gid": "1214303648846174",
+        "name": "Sprint",
+        "display_value": null
+      },
+      {
+        "gid": "1212521145936512",
+        "name": "Task Progress",
+        "display_value": null
+      },
+      {
+        "gid": "1210880937898809",
+        "name": "Rumble Area",
+        "display_value": null
+      },
+      {
+        "gid": "1212560726842872",
+        "name": "Stack",
+        "display_value": null
+      },
+      {
+        "gid": "1212640590108704",
+        "name": "Task Type",
+        "display_value": "Task"
+      },
+      {
+        "gid": "1211628537010109",
+        "name": "RW",
+        "display_value": "RW-1732"
+      },
+      {
+        "gid": "1211580506833725",
+        "name": "Support Type",
+        "display_value": null
+      },
+      {
+        "gid": "1212523947271237",
+        "name": "Fix Version (FE)",
+        "display_value": null
+      },
+      {
+        "gid": "1212863282854834",
+        "name": "Fix Version (BE)",
+        "display_value": null
+      },
+      {
+        "gid": "1210732508806272",
+        "name": "Source",
+        "display_value": null
+      }
+    ],
+    "due_on": null,
+    "html_notes": "<body>Address open high/critical npm/Dependabot findings on tetherto/rumble-app-node.\n\nAlerts: <a href=\"https://github.com/tetherto/rumble-app-node/security/dependabot\">https://github.com/tetherto/rumble-app-node/security/dependabot</a> (4 open at 2026-05-11)\nParent: <a href=\"https://app.asana.com/1/45238840754660/project/1210540875949204/task/1213478780310237\" data-asana-gid=\"1213478780310237\" data-asana-accessible=\"true\" data-asana-type=\"task\" data-asana-dynamic=\"true\">\u2713 Security - Fix Tron Indexer High Vulnerabilities</a></body>",
+    "memberships": [
+      {
+        "project": {
+          "gid": "1210540875949204",
+          "name": "WDK Backends"
+        },
+        "section": {
+          "gid": "1210540740718797",
+          "name": "TO DO"
+        }
+      },
+      {
+        "project": {
+          "gid": "1212521145936484",
+          "name": "Rumble Wallet"
+        },
+        "section": {
+          "gid": "1212626893138999",
+          "name": "To Triage"
+        }
+      }
+    ],
+    "modified_at": "2026-05-12T12:30:00.984Z",
+    "name": "rumble-app-node - Security - Fix High/Critical Vulnerabilities",
+    "notes": "Address open high/critical npm/Dependabot findings on tetherto/rumble-app-node.\n\nAlerts: https://github.com/tetherto/rumble-app-node/security/dependabot (4 open at 2026-05-11)\nParent: https://app.asana.com/1/45238840754660/project/1210540875949204/task/1213478780310237",
+    "num_likes": 0,
+    "num_subtasks": 0,
+    "parent": null,
+    "permalink_url": "https://app.asana.com/1/45238840754660/project/1210540875949204/task/1214716461893028",
+    "projects": [
+      {
+        "gid": "1210540875949204",
+        "name": "WDK Backends"
+      },
+      {
+        "gid": "1212521145936484",
+        "name": "Rumble Wallet"
+      }
+    ],
+    "tags": []
+  }
+}
