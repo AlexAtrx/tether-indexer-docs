@@ -1,0 +1,11 @@
+I'm Alex. 
+
+Read and handle this incident in prod. 
+
+Logs: _tether-indexer-docs/_tasks/40-minor-incident-prod/Explore-logs-2026-05-28 18_36_10.txt
+
+Images: _tether-indexer-docs/_tasks/40-minor-incident-prod/imgs
+
+The entire ticket: _tether-indexer-docs/_tasks/41-28-may-26-WDK-1515-investigate-rumble-prod-err-wallet-transfer-rpc-fail-rpc-client-closed-requiring-data-shard-restarts
+
+Find the root cause. 

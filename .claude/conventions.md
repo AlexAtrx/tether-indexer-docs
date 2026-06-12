@@ -18,6 +18,50 @@ schema.field('newField')     // appended
 
 Rebuild via `npm run db:build` in `wdk-indexer-wrk-base/`.
 
+## Data-shard repositories: writes only flush through `commitWrites`
+
+In the `*-data-shard-wrk` repos (`workers/lib/db/{mongodb,hyperdb}/repositories/*`),
+repository write methods do **not** touch the store directly. They **stage** the
+operation and only the unit-of-work commit flushes it:
+
+- `save` / `updateStatus` push the op onto `this.bulkWrite[]` and bump
+  `sessionCtx.writeCount`. They never call `collection.updateOne` / `insert`
+  themselves.
+- `commitWrites()` is the **only** place that pushes staged writes to the store
+  (Mongo `bulkWrite`, HyperDB flush), inside the session/transaction.
+- A write attempted outside a transaction throws `ERR_DB_WRITE_WITHOUT_TRANSACTION`.
+
+So the caller pattern is always:
+
+```js
+// ✅ CORRECT — stage, then commit through the unit of work
+const uow = await this.db.unitOfWork()
+try {
+  await uow.txWebhookRepository.createIfAbsent(doc)  // staged only
+  await uow.commit()                                 // commitWrites flushes it
+} catch (err) {
+  await uow.rollback()
+  throw err
+}
+
+// ❌ WRONG — a repo method that writes to the store directly
+async createIfAbsent (doc) {
+  return this.collection.updateOne(...)     // bypasses commitWrites: antipattern
+}
+```
+
+Need an "insert only if absent" / dedupe? Add a **staged** repo method that queues
+an insert-only op (Mongo: `$setOnInsert` + `upsert: true` pushed onto
+`this.bulkWrite[]`; HyperDB: get-then-insert on the uow's `dbOrTx`), so the unique
+key collapses concurrent / re-delivered writes to one row. Two traps to avoid:
+
+- Do **not** write to the store directly from the repo method (the original
+  RW-1862 antipattern: reviewer "only commitWrites should push write actions").
+- Do **not** "fix" that by collapsing onto a plain `save` (`$set` + upsert): `$set`
+  overwrites an existing row, so a redelivery resets a `COMPLETED`/`FAILED` row
+  back to `PENDING` and the cron reprocesses it. Insert-if-absent must stay
+  insert-only. See `_tasks/56-…-RW-1862-…/FIX.md`.
+
 ## Version-bump policy
 
 Any schema / shared-lib change requires:

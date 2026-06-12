@@ -1,0 +1,20 @@
+Regression on Rumble Production - config blockchains shape changed in wdk but we didn't fully update it for rumble layer - endpoint broken (v1 to v2 seed recovery endpoint) (edited)
+
+George  [10:37 PM]
+https://tether-to.slack.com/archives/C094R63HQ64/p1779999919899189  
+
+likely related? I think it also prevents v2 users to backup
+Is it possible to check this error via sentry? (Prod) 
+I can't reproduce it but maybe you'll see what happened IMG_0168 Thread in ext-wallet-rumble-qa | Yesterday at 10:25 PM | View messageFrancesco C.  [10:49 PM]
+from the mobile/FE logs I can see this error
+[10:49 PM]00:29:55 ERROR [api/RumbleAPI] Error response {"status":400,"url":"https://web190181.rumble.com/-wallet/v1/me","errorData":{"user":{"id":null,"logged_in":false},"errors":[{"code":"invalid_request","message":"","type":"generic"}]},"errorText":"{\n    \"user\": {\n        \"id\": null,\n        \"logged_in\": false\n    },\n    \"errors\": [\n        {\n            \"code\": \"invalid_request\",\n            \"message\": \"\",\n            \"type\": \"generic\"\n        }\n    ]\n}"}
+00:29:55 ERROR [api/RumbleAPI] Request failed {"status":400,"data":{"user":{"id":null,"logged_in":false},"errors":[{"code":"invalid_request","message":"","type":"generic"}]},"name":"ApiError"}[10:49 PM]but this looks like a 400 not a 500 I think it's unrelated to the backend conf regression 
+Gocha Gafrindashvili  [10:53 PM]
+@Francesco C. , I can see 500 internal server error in my logs during onboarding (Cloud backup) (edited) 
+ScreenRecording_05-29-2026 00-30-00_1 [10:54 PM]Binary rumble-wallet-2026-05-29.logBinaryFrancesco C.  [11:09 PM]
+ok yes this looks related
+Mo Elsabry  [1:07 AM]
+did we solve the issue?
+Francesco C.  [6:10 AM]
+no we need a new hotfix release to address this
+

@@ -29,6 +29,40 @@ referenced-but-missing context (Slack threads, logs, external tickets) in a
 `missing-context.md` so the ticket can be picked up later with a clear list of
 what to ask Alex before starting work.
 
+### Handle a Ticket
+
+**Triggers:** any message pairing a handling verb like "handle", "work on",
+"execute", "do", or "take" with a pointer to an already-fetched task folder
+under `_tether-indexer-docs/_tasks/` (a folder path, folder name, ticket id, or
+"the one I just fetched"). Examples:
+
+- "handle this ticket `_tasks/41-28-may-26-WDK-1515-...`"
+- "work on `<task-folder>`" / "execute the ticket in `<folder>`"
+- "do RW-1760" / "take WDK-1515"
+
+If Alex hands an Asana URL instead of a folder, run **Fetch Asana Ticket**
+first, then handle the folder it produces.
+
+**Skill file:** `.claude/skills/handle-ticket/SKILL.md`
+
+**Summary:** Handles an already-fetched ticket end to end as a senior backend
+engineer. Reads the whole task folder (ticket, description, comments,
+image-analysis, missing-context, NEXT-STEPS), fills any gaps it can get itself
+(Slack threads via the Claude-in-Chrome browser, saved as `slack.txt`; related
+code via `read-remote-repo`), loads `repos.md` / `architecture.md` /
+`conventions.md` / `hotspots.md` / `AGENTS.md`, and classifies the ticket as
+analysis / bug / feature / refactor. For analysis it writes `root-cause.md` or
+`analysis.md` with exact `file:line` tracing and a plainly-stated conclusion
+(including "not a backend issue" when true). For a fix/feature/refactor it makes
+the minimal clean change across every repo it fans out to, respecting layering,
+idempotency on both the HTTP and internal-HRPC paths, separation of concerns,
+and HyperDB append-only rules; adds/updates unit tests so they match the change
+and runs the repo's tests + lint until green (no need to boot the stack); then
+writes `HANDLING.md`. Finally it renames the folder with a `[DONE]` suffix and
+gives Alex a short chat summary that lists the repos involved. **All work stays
+local: never commits, never pushes to GitHub, never posts to Asana**, and never
+uses em dashes in human-facing output.
+
 ### Refresh Tether TODOs
 
 **Triggers:** any message asking Alex's TODO / ticket queue to be pulled,
@@ -49,6 +83,29 @@ description, and links each item to its local `_tasks/<folder>/` if one
 exists. Uses the same Asana token as the fetch skill at
 `/Users/alexa/Documents/repos/brain_v1/projects/tether/.asana-token`. Does
 not touch the brain_v1 TODO file.
+
+### Review a PR
+
+**Triggers:** the word "review" (or "PR review" / "can you review" / "review
+this") paired with one or more GitHub PR URLs. Examples:
+
+- "review https://github.com/tetherto/rumble-app-node/pull/123"
+- "review <link1> <link2>" (multiple PRs = one linked change set)
+
+**Skill file:** `.claude/skills/review-pr/SKILL.md`
+
+**Summary:** Reads the PR diff(s) via `gh`, compares against the local clone
+(checking out the PR branch when integration context is needed), and weighs
+architecture plus shared-library dependencies across the three sides (Rumble
+`rumble-*`, Tether Wallet `wdk-*`, open-source/shared `bfx-*` / `svc-facs-*` /
+`*-base` / wallet libs). Returns **only problems, severity-ordered (no cap,
+skip pure nits, no positives)**, each with exact file, the exact line to
+comment under, and a short plain-English paste-ready comment with **no em
+dashes** (comments must read as human-written). Multiple PRs given together are
+reviewed as one linked change. This is the single canonical PR reviewer: it
+replaces the old `/pr-review` slash command and supersedes the generic built-in
+`review` skill. **Never posts anything to GitHub** unless Alex later says so
+explicitly.
 
 ### Access Dev Server
 

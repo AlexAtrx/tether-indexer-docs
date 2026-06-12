@@ -1,0 +1,206 @@
+{
+  "data": [
+    {
+      "gid": "1211923671449845",
+      "created_at": "2025-11-12T14:13:57.060Z",
+      "created_by": {
+        "gid": "1211622306786947",
+        "name": "andrey.gilyov@itrexgroup.com"
+      },
+      "html_text": "<b><a href=\"https://app.asana.com/0/profile/1211625499226531\">andrey.gilyov@itrexgroup.com</a></b> added this task to <a href=\"https://app.asana.com/1/45238840754660/project/1210591027686188\">[RW] V1 Bugs Tracking</a>",
+      "text": "andrey.gilyov@itrexgroup.com added this task to [RW] V1 Bugs Tracking",
+      "type": "system",
+      "resource_subtype": "added_to_project"
+    },
+    {
+      "gid": "1211934343865699",
+      "created_at": "2025-11-13T11:21:13.477Z",
+      "created_by": {
+        "gid": "1210694709103104",
+        "name": "George Bakhsoliani"
+      },
+      "html_text": "<body>Hey Thanks for reporting, this is not a bug but an Improvment so I will move it to the improvments board for now and we'll take a look.</body>",
+      "is_pinned": false,
+      "text": "Hey Thanks for reporting, this is not a bug but an Improvment so I will move it to the improvments board for now and we'll take a look.",
+      "type": "comment",
+      "resource_subtype": "comment_added"
+    },
+    {
+      "gid": "1211935374461240",
+      "created_at": "2025-11-13T11:21:18.934Z",
+      "created_by": {
+        "gid": "1210694709103104",
+        "name": "George Bakhsoliani"
+      },
+      "html_text": "<b><a href=\"https://app.asana.com/0/profile/1210694709103102\">George Bakhsoliani</a></b> moved this task from \"To Triage\" to \"Not a bug / Expected\" in <a href=\"https://app.asana.com/1/45238840754660/project/1210591027686188\">[RW] V1 Bugs Tracking</a>",
+      "text": "George Bakhsoliani moved this task from \"To Triage\" to \"Not a bug / Expected\" in [RW] V1 Bugs Tracking",
+      "type": "system",
+      "resource_subtype": "section_changed"
+    },
+    {
+      "gid": "1211935449775241",
+      "created_at": "2025-11-13T11:23:22.686Z",
+      "created_by": {
+        "gid": "1211622306786947",
+        "name": "andrey.gilyov@itrexgroup.com"
+      },
+      "type": "system",
+      "resource_subtype": "story_reaction_added"
+    },
+    {
+      "gid": "1213049296469947",
+      "created_at": "2026-01-31T13:56:50.287Z",
+      "created_by": {
+        "gid": "1209261360701163",
+        "name": "George Javakhidze"
+      },
+      "html_text": "<b><a href=\"https://app.asana.com/0/profile/1209261360701161\">George Javakhidze</a></b> changed Rumble Area from Transactions to API / Backend",
+      "text": "George Javakhidze changed Rumble Area from Transactions to API / Backend",
+      "type": "system",
+      "resource_subtype": "multi_enum_custom_field_changed"
+    },
+    {
+      "gid": "1213049299712695",
+      "created_at": "2026-01-31T13:56:53.345Z",
+      "created_by": {
+        "gid": "1209261360701163",
+        "name": "George Javakhidze"
+      },
+      "html_text": "<b><a href=\"https://app.asana.com/0/profile/1209261360701161\">George Javakhidze</a></b> moved this task from \"Not a bug / Expected\" to \"To Triage\" in <a href=\"https://app.asana.com/1/45238840754660/project/1210591027686188\">[RW] V1 Bugs Tracking</a>",
+      "text": "George Javakhidze moved this task from \"Not a bug / Expected\" to \"To Triage\" in [RW] V1 Bugs Tracking",
+      "type": "system",
+      "resource_subtype": "section_changed"
+    },
+    {
+      "gid": "1213047016628816",
+      "created_at": "2026-01-31T13:57:08.103Z",
+      "created_by": {
+        "gid": "1209261360701163",
+        "name": "George Javakhidze"
+      },
+      "html_text": "<b><a href=\"https://app.asana.com/0/profile/1209261360701161\">George Javakhidze</a></b> added Francesco Canessa as a collaborator",
+      "text": "George Javakhidze added Francesco Canessa as a collaborator",
+      "type": "system",
+      "resource_subtype": "follower_added"
+    },
+    {
+      "gid": "1212571281468995",
+      "created_at": "2026-01-31T13:57:08.172Z",
+      "created_by": {
+        "gid": "1209261360701163",
+        "name": "George Javakhidze"
+      },
+      "html_text": "<body><a href=\"https://app.asana.com/0/1212252648700200/1212252648700200\" data-asana-gid=\"1212252646225968\" data-asana-accessible=\"true\" data-asana-type=\"user\" data-asana-dynamic=\"true\">@Francesco Canessa</a> please close if not relevant anymore</body>",
+      "is_pinned": false,
+      "text": "https://app.asana.com/0/1212252648700200/1212252648700200 please close if not relevant anymore",
+      "type": "comment",
+      "resource_subtype": "comment_added"
+    },
+    {
+      "gid": "1213068781339164",
+      "created_at": "2026-02-01T17:56:31.767Z",
+      "created_by": {
+        "gid": "1209261360701163",
+        "name": "George Javakhidze"
+      },
+      "html_text": "<b><a href=\"https://app.asana.com/0/profile/1209261360701161\">George Javakhidze</a></b> assigned to <b><a href=\"https://app.asana.com/0/profile/1212252646225966\">Francesco Canessa</a></b>",
+      "text": "George Javakhidze assigned to Francesco Canessa",
+      "type": "system",
+      "resource_subtype": "assigned"
+    },
+    {
+      "gid": "1213124804862258",
+      "created_at": "2026-02-05T10:13:31.549Z",
+      "created_by": {
+        "gid": "1209261360701163",
+        "name": "George Javakhidze"
+      },
+      "html_text": "<body>cc: <a href=\"https://app.asana.com/1/45238840754660/profile/1211860479278729\" data-asana-gid=\"1211860479278717\" data-asana-accessible=\"true\" data-asana-type=\"user\" data-asana-dynamic=\"true\">@Alex Atrash</a>, please double check and close if not relevant.</body>",
+      "is_pinned": false,
+      "text": "cc: https://app.asana.com/1/45238840754660/profile/1211860479278729, please double check and close if not relevant.",
+      "type": "comment",
+      "resource_subtype": "comment_added"
+    },
+    {
+      "gid": "1213140690054185",
+      "created_at": "2026-02-06T10:19:42.586Z",
+      "created_by": null,
+      "html_text": "Reminder: George mentioned you Feb 5",
+      "text": "Reminder: George mentioned you Feb 5",
+      "type": "system",
+      "resource_subtype": "mentioned_comment_reminder_story"
+    },
+    {
+      "gid": "1213160543904071",
+      "created_at": "2026-02-06T23:07:15.536Z",
+      "created_by": {
+        "gid": "1211860479278717",
+        "name": "Alex Atrash"
+      },
+      "html_text": "<body><a href=\"https://app.asana.com/1/45238840754660/profile/1209261360701161\" data-asana-gid=\"1209261360701163\" data-asana-accessible=\"true\" data-asana-type=\"user\" data-asana-dynamic=\"true\">@George Javakhidze</a>\nThe improvement is relevant. The notification wording does have grammar and formatting issues. \nWe should update the copy and normalize the amount formatting.</body>",
+      "is_pinned": false,
+      "text": "https://app.asana.com/1/45238840754660/profile/1209261360701161\nThe improvement is relevant. The notification wording does have grammar and formatting issues. \nWe should update the copy and normalize the amount formatting.",
+      "type": "comment",
+      "resource_subtype": "comment_added"
+    },
+    {
+      "gid": "1213234215997169",
+      "created_at": "2026-02-11T20:41:11.114Z",
+      "created_by": {
+        "gid": "1212252646225968",
+        "name": "Francesco Canessa"
+      },
+      "html_text": "<b><a href=\"https://app.asana.com/0/profile/1212252646225966\">Francesco Canessa</a></b> mentioned this task in another task: <a href=\"https://app.asana.com/0/1211920420543997/1211920420543997/1213234057091558\">[Receive] Unclear message while receiving funding</a>",
+      "text": "Francesco Canessa mentioned this task in another task: [Receive] Unclear message while receiving funding",
+      "type": "system",
+      "resource_subtype": "mentioned"
+    },
+    {
+      "gid": "1213234057091560",
+      "created_at": "2026-02-11T20:41:30.400Z",
+      "created_by": {
+        "gid": "1212252646225968",
+        "name": "Francesco Canessa"
+      },
+      "html_text": "<body>Asana task duplicate of: <a href=\"https://app.asana.com/1/45238840754660/task/1211920420543997\" data-asana-gid=\"1211920420543997\" data-asana-accessible=\"true\" data-asana-type=\"task\" data-asana-dynamic=\"true\">[Receive] Unclear message while receiving funding</a></body>",
+      "is_pinned": false,
+      "text": "Asana task duplicate of: https://app.asana.com/1/45238840754660/task/1211920420543997",
+      "type": "comment",
+      "resource_subtype": "comment_added"
+    },
+    {
+      "gid": "1215473423466155",
+      "created_at": "2026-06-06T09:57:46.131Z",
+      "created_by": {
+        "gid": "1212252646225968",
+        "name": "Francesco Canessa"
+      },
+      "html_text": "<b><a href=\"https://app.asana.com/0/profile/1212252646225966\">Francesco Canessa</a></b> assigned to you",
+      "text": "Francesco Canessa assigned to you",
+      "type": "system",
+      "resource_subtype": "assigned"
+    },
+    {
+      "gid": "1212401819323910",
+      "created_at": "2026-06-06T09:58:16.126Z",
+      "created_by": {
+        "gid": "1212252646225968",
+        "name": "Francesco Canessa"
+      },
+      "html_text": "<body><a href=\"https://app.asana.com/0/1211860479278757/1211860479278757\" data-asana-gid=\"1211860479278717\" data-asana-accessible=\"true\" data-asana-type=\"user\" data-asana-dynamic=\"true\">@Alex Atrash</a> can you see if this is still valid? low prio probably </body>",
+      "is_pinned": false,
+      "text": "https://app.asana.com/0/1211860479278757/1211860479278757 can you see if this is still valid? low prio probably ",
+      "type": "comment",
+      "resource_subtype": "comment_added"
+    },
+    {
+      "gid": "1215501457458134",
+      "created_at": "2026-06-08T09:58:14.210Z",
+      "created_by": null,
+      "html_text": "Reminder: Francesco mentioned you Saturday",
+      "text": "Reminder: Francesco mentioned you Saturday",
+      "type": "system",
+      "resource_subtype": "mentioned_comment_reminder_story"
+    }
+  ]
+}

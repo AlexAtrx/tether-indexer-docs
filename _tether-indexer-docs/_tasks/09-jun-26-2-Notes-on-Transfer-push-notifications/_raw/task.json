@@ -1,0 +1,72 @@
+{
+  "data": {
+    "gid": "1211923806576795",
+    "assignee": {
+      "gid": "1211860479278717",
+      "name": "Alex Atrash"
+    },
+    "assignee_status": "inbox",
+    "completed": false,
+    "created_at": "2025-11-12T14:13:56.950Z",
+    "custom_fields": [
+      {
+        "gid": "1210542933264969",
+        "name": "Severity",
+        "display_value": "Medium"
+      },
+      {
+        "gid": "1210880937898809",
+        "name": "Rumble Area",
+        "display_value": "API / Backend"
+      },
+      {
+        "gid": "1210889013257493",
+        "name": "Platforms ",
+        "display_value": "iOS "
+      },
+      {
+        "gid": "1211346767212257",
+        "name": "BUG",
+        "display_value": "BUG-736"
+      },
+      {
+        "gid": "1212523947271237",
+        "name": "Fix Version (FE)",
+        "display_value": null
+      },
+      {
+        "gid": "1212850490128633",
+        "name": "Reported by",
+        "display_value": null
+      }
+    ],
+    "due_on": null,
+    "html_notes": "<body><strong>Environment</strong>: iPhone 16, iOS 18.6.1\n\n<strong>Steps to Reproduce:</strong>\n<ol><li>Create two wallets</li><li>Log in to the wallet 1</li><li>Log in to the wallet 2</li><li>Send 3 USDT from wallet 1 to wallet 2</li><li>Check push notification on the phone with wallet 2</li></ol>\n<strong>Actual Result: </strong>\nIncorrect wording and formatting in transfer push notifications\n\n<strong>Expected result:</strong>\n<ol><li><strong>Consistent number format</strong> – All notifications should display currency amounts uniformly (e.g., 3 USDT without unnecessary decimals).</li><li><strong>Correct grammar</strong> – Use proper English phrasing:</li></ol><ul><li>“Transfer initiated” → <em>“A transfer of 3 USDT on Polygon is being processed for your wallet”</em></li><li>“Transfer completed” → <em>“You’ve received 3 USDT on Polygon in your wallet”</em></li></ul><ol><li><strong>Natural prepositions</strong> – Replace “initiated to” → “initiated for” and “completed into” → “completed to” or “received in.”</li><li><strong>No terminal punctuation</strong> – Remove trailing periods at the end of short push messages.</li><li><strong>Unified copy structure</strong> – Use the same style and tone for all statuses, e.g.:</li><ul><li>Title pattern: “Transfer initiated” / “Transfer completed”</li><li>Message pattern: “A transfer of X USDT on [network] …”</li></ul></ol>\n<strong>Screenshot:</strong>\n<img src=\"https://asanausercontent.com/us1/assets/45238840754660/1211923806576797/4fe576ee9eacf6217ac7ffc675cd90d1?e=1780999225&amp;v=0&amp;t=WO7ULY3oWyBYexAnmo34iKcEqIraMK1k86VeWoLllNg\" data-asana-gid=\"1211923806576798\" data-asana-type=\"attachment\" data-src-height=\"2424\" data-src-width=\"1080\" data-thumbnail-url=\"https://asanausercontent.com/us1/assets/45238840754660/1211923806576797/1211923806576798.bs5M3PbYv4IpruOz4rHh_height640.png?e=1780999225&amp;v=0&amp;t=NzTJLQOErOJIJM8s_XZ8smdYzVdAL1Cgk7W5uo5-rws\" data-thumbnail-height=\"480\" data-thumbnail-width=\"214\" alt=\"Screenshot_20251112-155726.png\" style=\"display:block;max-width:100%;margin-left:auto;margin-right:auto\" />\n</body>",
+    "memberships": [
+      {
+        "project": {
+          "gid": "1210591027686188",
+          "name": "[RW] V1 Bugs Tracking"
+        },
+        "section": {
+          "gid": "1210591027686189",
+          "name": "To Triage"
+        }
+      }
+    ],
+    "modified_at": "2026-06-08T09:58:14.260Z",
+    "name": "[Push] Notes on Transfer push notifications",
+    "notes": "Environment: iPhone 16, iOS 18.6.1\n\nSteps to Reproduce:\n    Create two wallets\n    Log in to the wallet 1\n    Log in to the wallet 2\n    Send 3 USDT from wallet 1 to wallet 2\n    Check push notification on the phone with wallet 2\n\nActual Result: \nIncorrect wording and formatting in transfer push notifications\n\nExpected result:\n    Consistent number format – All notifications should display currency amounts uniformly (e.g., 3 USDT without unnecessary decimals).\n    Correct grammar – Use proper English phrasing:\n    “Transfer initiated” → “A transfer of 3 USDT on Polygon is being processed for your wallet”\n    “Transfer completed” → “You’ve received 3 USDT on Polygon in your wallet”\n    Natural prepositions – Replace “initiated to” → “initiated for” and “completed into” → “completed to” or “received in.”\n    No terminal punctuation – Remove trailing periods at the end of short push messages.\n    Unified copy structure – Use the same style and tone for all statuses, e.g.:\n        Title pattern: “Transfer initiated” / “Transfer completed”\n        Message pattern: “A transfer of X USDT on [network] …”\n\nScreenshot:\n\nhttps://app.asana.com/app/asana/-/get_asset?asset_id=1211923806576798\n\n\n",
+    "num_likes": 0,
+    "num_subtasks": 0,
+    "parent": null,
+    "permalink_url": "https://app.asana.com/1/45238840754660/project/1210591027686188/task/1211923806576795",
+    "projects": [
+      {
+        "gid": "1210591027686188",
+        "name": "[RW] V1 Bugs Tracking"
+      }
+    ],
+    "tags": []
+  }
+}

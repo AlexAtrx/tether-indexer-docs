@@ -114,16 +114,24 @@ In rough priority order:
    `!hnd.active`, call `process.exit(0)` instead of returning silently.
    Bind the same handler to SIGTERM. Two-line change, eliminates the
    "stuck in stopping" failure mode.
+   *Status 2026-06-12: PR bitfinexcom/bfx-svc-boot-js#19 open, 4
+   approvals, blocked on branch protection; one review comment pending
+   reply (see ticket.md).*
 
 2. **`wdk-devops/wdk-be-deploy/lib/common.flags.js`** — drop
    `['--kill-timeout', 300000]` to `30000`. 30 s is plenty for graceful
    facility shutdown given today's measurements; caps the worst case
    meaningfully.
+   *Status: DONE — wdk-devops#23 merged 2026-05-29.*
 
 3. **`bfx-wrk-base/base.js`** `stop()` — bound the `lockProcessing` poll
    with a timeout (10 s feels right) and proceed to `_stop`/`delFac`
    regardless. Worst-case data loss is bounded, and the worker still won't
    exit until facilities are properly closed.
+   *Status: WON'T FIX — PR bfx-wrk-base#27 closed unmerged 2026-06-11 per
+   team preference. Accepted risk: nothing sets `lockProcessing` today and
+   PM2 kill_timeout (30 s) backstops a hang. Revisit if any worker starts
+   setting `lockProcessing`.*
 
 4. **Deploy script (CI repo, not on this VM)** — `set -o pipefail`,
    `xargs -r`, and consider parallelising within phases that have no

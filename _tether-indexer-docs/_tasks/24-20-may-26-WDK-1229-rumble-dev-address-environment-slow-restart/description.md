@@ -1,6 +1,20 @@
 # Description
 
+> Refreshed from Asana 2026-06-11. Francesco edited the description on
+> 2026-05-27 and 2026-06-05, adding the "RESOLVE CONFLICTS + MERGE" header
+> and the PRs Slack link.
+
+RESOLVE CONFLICTS + MERGE 
+
+----------------------------------------
+
+
+
 UPDATE
+
+PRS
+https://tether-to.slack.com/archives/C0A5DFYRNBB/p1779809767540199
+
 
 Related asana tasks: https://app.asana.com/1/45238840754660/project/1210540875949204/task/1214143657334762?focus=true
 

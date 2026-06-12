@@ -1,0 +1,17 @@
+Francesco C.  [6:34 PM]
+
+Minor incident on rumble production backend - cc @Alex
+
+currently fixed with a data shard restarts
+
+Images: _tether-indexer-docs/_tasks/40-minor-incident-prod/imgs
+
+restart command
+pm2 jlist | jq -r '.[] | select(.name | startswith("shard-")) | .pm_id' | xargs pm2 restart
+
+Logs:
+_tether-indexer-docs/_tasks/40-minor-incident-prod/Explore-logs-2026-05-28 18_36_10.txt
+
+sample log line
+2026-05-28T16:29:35: {"level":40,"time":1779985775859,"pid":902267,"hostname":"walletprd3","name":"wrk-data-shard-proc-w-2-2-ed0edb86-94f5-484e-a8c4-ad2faf486263","traceId":"shard-f273431d-4af3-4c04-9224-a312feab4999","errorCode":"ERR_WALLET_TRANSFER_RPC_FAIL","err":{"type":"Error","message":"RPC client closed","stack":"Error: RPC client closed\n    at Client.request (/srv/data/production/rumble-data-shard-wrk/node_modules/@hyperswarm/rpc/index.js:257:28)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)"},"chain":"polygon","ccy":"usdt","address":"0x8e07be7888dc738cae559daa775aec0a7e52794f","msg":"Wallet transfer RPC failed"}
+

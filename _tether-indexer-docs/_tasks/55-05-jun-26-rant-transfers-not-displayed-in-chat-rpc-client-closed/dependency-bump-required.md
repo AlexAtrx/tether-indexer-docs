@@ -1,5 +1,12 @@
 # Dependency bump required: wdk-ork-wrk retry must be published before rumble picks it up
 
+> SUPERSEDED for the wdk-ork-wrk side. After review, wdk-ork-wrk no longer uses
+> the hand-rolled retry loop / `SHARD_RETRY_OPTS` described below; it delegates to
+> the net facility's `autoRetry`. See task
+> `56-08-jun-26-RW-1862-.../FIX.md` for the current state. The rumble-side notes
+> here (non-fatal balance guard, awaited addTxWebhook, data-shard dedupe, app-node
+> retryability scoping, server-side idempotency) still hold.
+
 ## Context
 
 Rant/tip transfers settle on-chain but never appear in chat when the ork's

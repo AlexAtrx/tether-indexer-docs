@@ -1,13 +1,13 @@
 ---
 name: address-pr-comments
-description: Address Alex's GitHub PR review comments end to end. Use when Alex asks to evaluate, reply to, push back on, refactor for, fix, commit, push, or otherwise handle comments on a GitHub pull request, especially in Tether/Rumble repos. This includes requests to discuss PR comments in Slack, draft short human replies, link a PR to its original Asana ticket, or decide which review comments deserve local code changes versus GitHub replies.
+description: Address Alex's GitHub PR review comments end to end. Use when Alex asks to review a PR, evaluate, reply to, push back on, refactor for, fix, commit, push, or otherwise handle comments on a GitHub pull request, especially in Tether/Rumble repos. This includes requests to discuss PR comments in Slack, draft short human replies, link a PR to its original Asana ticket, or decide which review comments deserve local code changes versus GitHub replies.
 ---
 
 # Address PR Comments
 
 ## Goal
 
-Handle PR feedback the way Alex expects: understand the ticket and full flow first, make only justified code changes, push the proper PR branch when asked, and post short human replies only where a reply is needed.
+Handle PR feedback the way Alex expects: understand the ticket and full flow first, make only justified code changes, push the proper PR branch when asked, and keep review comments short and human.
 
 ## Required Context
 
@@ -22,6 +22,20 @@ Before changing code or replying:
    - If the PR references an Asana ticket URL and the task is not local, use the project `fetch-asana-ticket` skill first.
    - If a Slack thread is part of the ticket context and Alex asks to use Slack, read the relevant Slack context before deciding.
 5. Read the relevant code flow, not only the commented lines. Include upstream callers and downstream effects when deciding whether feedback makes sense.
+
+## PR Review Requests
+
+When Alex gives a PR to review, never post comments, reviews, approvals, or
+requests for changes in GitHub. Do not use `gh pr review`, `gh api`, or browser
+actions to submit review text.
+
+Instead, return only the comments worth leaving. For each one, include:
+
+- **Line**: the file and exact code line under which Alex should comment.
+- **Comment**: a brief, plain-language note that sounds human and layman-friendly.
+
+Keep suggested comments short. Skip weak or nitpicky findings. Do not include
+long rationale unless Alex asks for the reasoning separately.
 
 ## Comment Triage
 
@@ -48,7 +62,11 @@ When a comment deserves code changes:
 
 ## GitHub Replies
 
-Post replies only when Alex asks for GitHub posting. Do not post drafts by default.
+For PR review requests, never post in GitHub; give Alex manual comment
+suggestions instead.
+
+For handling existing review threads, post replies only when Alex explicitly
+asks for GitHub posting. Do not post drafts by default.
 
 When posting:
 

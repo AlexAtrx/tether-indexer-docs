@@ -14,7 +14,12 @@ stack, not just the HTTP app.
 - Treat staging as shared live infrastructure. Read-only checks are fine; ask
   before restarting, editing, deleting, or running migrations.
 - Batch work into one SSH session when possible. Each new `ssh walletstgN`
-  may trigger Alex's Yubikey touch.
+  may trigger Alex's YubiKey touch. Prefer single-host checks or sequential
+  host checks over fast fan-out loops; the security-key backed SSH key can fail
+  intermittently with `device not found` or `invalid format` when many SSH
+  connections are opened back-to-back. If that happens, retry the same read-only
+  command after Alex has touched/reattached the YubiKey instead of changing the
+  command into a privileged workaround.
 - Do not leave files or scripts on staging. Prefer `ssh ... 'bash -s' <<'REMOTE'`
   heredocs. If a temp file is unavoidable, put it in `/tmp`, use a neutral name,
   remove it before finishing, and verify removal.
@@ -32,6 +37,9 @@ stack, not just the HTTP app.
 - Deployed staging repos live under `/srv/data/staging/`, including
   `rumble-app-node`, `rumble-ork-wrk`, and `rumble-data-shard-wrk`.
 - PM2 logs normally live under `/srv/data/pm2/logs/`.
+- Runtime Node is available in `fcanessa`'s login environment. For ad-hoc Node
+  parsers or deployed package inspection, use `sudo -iu fcanessa node ...`;
+  plain `sudo node ...` may fail with `node: command not found`.
 
 First connectivity check:
 
@@ -81,6 +89,16 @@ Read deployed code/config:
 ```bash
 ssh walletstg1 'sed -n "1,120p" /srv/data/staging/rumble-ork-wrk/config/common.json'
 ssh walletstg1 'node -e "const p=require(\"/srv/data/staging/rumble-ork-wrk/package.json\"); console.log(p.version, p.dependencies)"'
+```
+
+For log parsing with Node, run it through the service user's login shell so the
+same Node version and PATH used by PM2 are available:
+
+```bash
+ssh walletstg1 'sudo -iu fcanessa node - <<'"'"'NODE'"'"'
+const fs = require("fs")
+console.log(fs.readdirSync("/srv/data/pm2/logs").length)
+NODE'
 ```
 
 ## Mongo Lookup Checks
