@@ -109,12 +109,12 @@ none of it covers the tip-jar updateWallet path):
   (`chore/bump-wdk-app-node-pin-RW-1832`, branched from upstream/dev) bumps
   `@tetherto/wdk-app-node` from `b678ef2` to `32b3b80` so PR #119 ships in the
   next release. Surgical SHA swap only; no dependency graph change.
-- **storeDevice failover fix (local, uncommitted):** rumble-app-node branch
-  `fix/device-ids-storedevice-failover-RW-1832` (from upstream/dev) adds
+- **storeDevice failover fix (draft PR):**
+  https://github.com/tetherto/rumble-app-node/pull/244
+  (`fix/device-ids-storedevice-failover-RW-1832`, from upstream/dev) adds
   `storeDevice` to `RUMBLE_EXTRA_RETRYABLE_METHODS` so
   `POST /api/v1/device-ids` fails over on a closed channel like updateWallet
-  does. Unit test extended; tests 5/5 and standard lint clean. Not committed
-  per Alex's instruction.
+  does. Unit test extended; tests 5/5 and standard lint clean.
 
 ## Sentry
 
