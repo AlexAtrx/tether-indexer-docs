@@ -52,6 +52,28 @@ continue here with the folder it produced.
    rule. Use commas, semicolons, parentheses, or separate sentences.
 6. **Don't fabricate.** If a referenced artifact can't be retrieved, say so and
    flag it; never invent ticket content, log lines, or test results.
+7. **Grill, don't guess.** Whenever the ticket needs clarification, a decision
+   is Alex's to make, or a design branch is genuinely unclear, run the
+   `grill-me` skill to resolve it (see "Clarifying with grill-me" below) rather
+   than guessing or asking a single throwaway question.
+
+## Clarifying with grill-me
+
+This skill never builds on a guess for a load-bearing unknown. When you hit one,
+invoke the `grill-me` skill (`.claude/skills/grill-me/SKILL.md`) and let it
+drive, but flip the roles: here **you** interview **Alex** about the open
+points, one question at a time, walking each branch of the decision tree and
+resolving dependencies between decisions in order. For every question, first try
+to answer it yourself by exploring the codebase, the task folder, or the
+architecture docs; only ask Alex what you genuinely cannot resolve. Always give
+your recommended answer with each question so Alex can just confirm. Keep going
+until every load-bearing branch is resolved, then continue the step you came
+from with the answers folded in.
+
+Use grill-me at the three points called out below (Step 2 blockers, Step 3
+classification, Step 5b design), and any other time a real ambiguity would
+otherwise force a guess. For non-load-bearing gaps, note them and continue (no
+grill needed).
 
 ## Step 1 — Resolve the folder and read everything
 
@@ -130,7 +152,8 @@ you can retrieve it yourself right now:
 What you **cannot** get yourself (a decision only Alex can make, access you
 don't have, a private artifact) you do not guess at. Collect those into a short
 "need from Alex" list. If any blocker is load-bearing (you can't responsibly
-proceed without it), stop after this step and ask, rather than building on a
+proceed without it), stop after this step and run `grill-me` to work through the
+open points with Alex (see "Clarifying with grill-me"), rather than building on a
 guess. If the gaps are non-blocking, note them and continue.
 
 Append anything you newly retrieved to the relevant file (e.g. `slack.txt`) so
@@ -176,7 +199,8 @@ backend, or belongs to the FE/mobile side, say so and stop at analysis (this is
 common here, e.g. RW-1724 and RW-1760 turned out to be mobile-side).
 
 State your classification and the reasoning in one or two sentences before
-proceeding; if you are not confident which type it is, ask Alex.
+proceeding; if you are not confident which type it is, run `grill-me` to settle
+it with Alex before going further.
 
 ## Step 4 — Analysis flow (output is understanding)
 
@@ -248,7 +272,7 @@ Before editing, make the design satisfy all of these, explicitly:
   existing style. No drive-by refactors, no unrelated reformatting.
 
 State any assumption you have to make and isolate its effect. If a design point
-is genuinely unclear, ask before writing code.
+is genuinely unclear, run `grill-me` to resolve it with Alex before writing code.
 
 ### 5c. Implement
 

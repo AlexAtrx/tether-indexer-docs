@@ -1,0 +1,92 @@
+{
+  "data": {
+    "gid": "1215363295179921",
+    "assignee": {
+      "gid": "1211860479278717",
+      "name": "Alex Atrash"
+    },
+    "assignee_status": "inbox",
+    "completed": false,
+    "created_at": "2026-06-03T11:27:08.445Z",
+    "custom_fields": [
+      {
+        "gid": "1212521145936507",
+        "name": "Priority",
+        "display_value": "Medium"
+      },
+      {
+        "gid": "1214303648846174",
+        "name": "Sprint",
+        "display_value": "Sprint 3, Sprint 4"
+      },
+      {
+        "gid": "1210880937898809",
+        "name": "Rumble Area",
+        "display_value": "Swap, Transactions"
+      },
+      {
+        "gid": "1212560726842872",
+        "name": "Stack",
+        "display_value": null
+      },
+      {
+        "gid": "1212640590108704",
+        "name": "Task Type",
+        "display_value": "Bug"
+      },
+      {
+        "gid": "1211628537010109",
+        "name": "RW",
+        "display_value": "RW-1850"
+      },
+      {
+        "gid": "1211580506833725",
+        "name": "Support Type",
+        "display_value": "Bug"
+      },
+      {
+        "gid": "1212523947271237",
+        "name": "Fix Version (FE)",
+        "display_value": null
+      },
+      {
+        "gid": "1212863282854834",
+        "name": "Fix Version (BE)",
+        "display_value": null
+      },
+      {
+        "gid": "1210732508806272",
+        "name": "Source",
+        "display_value": null
+      }
+    ],
+    "due_on": null,
+    "html_notes": "<body><strong>Device</strong>: iPhone 16 iOS 26.5\n<strong>Environment</strong>: Staging build 2.3.0 (638)\n<strong>STR</strong>:\n<ol><li>Launch the wallet</li><li>Log in to the wallet</li><li>Open Swap screen</li><li>Choose Swap From: USDT ETH, Swap To: BTC on-chain</li><li>Enter an amount more than $10</li><li>Confirm Swap</li><li>Open Transaction history</li><li>Apply the filter &quot;Type&quot;: Swapped</li></ol><strong>Actual result:</strong>\nInfinite loader is displayed, an error in the log\n<strong>Expected result:</strong>\nNo errors and an infinite loader should be</body>",
+    "memberships": [
+      {
+        "project": {
+          "gid": "1212521145936484",
+          "name": "Rumble Wallet"
+        },
+        "section": {
+          "gid": "1212626893138999",
+          "name": "To Triage"
+        }
+      }
+    ],
+    "modified_at": "2026-06-10T11:42:51.149Z",
+    "name": "[Swap] Infinite loader is displayed after swap USDT ETH to BTC",
+    "notes": "Device: iPhone 16 iOS 26.5\nEnvironment: Staging build 2.3.0 (638)\nSTR:\n    Launch the wallet\n    Log in to the wallet\n    Open Swap screen\n    Choose Swap From: USDT ETH, Swap To: BTC on-chain\n    Enter an amount more than $10\n    Confirm Swap\n    Open Transaction history\n    Apply the filter \"Type\": Swapped\nActual result:\nInfinite loader is displayed, an error in the log\nExpected result:\nNo errors and an infinite loader should be",
+    "num_likes": 0,
+    "num_subtasks": 0,
+    "parent": null,
+    "permalink_url": "https://app.asana.com/1/45238840754660/project/1212521145936484/task/1215363295179921",
+    "projects": [
+      {
+        "gid": "1212521145936484",
+        "name": "Rumble Wallet"
+      }
+    ],
+    "tags": []
+  }
+}

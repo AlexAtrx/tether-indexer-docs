@@ -1,0 +1,54 @@
+- generic [ref=e8]:
+  - generic [ref=e10]:
+    - link [ref=e11] [cursor=pointer]:
+      - /url: https://web190181.rumble.com
+      - img [ref=e12]
+    - generic [ref=e15]: en_US|v9-260513_08-14-503 ES6-IN_USE
+  - generic [ref=e17]:
+    - generic [ref=e18]:
+      - img [ref=e19]
+      - generic [ref=e21]:
+        - generic [ref=e22]:
+          - heading "Sign in to Rumble" [level=1] [ref=e24]
+          - generic [ref=e25]:
+            - text: Don’t have an account yet?
+            - button "Sign Up" [ref=e26] [cursor=pointer]
+        - generic [ref=e29]:
+          - generic [ref=e32]:
+            - textbox "Email or Username" [ref=e33]:
+              - /placeholder: ""
+            - generic: Email or Username
+            - group
+          - generic [ref=e36]:
+            - textbox "Password" [ref=e37]:
+              - /placeholder: ""
+            - generic: Password
+            - group
+            - button [ref=e39] [cursor=pointer]:
+              - img [ref=e40]
+          - generic [ref=e44]:
+            - button "Forgot Password?" [ref=e45] [cursor=pointer]
+            - button "Sign In" [ref=e46] [cursor=pointer]
+    - generic [ref=e48]:
+      - paragraph [ref=e49]: "Sign in with:"
+      - generic [ref=e50]:
+        - button "Facebook" [ref=e52] [cursor=pointer]:
+          - img [ref=e54]
+          - generic [ref=e57]: Facebook
+        - button "Google" [ref=e59] [cursor=pointer]:
+          - img [ref=e61]
+          - generic [ref=e66]: Google
+        - button "Apple" [ref=e68] [cursor=pointer]:
+          - img [ref=e70]
+          - generic [ref=e73]: Apple
+  - generic [ref=e75]:
+    - generic [ref=e76]:
+      - link "Terms & Conditions" [ref=e77] [cursor=pointer]:
+        - /url: https://rumble.com/s/terms
+      - link "Privacy Policy" [ref=e78] [cursor=pointer]:
+        - /url: https://rumble.com/s/privacy
+      - link "Copyright / DMCA" [ref=e79] [cursor=pointer]:
+        - /url: https://rumble.com/s/dmca
+      - link "Accessibility" [ref=e80] [cursor=pointer]:
+        - /url: https://rumble.com/s/digital-accessibility-statement
+    - paragraph [ref=e81]: Copyright © 2026 Rumble. All Rights Reserved.

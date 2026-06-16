@@ -1,0 +1,282 @@
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - article [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]:
+          - generic [ref=e6]:
+            - generic [ref=e9]:
+              - img [ref=e13] [cursor=pointer]
+              - img [ref=e16]
+            - generic [ref=e39]:
+              - generic [ref=e40]:
+                - generic [ref=e44]:
+                  - img [ref=e45]
+                  - generic "2 users watching now" [ref=e49]: 2 viewers waiting
+                - heading "streem staging 009" [level=1] [ref=e51]
+              - generic [ref=e52]:
+                - generic [ref=e53]:
+                  - link "n newchannetbestbitf1 4 followers" [ref=e55] [cursor=pointer]:
+                    - /url: /c/c-7878278?e9s=src_v1_cbl
+                    - generic [ref=e56]: "n"
+                    - generic [ref=e57]:
+                      - generic [ref=e59]: newchannetbestbitf1
+                      - generic [ref=e60]: 4 followers
+                  - generic [ref=e62]:
+                    - button "Notification frequency Instant" [ref=e65] [cursor=pointer]:
+                      - img
+                      - img
+                    - button "Tip" [ref=e67] [cursor=pointer]:
+                      - img
+                      - text: Tip
+                - generic [ref=e68]:
+                  - generic [ref=e70]:
+                    - generic [ref=e71]:
+                      - button "Rumbles up vote" [ref=e72] [cursor=pointer]:
+                        - img
+                        - generic [ref=e73]: "0"
+                      - button "Rumbles down vote" [ref=e74] [cursor=pointer]:
+                        - img
+                        - generic [ref=e75]: "0"
+                    - generic "0 Likes | 0 Dislikes" [ref=e76]
+                  - button "Repost" [ref=e80] [cursor=pointer]:
+                    - img
+                    - generic [ref=e81]: Repost
+                  - button [ref=e83] [cursor=pointer]:
+                    - img
+          - generic [ref=e84]:
+            - generic [ref=e85]:
+              - generic [ref=e87]:
+                - generic [ref=e88]:
+                  - generic [ref=e90]:
+                    - img [ref=e91]
+                    - generic [ref=e95]: "Livestream begins: June 13 at 12:00 PM GMT+2 in 19:34:22"
+                  - generic [ref=e96]:
+                    - img [ref=e97]
+                    - text: "1"
+                - generic [ref=e99]:
+                  - link "Entertainment" [ref=e100] [cursor=pointer]:
+                    - /url: /category/entertainment
+                  - link "Abiotic Factor" [ref=e101] [cursor=pointer]:
+                    - /url: /category/abiotic-factor
+              - generic [ref=e104]:
+                - generic [ref=e105]:
+                  - heading "0 Comments" [level=3] [ref=e106]
+                  - combobox "Sort by" [ref=e107]:
+                    - option "Sort by likes" [selected]
+                    - option "Sort by newest"
+                - list [ref=e108]:
+                  - listitem [ref=e109]:
+                    - generic [ref=e110]: k
+                    - textbox "Add a comment" [ref=e111]:
+                      - /placeholder: Add a comment...
+                    - generic [ref=e112]:
+                      - generic [ref=e113]: 0/2000
+                      - button "Comment" [ref=e114] [cursor=pointer]
+            - generic [ref=e116]:
+              - generic:
+                - generic:
+                  - list
+        - complementary [ref=e117]:
+          - generic [ref=e118]:
+            - button [ref=e119] [cursor=pointer]:
+              - img
+            - generic [ref=e122]:
+              - generic [ref=e123]:
+                - heading "Live Chat" [level=1] [ref=e125]
+                - generic [ref=e126]:
+                  - button "Dock chat" [ref=e127] [cursor=pointer]:
+                    - img
+                  - button [ref=e128] [cursor=pointer]:
+                    - img
+                  - text: Enable Slow Chat Disable Large History Enable Subscriber Only Chat Restrict chat to channel subscribers Pop-out Chat
+              - generic [ref=e129]:
+                - text: « »
+                - generic [ref=e130]:
+                  - log "Pinned"
+                  - list "Live Chat" [ref=e131]
+              - generic [ref=e132]:
+                - generic [ref=e133]:
+                  - generic [ref=e134]:
+                    - generic [ref=e136]: k
+                    - generic [ref=e137]:
+                      - generic [ref=e138]:
+                        - heading [level=4] [ref=e139]
+                        - list
+                      - generic [ref=e140]:
+                        - textbox "Remember to enter your Rant above." [ref=e141]:
+                          - /placeholder: Your message here!
+                        - button "Insert emoji" [ref=e142] [cursor=pointer]:
+                          - img
+                  - generic [ref=e143]:
+                    - generic [ref=e144]:
+                      - button [ref=e145] [cursor=pointer]:
+                        - img
+                      - button [ref=e146] [cursor=pointer]:
+                        - img
+                      - button "Subscribe" [ref=e147] [cursor=pointer]
+                    - button [disabled] [ref=e149] [cursor=pointer]:
+                      - img
+                - text: k n n n n n n n n n n c c c c s s s s s s s s s t s s s c c k n k n n n
+  - banner [ref=e151]:
+    - generic [ref=e152]:
+      - button "main menu" [ref=e153] [cursor=pointer]:
+        - img
+      - link "Rumble logo Rumble logo text" [ref=e154] [cursor=pointer]:
+        - /url: /
+        - img "Rumble logo" [ref=e155]
+        - img "Rumble logo text" [ref=e157]
+      - generic [ref=e160]:
+        - searchbox "search" [ref=e161]
+        - button "Search Rumble" [ref=e162] [cursor=pointer]:
+          - img
+      - generic [ref=e163]:
+        - button "Go Ad-Free" [ref=e165] [cursor=pointer]:
+          - img
+          - text: Go Ad-Free
+        - button "Upload or stream live" [ref=e166] [cursor=pointer]:
+          - img
+        - button "Notifications" [ref=e167] [cursor=pointer]:
+          - img
+        - generic [ref=e168]:
+          - button [ref=e169] [cursor=pointer]:
+            - img
+          - text: k
+  - navigation:
+    - generic [ref=e170]:
+      - link "Home" [ref=e171] [cursor=pointer]:
+        - /url: /
+        - img [ref=e172]
+        - text: Home
+      - link "My Feed" [ref=e174] [cursor=pointer]:
+        - /url: /subscriptions
+        - img [ref=e175]
+        - text: My Feed
+      - link "Shorts" [ref=e179] [cursor=pointer]:
+        - /url: /shorts?e9s=src_v1_shorts_lnb_i
+        - img [ref=e180]
+        - text: Shorts
+      - link "For You" [ref=e183] [cursor=pointer]:
+        - /url: /for-you
+        - img [ref=e184]
+        - text: For You
+      - link "Browse" [ref=e187] [cursor=pointer]:
+        - /url: /browse
+        - img [ref=e188]
+        - text: Browse
+      - link "Editor Picks" [ref=e191] [cursor=pointer]:
+        - /url: /editor-picks
+        - img [ref=e192]
+        - text: Editor Picks
+      - link "Trending" [ref=e195] [cursor=pointer]:
+        - /url: /videos?sort=views&date=today
+        - img [ref=e196]
+        - text: Trending
+      - link "Shop" [ref=e200] [cursor=pointer]:
+        - /url: https://www.stickermule.com/rumble
+        - img [ref=e201]
+        - text: Shop
+      - link "Library" [ref=e204] [cursor=pointer]:
+        - /url: /my-library
+        - img [ref=e205]
+        - text: Library
+      - link "Watch History" [ref=e209] [cursor=pointer]:
+        - /url: /playlists/watch-history
+        - img [ref=e210]
+        - text: Watch History
+      - link "Watch Later" [ref=e214] [cursor=pointer]:
+        - /url: /playlists/watch-later
+        - img [ref=e215]
+        - text: Watch Later
+      - link "Following" [ref=e218] [cursor=pointer]:
+        - /url: /followed-channels
+        - heading "Following" [level=3] [ref=e219]:
+          - generic [ref=e220]: Following
+      - link "Matt Kohrs" [ref=e222] [cursor=pointer]:
+        - /url: /v7b5wvq-live-day-trading-the-mk-show-june-12th.html?e9s=src_v1_cllr
+      - link "FINANCIAL ISSUES" [ref=e226] [cursor=pointer]:
+        - /url: /v7b6h3w-financial-issues.html?e9s=src_v1_cllr
+      - link "SeigeOutdoors" [ref=e230] [cursor=pointer]:
+        - /url: /v7b5pw8-motorsports-compilation-stream.html?e9s=src_v1_cllr
+      - link "@MurTech" [ref=e234] [cursor=pointer]:
+        - /url: /c/MurTech?e9s=src_v1_clr
+      - link "BonginoReport" [ref=e238] [cursor=pointer]:
+        - /url: /user/BonginoReport?e9s=src_v1_clr
+      - link "Darkhorse Podcast" [ref=e242] [cursor=pointer]:
+        - /url: /c/darkhorse?e9s=src_v1_clr
+      - link "Graham Allen" [ref=e246] [cursor=pointer]:
+        - /url: /c/GrahamAllen?e9s=src_v1_clr
+      - link "MattMorseTV" [ref=e250] [cursor=pointer]:
+        - /url: /c/MattMorseTV?e9s=src_v1_clr
+      - link "Rethinking the Dollar" [ref=e254] [cursor=pointer]:
+        - /url: /c/RethinkingTheDollar?e9s=src_v1_clr
+      - link "Rob Braxman Tech" [ref=e258] [cursor=pointer]:
+        - /url: /c/robbraxman?e9s=src_v1_clr
+      - link "SavageJayGatsby" [ref=e262] [cursor=pointer]:
+        - /url: /user/SavageJayGatsby?e9s=src_v1_clr
+      - link "SierraDelta" [ref=e266] [cursor=pointer]:
+        - /url: /user/SierraDelta?e9s=src_v1_clr
+      - link "The Kyle Seraphin Show" [ref=e270] [cursor=pointer]:
+        - /url: /c/KyleSeraphin?e9s=src_v1_clr
+      - link "TruthStream with Joe and Scott" [ref=e274] [cursor=pointer]:
+        - /url: /c/TruthStream?e9s=src_v1_clr
+      - link "g" [ref=e278] [cursor=pointer]:
+        - /url: /user/gogistaging?e9s=src_v1_clr
+        - generic [ref=e280]: g
+      - link "n" [ref=e282] [cursor=pointer]:
+        - /url: /c/c-7878278?e9s=src_v1_clr
+        - generic [ref=e284]: "n"
+      - link "n" [ref=e286] [cursor=pointer]:
+        - /url: /c/c-7878280?e9s=src_v1_clr
+        - generic [ref=e288]: "n"
+      - link "View All" [ref=e289] [cursor=pointer]:
+        - /url: /followed-channels
+  - contentinfo [ref=e290]:
+    - link "Rumble logo" [ref=e291] [cursor=pointer]:
+      - /url: /
+      - img "Rumble logo" [ref=e292]
+    - navigation [ref=e294]:
+      - list [ref=e295]:
+        - listitem [ref=e296]:
+          - link "FAQ" [ref=e297] [cursor=pointer]:
+            - /url: //rumble.support
+        - listitem [ref=e298]:
+          - link "About Us" [ref=e299] [cursor=pointer]:
+            - /url: //corp.rumble.com
+        - listitem [ref=e300]:
+          - link "Careers" [ref=e301] [cursor=pointer]:
+            - /url: //corp.rumble.com/careers/
+        - listitem [ref=e302]:
+          - link "Our Apps" [ref=e303] [cursor=pointer]:
+            - /url: /our-apps/
+        - listitem [ref=e304]:
+          - link "Advertising" [ref=e305] [cursor=pointer]:
+            - /url: //ads.rumble.com
+        - listitem [ref=e306]:
+          - link "Store" [ref=e307] [cursor=pointer]:
+            - /url: https://www.stickermule.com/rumble
+        - listitem [ref=e308]:
+          - link "Cloud" [ref=e309] [cursor=pointer]:
+            - /url: //www.rumble.cloud
+    - navigation [ref=e310]:
+      - list [ref=e311]:
+        - listitem [ref=e312]:
+          - link "Terms & Conditions" [ref=e313] [cursor=pointer]:
+            - /url: /s/terms
+        - listitem [ref=e314]:
+          - link "Privacy Policy" [ref=e315] [cursor=pointer]:
+            - /url: /s/privacy
+        - listitem [ref=e316]:
+          - button "Your Privacy Choices" [ref=e317] [cursor=pointer]
+        - listitem [ref=e318]:
+          - link "Take it Down Act" [ref=e319] [cursor=pointer]:
+            - /url: /s/takeitdown
+        - listitem [ref=e320]:
+          - link "Copyright / DMCA" [ref=e321] [cursor=pointer]:
+            - /url: /s/dmca
+        - listitem [ref=e322]:
+          - link "Accessibility" [ref=e323] [cursor=pointer]:
+            - /url: /s/digital-accessibility-statement
+        - listitem [ref=e324]:
+          - link "Bug Bounty" [ref=e325] [cursor=pointer]:
+            - /url: /s/bug-bounty
+    - generic [ref=e327]: Copyright © 2026 Rumble®. All Rights Reserved.

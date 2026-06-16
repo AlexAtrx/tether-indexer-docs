@@ -1,0 +1,24 @@
+[     490ms] [INFO] [rum-loader] loaded  (f=false, lv=v9-260609_01-58-276, v=latest, l=false, m=v9-260609_01-58-276, s=0721015a-6725-8f3d-86a9-75ce9537) @ https://static2.rumble.com/rum-ui/r/l/sentry.m.js?v=latest&c=v9-260609_01-58-2761781274240&l=false:3
+[     490ms] [INFO] [rum-loader] sentry initialized, release=latest environment=web190181 client_mode=modern manifest_mode=fallback_version @ https://static2.rumble.com/rum-ui/r/l/sentry.m.js?v=latest&c=v9-260609_01-58-2761781274240&l=false:3
+[     612ms] [WARNING] [rum-loader] slow element registration processing: 100-300ms {defineProcessingMs: 89.60, loadProcessingMs: 31.10, manifestProcessingMs: 0.50, registerProcessingMs: 121.20, tagName: rum-provide-current-user} @ https://static2.rumble.com/rum-ui/r/l/sentry.m.js?v=latest&c=v9-260609_01-58-2761781274240&l=false:3
+[  781409ms] [ERROR] Failed to load resource: net::ERR_NETWORK_IO_SUSPENDED @ https://web190181.rumble.com/chat/api/chat/438367850/stream:0
+[ 1862208ms] [ERROR] Failed to load resource: net::ERR_NETWORK_IO_SUSPENDED @ https://web190181.rumble.com/chat/api/chat/438367850/stream:0
+[ 2614879ms] [ERROR] Failed to load resource: net::ERR_NETWORK_CHANGED @ https://web190181.rumble.com/chat/api/chat/438367850/stream:0
+[ 2654477ms] [ERROR] Failed to load resource: the server responded with a status of 409 () @ https://web190181.rumble.com/service.php?api=7&name=video.watching-now&included_js_libs=payment-modal-rumble-wallet:0
+[ 2654479ms] [ERROR] Failed to load resource: the server responded with a status of 409 () @ https://web190181.rumble.com/service.php?api=7&name=video.watching-now&included_js_libs=payment-modal-rumble-wallet:0
+[ 2714478ms] [ERROR] Failed to load resource: the server responded with a status of 409 () @ https://web190181.rumble.com/service.php?api=7&name=video.watching-now&included_js_libs=payment-modal-rumble-wallet:0
+[ 2714479ms] [ERROR] Failed to load resource: the server responded with a status of 409 () @ https://web190181.rumble.com/service.php?api=7&name=video.watching-now&included_js_libs=payment-modal-rumble-wallet:0
+[ 2715359ms] [ERROR] Failed to load resource: net::ERR_NETWORK_IO_SUSPENDED @ https://web190181.rumble.com/chat/api/chat/438367850/stream:0
+[ 2774478ms] [ERROR] Failed to load resource: the server responded with a status of 409 () @ https://web190181.rumble.com/service.php?api=7&name=video.watching-now&included_js_libs=payment-modal-rumble-wallet:0
+[ 2774480ms] [ERROR] Failed to load resource: the server responded with a status of 409 () @ https://web190181.rumble.com/service.php?api=7&name=video.watching-now&included_js_libs=payment-modal-rumble-wallet:0
+[ 2795493ms] [ERROR] Failed to load resource: net::ERR_NETWORK_IO_SUSPENDED @ https://web190181.rumble.com/chat/api/chat/438367850/stream:0
+[ 2834991ms] [ERROR] Failed to load resource: the server responded with a status of 409 () @ https://web190181.rumble.com/service.php?api=7&name=video.watching-now&included_js_libs=payment-modal-rumble-wallet:0
+[ 2834993ms] [ERROR] Failed to load resource: the server responded with a status of 409 () @ https://web190181.rumble.com/service.php?api=7&name=video.watching-now&included_js_libs=payment-modal-rumble-wallet:0
+[ 2901760ms] [ERROR] Failed to load resource: the server responded with a status of 409 () @ https://web190181.rumble.com/service.php?api=7&name=video.watching-now&included_js_libs=payment-modal-rumble-wallet:0
+[ 2901761ms] [ERROR] Failed to load resource: the server responded with a status of 409 () @ https://web190181.rumble.com/service.php?api=7&name=video.watching-now&included_js_libs=payment-modal-rumble-wallet:0
+[ 2961765ms] [ERROR] Failed to load resource: the server responded with a status of 409 () @ https://web190181.rumble.com/service.php?api=7&name=video.watching-now&included_js_libs=payment-modal-rumble-wallet:0
+[ 2961767ms] [ERROR] Failed to load resource: the server responded with a status of 409 () @ https://web190181.rumble.com/service.php?api=7&name=video.watching-now&included_js_libs=payment-modal-rumble-wallet:0
+[ 3021751ms] [ERROR] Failed to load resource: the server responded with a status of 409 () @ https://web190181.rumble.com/service.php?api=7&name=video.watching-now&included_js_libs=payment-modal-rumble-wallet:0
+[ 3021753ms] [ERROR] Failed to load resource: the server responded with a status of 409 () @ https://web190181.rumble.com/service.php?api=7&name=video.watching-now&included_js_libs=payment-modal-rumble-wallet:0
+[ 3081752ms] [ERROR] Failed to load resource: the server responded with a status of 409 () @ https://web190181.rumble.com/service.php?api=7&name=video.watching-now&included_js_libs=payment-modal-rumble-wallet:0
+[ 3081755ms] [ERROR] Failed to load resource: the server responded with a status of 409 () @ https://web190181.rumble.com/service.php?api=7&name=video.watching-now&included_js_libs=payment-modal-rumble-wallet:0

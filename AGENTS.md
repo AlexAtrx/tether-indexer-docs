@@ -179,3 +179,15 @@ GitHub review comments, decides which comments deserve code changes versus
 short replies, applies scoped local refactors on the PR branch, commits and
 pushes only when asked, and uses Alex's concise human reply style with no AI or
 co-author attribution.
+
+### Pull All
+
+**Triggers:** "pull all", "/pull-all", or requests to pull, refresh, update, or
+sync every repo in this `_INDEXER` workspace.
+
+**Skill file:** `.agents/skills/pull-all/SKILL.md`
+
+**Summary:** Refreshes every direct-child Git repo by skipping dirty worktrees,
+preferring `tetherto` remotes, switching clean repos to `dev` with
+`develop`/`main`/`master` fallbacks, fast-forward pulling with raw Git output,
+and handling the workspace docs repo separately on `main`.

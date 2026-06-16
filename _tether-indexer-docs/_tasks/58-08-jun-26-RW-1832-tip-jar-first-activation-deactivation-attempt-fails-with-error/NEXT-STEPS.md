@@ -23,6 +23,9 @@
   succeeded first try; 20Channell, 1Channell, 2Channelll failed first then
   succeeded on retry), consistent with the HRPC-reconnect root cause.
 
+## Linked tickets
+- RW-1907 is linked in `linked-tickets.md`; it is the newer production/background reproduction to check alongside this investigation.
+
 ## What's missing (from `missing-context.md`)
 - Backend (rumble-app-node + ork/shard) logs for the repro window to see which
   HRPC client closed and why.

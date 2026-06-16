@@ -1,0 +1,36 @@
+{
+  "data": [
+    {
+      "gid": "1215363295179929",
+      "created_at": "2026-06-03T11:33:18.687Z",
+      "download_url": "https://asanausercontent.com/us1/assets/45238840754660/1215363295179928/5c69c46aa52db9841175bdd0bc5f9930?e=1781510723&v=0&t=TQKyVCjFBpVbX7i_UMI1omaEISe_7T5YQnuQano2r6Y",
+      "host": "asana",
+      "name": "screen-20260603-142114-1780485643980.mp4",
+      "parent": {
+        "gid": "1215363295179921"
+      },
+      "permanent_url": "https://app.asana.com/app/asana/-/get_asset?asset_id=1215363295179929",
+      "resource_subtype": "asana",
+      "view_url": "https://asanausercontent.com/us1/assets/45238840754660/1215363295179928/5c69c46aa52db9841175bdd0bc5f9930?e=1781510723&v=0&t=TQKyVCjFBpVbX7i_UMI1omaEISe_7T5YQnuQano2r6Y",
+      "size": 2609304,
+      "source_parent": "1215363295179921",
+      "source_story_gid": null
+    },
+    {
+      "gid": "1215363295179931",
+      "created_at": "2026-06-03T11:33:23.438Z",
+      "download_url": "https://asanausercontent.com/us1/assets/45238840754660/1215363295179930/30f3a6b918ec63d36a2f5ffce842d356?e=1781510723&v=0&t=u-wDqeQDhP6qiZuV73mhd1F1UQuJqLit9omRSykR7Y4",
+      "host": "asana",
+      "name": "rumble-wallet-2026-06-03.log",
+      "parent": {
+        "gid": "1215363295179921"
+      },
+      "permanent_url": "https://app.asana.com/app/asana/-/get_asset?asset_id=1215363295179931",
+      "resource_subtype": "asana",
+      "view_url": "https://asanausercontent.com/us1/assets/45238840754660/1215363295179930/30f3a6b918ec63d36a2f5ffce842d356?e=1781510723&v=0&t=u-wDqeQDhP6qiZuV73mhd1F1UQuJqLit9omRSykR7Y4",
+      "size": 4703902,
+      "source_parent": "1215363295179921",
+      "source_story_gid": null
+    }
+  ]
+}

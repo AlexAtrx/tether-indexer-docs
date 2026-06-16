@@ -43,20 +43,77 @@ Never print the token. Never commit it anywhere under `_INDEXER/`.
 
 Root: `/Users/alexa/Documents/repos/tether/_INDEXER/_tether-indexer-docs/_tasks/`
 
-Folder name format: `DD-mon-YY-N-short-kebab-title/`
+Folder name format: `NN-DD-mon-YY-<TICKET-NUMBER>-<kebab-title>/`
 
+- `NN` — monotonically increasing chronological prefix that places the folder
+  at the end of the sorted `_tasks/` listing. `NN` is never reused: if Alex
+  archives old task folders out of `_tasks/`, the next ticket still gets the
+  next number after the all-time max, not the next number after what is
+  currently visible. To make this survive archiving, the highest-ever-used
+  `NN` is persisted to a counter file:
+  `/Users/alexa/Documents/repos/_tether/_INDEXER/.claude/skills/fetch-asana-ticket/.last-nn`
+  (do not delete it). Compute the next `NN` as
+  `max(<counter file value>, <highest NN currently in _tasks/>) + 1`. The
+  current-folder fallback is only there in case the counter file is missing
+  or out of sync with a manually created folder — the counter file is the
+  source of truth going forward. If both are empty, start at `01`. Zero-pad
+  to two digits (`01`–`99`); it extends naturally past `99`.
 - `DD` — two-digit day of today (today's date, not the ticket's created_at)
 - `mon` — three-letter lowercase month (`jan`, `feb`, `mar`, `apr`, ...)
 - `YY` — two-digit year
-- `N` — sequence number for today, starting at `1`. If other folders already
-  exist for today with sequence `1..K`, use `K+1`.
-- `short-kebab-title` — 3–7 kebab-cased words derived from the Asana ticket
-  title. Strip punctuation. Example: ticket "The amount in the push looks with
-  incorrect decimals" becomes `The-amount-in-the-push-looks-with-incorrect-decimals`
-  or shorter like `amount-in-push-incorrect-decimals`. Follow the style of
-  existing folders in `_tasks/`.
+- `<TICKET-NUMBER>` — the ticket identifier, e.g. `RW-1683`, `WDK-842`,
+  `BUG-217`. Source it from (in order of preference):
+  1. A custom field whose `name` looks like "Ticket ID", "Key", "Issue ID",
+     or matches the regex `^[A-Z]+-\d+$` in `display_value`.
+  2. A tag matching `^[A-Z]+-\d+$`.
+  3. The ticket title or description if it begins with / contains
+     `^[A-Z]+-\d+\b`.
+  If no ticket number can be found, fall back to `NOID` and flag this in
+  `missing-context.md` so Alex can rename the folder.
+- `<kebab-title>` — the full Asana ticket title, lowercased, with all
+  non-alphanumeric runs replaced by a single dash, leading/trailing dashes
+  stripped. Do not abbreviate or shorten — keep every word from the title so
+  the folder is searchable. Example: ticket "The amount in the push looks
+  with incorrect decimals" → `the-amount-in-the-push-looks-with-incorrect-decimals`.
 
-Example: `20-apr-26-1-mempool-vs-backend-discrepancy/`
+Example: `24-28-apr-26-RW-1683-the-amount-in-the-push-looks-with-incorrect-decimals/`
+
+Helper to compute the next `NN` and persist it:
+
+```bash
+TASKS_DIR=/Users/alexa/Documents/repos/_tether/_INDEXER/_tether-indexer-docs/_tasks
+COUNTER_FILE=/Users/alexa/Documents/repos/_tether/_INDEXER/.claude/skills/fetch-asana-ticket/.last-nn
+
+# Highest NN currently visible in _tasks/ (ignores the 0- month-bucket folders).
+CURRENT_MAX=$(ls -1 "$TASKS_DIR" 2>/dev/null \
+  | grep -E '^[0-9]{2}-' \
+  | sed -E 's/^([0-9]{2})-.*/\1/' \
+  | sort -n | tail -1)
+
+# Highest NN ever used. Survives archiving folders out of _tasks/.
+PERSISTED=$(cat "$COUNTER_FILE" 2>/dev/null | tr -d '[:space:]')
+
+LAST_NN=$(printf '%s\n%s\n' "${CURRENT_MAX:-0}" "${PERSISTED:-0}" | sort -n | tail -1)
+NEXT_NN=$(printf "%02d" $((10#$LAST_NN + 1)))
+```
+
+**Persist the counter** as soon as you commit to using `NEXT_NN` (i.e. right
+after the `mkdir` for a fresh fetch or the `mv` for an early-exit rename):
+
+```bash
+mkdir -p "$(dirname "$COUNTER_FILE")"
+printf '%s\n' "$NEXT_NN" > "$COUNTER_FILE"
+```
+
+Writing the counter is what guarantees the number is never reused, even after
+Alex archives old folders. Do this in BOTH the fresh-fetch branch (step 3+)
+and the already-fetched rename branch (step 2).
+
+If the folder name you'd create already exists, append `-2`, `-3`, ... (don't
+overwrite). The `NN` you computed should not collide because it is always
+`max + 1`, but the `<TICKET>-<title>` portion may still collide if the same
+ticket was previously fetched under a different prefix — in that case the
+early-exit in step 2 handles it.
 
 ## Folder contents to produce
 
@@ -87,7 +144,62 @@ Example: `20-apr-26-1-mempool-vs-backend-discrepancy/`
 From the URL, extract `<task_gid>` (the number after `/task/`). Confirm it looks
 like a long numeric id.
 
-### 2. Fetch the task
+### 2. Check if the ticket is already fetched (early exit)
+
+**Always run this check before any further API calls.** It prevents re-fetching
+a ticket that already lives under `_tasks/`, which is the default — Alex should
+not have to ask each time whether the ticket has been pulled before.
+
+Use the `task_gid` extracted from the URL to grep every existing `_raw/task.json`:
+
+```bash
+grep -l "\"gid\": \"<task_gid>\"" \
+  /Users/alexa/Documents/repos/tether/_INDEXER/_tether-indexer-docs/_tasks/*/_raw/task.json \
+  2>/dev/null
+```
+
+**If grep returns a path** (the parent directory of that `_raw/task.json` is the
+existing task folder):
+
+1. Compute the next `NN` using the helper bash snippet in the "Output
+   location and folder naming" section. The next `NN` must be `max(counter
+   file, current_max_in_tasks) + 1` — never reuse a number, even if the
+   existing folder you are about to rename has a much smaller `NN` and even
+   if older folders have been archived out of `_tasks/`.
+2. Compute today's date prefix as `DD-mon-YY` using today's date.
+3. Identify the existing folder's **identity slug** — everything after the
+   `NN-DD-mon-YY-` head, which is `<TICKET-NUMBER>-<kebab-title>` plus any
+   `-2`/`-3` collision suffix. Older folders may have no `NN-` prefix (just
+   `DD-mon-YY-...`); strip whichever leading prefix shape they have.
+4. Build the new folder name: `<NEXT_NN>-<today_prefix>-<identity_slug>`. The
+   point is that an already-fetched ticket, when re-encountered, jumps to the
+   end of the list with today's date — Alex always sees the most recently
+   touched tickets at the bottom of `_tasks/`.
+5. If the new name differs from the existing one, `mv` the folder:
+   ```bash
+   mv "<old_folder_path>" "<parent>/<new_name>"
+   ```
+   If the new name equals the existing one (the folder is already the latest
+   with today's date), skip the rename.
+6. Report back to Alex: a one-liner saying the ticket was already fetched, plus
+   the (possibly renamed) folder path. Do not list contents or re-summarise.
+7. **Stop the skill here.** Do NOT fetch stories, attachments, images, or
+   re-write any of the markdown files. The whole point of this check is to
+   avoid clobbering existing analysis.
+
+**If grep returns nothing**, the ticket has not been fetched before — proceed
+to step 3.
+
+**If grep returns more than one match** (rare; usually means the ticket was
+fetched twice with a `-2` suffix), don't try to merge them. List all matches to
+Alex and ask which folder to refresh; do not auto-rename in this case.
+
+**Force re-fetch:** if Alex's request explicitly says "re-fetch", "refresh",
+"force", "redo", or similar, skip this early-exit check and run the full fetch
+flow, but still write into the existing folder name rather than creating a new
+one (preserve their notes if any).
+
+### 3. Fetch the task
 
 ```bash
 curl -s -H "Authorization: Bearer $TOKEN" \
@@ -97,7 +209,7 @@ curl -s -H "Authorization: Bearer $TOKEN" \
 Save the raw JSON response to `<folder>/_raw/task.json` (create `_raw/` for raw
 fetches — useful later for re-processing without re-hitting the API).
 
-### 3. Fetch stories (comments + system events)
+### 4. Fetch stories (comments + system events)
 
 ```bash
 curl -s -H "Authorization: Bearer $TOKEN" \
@@ -113,7 +225,7 @@ Write `comments.md` as a chronological list. Include only:
   `due_date_changed`, `attachment_added`
   — these carry signal for triage.
 
-### 4. Fetch attachments list
+### 5. Fetch attachments list
 
 ```bash
 curl -s -H "Authorization: Bearer $TOKEN" \
@@ -130,7 +242,7 @@ curl -s -H "Authorization: Bearer $TOKEN" \
   "https://app.asana.com/api/1.0/attachments/<attachment_gid>?opt_fields=name,resource_subtype,download_url,view_url,host,permanent_url,parent.gid,size,created_at"
 ```
 
-### 5. Also pull comment-level attachments
+### 6. Also pull comment-level attachments
 
 Some Asana comments have their own attachments (pasted screenshots inside a
 comment). Those appear as `attachment_added` system stories or via
@@ -138,7 +250,7 @@ comment). Those appear as `attachment_added` system stories or via
 "attached", or any `attachment_added` system story, fetch
 `attachments?parent=<story_gid>` too, and merge the results.
 
-### 6. Download each attachment
+### 7. Download each attachment
 
 For each attachment with a non-empty `download_url`:
 
@@ -160,7 +272,7 @@ If `download_url` is empty and the host is `external` (URL attachment), don't
 download — instead record the external URL in `missing-context.md` under a
 "External links to review" section.
 
-### 7. Write `ticket.md`
+### 8. Write `ticket.md`
 
 ```markdown
 # <task title>
@@ -178,13 +290,13 @@ download — instead record the external URL in `missing-context.md` under a
 - **Custom fields:** <name: display_value, ...>
 ```
 
-### 8. Write `description.md`
+### 9. Write `description.md`
 
 The raw `notes` field (plain text). If `notes` is empty but `html_notes` has
 content, convert the HTML to reasonable Markdown (preserve headings, lists,
 links, code).
 
-### 9. Analyse images
+### 10. Analyse images
 
 For each file in `<folder>/images/`, open it with the `Read` tool and produce a
 section in `image-analysis.md`:
@@ -209,7 +321,7 @@ Be concrete — extract numbers, hashes, error strings verbatim. These
 screenshots are usually the only record of the state Alex saw; they need to be
 readable from text alone later.
 
-### 10. Flag missing context → `missing-context.md`
+### 11. Flag missing context → `missing-context.md`
 
 Scan the description, every comment, and the image analysis for references to
 things that are NOT included in what you just fetched. Explicitly flag each
@@ -243,7 +355,7 @@ No external references or missing artifacts detected. The ticket is
 self-contained.
 ```
 
-### 11. Write `NEXT-STEPS.md`
+### 12. Write `NEXT-STEPS.md`
 
 A short hand-off note for the next session that opens this folder:
 
@@ -269,7 +381,7 @@ above first** before digging into the codebase. If nothing is missing, jump to
 investigation.
 ```
 
-### 12. Report back
+### 13. Report back
 
 In the final chat response, give Alex:
 
@@ -288,8 +400,6 @@ Keep it under ~10 lines.
 - Never print, commit, or leak the Asana token.
 - Don't edit any code in the repo as part of this skill. This skill only
   gathers context.
-- If the folder name you'd create already exists, pick the next `N` (don't
-  overwrite).
 - Rate-limit: Asana API allows ~150 req/min for a PAT. If you batch many
   attachment-detail calls, that's fine for a single ticket, but don't parallel-
   fetch more than ~10 at once.

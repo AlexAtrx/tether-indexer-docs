@@ -1,0 +1,66 @@
+{
+  "data": [
+    {
+      "gid": "1215366014456031",
+      "created_at": "2026-06-03T11:27:08.533Z",
+      "created_by": {
+        "gid": "1211622306786947",
+        "name": "andrey.gilyov@itrexgroup.com"
+      },
+      "html_text": "<b><a href=\"https://app.asana.com/0/profile/1211625499226531\">andrey.gilyov@itrexgroup.com</a></b> added this task to <a href=\"https://app.asana.com/1/45238840754660/project/1212521145936484\">Rumble Wallet</a>",
+      "text": "andrey.gilyov@itrexgroup.com added this task to Rumble Wallet",
+      "type": "system",
+      "resource_subtype": "added_to_project"
+    },
+    {
+      "gid": "1215366006998525",
+      "created_at": "2026-06-03T11:33:18.837Z",
+      "created_by": {
+        "gid": "1211622306786947",
+        "name": "andrey.gilyov@itrexgroup.com"
+      },
+      "html_text": "<b><a href=\"https://app.asana.com/0/profile/1211625499226531\">andrey.gilyov@itrexgroup.com</a></b> attached <a href=\"https://app.asana.com/app/asana/-/get_asset?asset_id=1215363295179929\">screen-20260603-142114-1780485643980.mp4</a>",
+      "is_pinned": false,
+      "text": "andrey.gilyov@itrexgroup.com attached screen-20260603-142114-1780485643980.mp4",
+      "type": "system",
+      "resource_subtype": "attachment_added"
+    },
+    {
+      "gid": "1215366128398284",
+      "created_at": "2026-06-03T11:33:23.573Z",
+      "created_by": {
+        "gid": "1211622306786947",
+        "name": "andrey.gilyov@itrexgroup.com"
+      },
+      "html_text": "<b><a href=\"https://app.asana.com/0/profile/1211625499226531\">andrey.gilyov@itrexgroup.com</a></b> attached <a href=\"https://app.asana.com/app/asana/-/get_asset?asset_id=1215363295179931\">rumble-wallet-2026-06-03.log</a>",
+      "is_pinned": false,
+      "text": "andrey.gilyov@itrexgroup.com attached rumble-wallet-2026-06-03.log",
+      "type": "system",
+      "resource_subtype": "attachment_added"
+    },
+    {
+      "gid": "1215366191489985",
+      "created_at": "2026-06-03T11:35:02.831Z",
+      "created_by": {
+        "gid": "1211622306786947",
+        "name": "andrey.gilyov@itrexgroup.com"
+      },
+      "html_text": "<b><a href=\"https://app.asana.com/0/profile/1211625499226531\">andrey.gilyov@itrexgroup.com</a></b> assigned to you",
+      "text": "andrey.gilyov@itrexgroup.com assigned to you",
+      "type": "system",
+      "resource_subtype": "assigned"
+    },
+    {
+      "gid": "1215594211742050",
+      "created_at": "2026-06-10T11:42:50.745Z",
+      "created_by": {
+        "gid": "1213406456321936",
+        "name": "Eddy WM"
+      },
+      "html_text": "<b><a href=\"https://app.asana.com/0/profile/1213406456321934\">Eddy WM</a></b> changed Sprint from Sprint 3 to Sprint 3, Sprint 4",
+      "text": "Eddy WM changed Sprint from Sprint 3 to Sprint 3, Sprint 4",
+      "type": "system",
+      "resource_subtype": "multi_enum_custom_field_changed"
+    }
+  ]
+}

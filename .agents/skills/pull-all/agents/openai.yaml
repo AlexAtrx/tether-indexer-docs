@@ -1,0 +1,4 @@
+interface:
+  display_name: "Pull All"
+  short_description: "Update every clean indexer repo safely"
+  default_prompt: "Use $pull-all to refresh all clean repos in the _INDEXER workspace."
