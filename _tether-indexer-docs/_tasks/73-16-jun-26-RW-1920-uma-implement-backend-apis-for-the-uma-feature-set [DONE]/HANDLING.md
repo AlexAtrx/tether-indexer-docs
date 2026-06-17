@@ -562,6 +562,62 @@ reference only; **no `tether-wallet-*` repo was modified.**
     case) and the intg lnurlp assertion. uma.service 20/20, uma.unit 7/7, intg
     1-8 green, lint clean.
 
+## Round 4 review findings (verified against TW first)
+
+21. **Existing wallets never become UMA-capable (real gap, but TW has it too) —
+    no in-app code; ops migration.** App decorates only wallets with a stored
+    username, and the data-shard stamps it only on new user-wallet creates, so
+    pre-feature wallets stay non-resolvable. Verified TW: username is set only at
+    creation (from the client body); there is no set-username route and PATCH does
+    not accept it, and TW has no in-app backfill/migration either. So aligning with
+    TW means NOT adding in-app backfill (that would diverge). Resolution: a
+    one-time data migration to stamp `preferred_username` onto current user
+    wallets, handled operationally outside this PR. No code change.
+
+22. **POST UMA schema rejects string amounts (NOT a divergence) — no change.**
+    TW's POST `/api/uma/payreq` schema is `amount: { type: 'integer' }`, identical
+    to Rumble's, so a string amount is rejected the same way by both. The
+    `parseUmaAmount` string handling serves the plain-LNURL GET `?amount=` path
+    (query strings); on POST the body is pre-constrained to integer like TW. Left
+    as-is to match TW.
+
+23. **POST payreq URL passes sparkIdentityKey unencoded (matches TW) — no change.**
+    TW's `handleUmaPayreq` builds the same URL unencoded and only encodes it on the
+    GET path, so Rumble mirrors TW exactly. The value is a hex-encoded public key
+    (no URL-significant chars), so the theoretical breakage cannot occur. Left as
+    TW has it; a harmless `encodeURIComponent` could be added but would diverge from
+    TW's code for no behavioral gain.
+
+24. **UMA username lookup not removed on deletion (real divergence I introduced)
+    — realigned to TW's permanent-identity model.** TW makes UMA identity permanent:
+    `softDel` is disabled, the username index is `unique+sparse`, the ork lookup is
+    never removed, and the ork has no create-failure compensation. My earlier
+    fixes diverged: #7 made the index partial (releases the username on soft-delete)
+    while the ork lookup stayed permanent, which is the asymmetry this finding
+    describes; #5 added ork compensation TW lacks. Chosen resolution (user): match
+    TW's permanence.
+    - data-shard: reverted the username index from partial back to `unique+sparse`
+      (matches TW); added a `softDel` override that throws
+      `ERR_UMA_WALLET_DELETE_DISABLED` for any wallet carrying a username (UMA
+      wallets are non-deletable, like TW). Scoped to UMA wallets (not TW's blanket
+      disable) so Rumble's channel / username-less wallets still delete normally,
+      a small justified Rumble accommodation.
+    - ork: removed `_rollbackUmaWallet` and the owner-check/rollback in `addWallet`;
+      it now mirrors TW exactly (pre-check `getLookup`, `super.addWallet`,
+      `setOrIgnoreLookup` for created 201s, no rollback). The reservation is
+      permanent and, with immutable per-user usernames, never reassigned across
+      users, so no release path is needed (the original "another user blocked"
+      concern cannot occur in Rumble's model).
+    - tests: index test now asserts `unique+sparse` (no partial filter); added a
+      softDel test (disabled for UMA, allowed for non-UMA); ork addWallet test
+      drops the rollback cases and asserts the TW no-compensation shape. The proc
+      atomic in-uow stamp (#15) and its dup-key -> `ERR_UMA_USERNAME_TAKEN`
+      translation are unchanged and still green.
+    - Caveat (accepted): an account/wallet-deletion path that soft-deletes a UMA
+      wallet now errors (`ERR_UMA_WALLET_DELETE_DISABLED`); TW handles account
+      removal by blocking, not deleting. There is no user-facing wallet DELETE
+      route in Rumble or base WDK today.
+
 ## Still open
 - Confirm the canonical UMA `domain` per environment and the exact
   `/-wallet/v1/me` username field name (still read defensively). This also gates
