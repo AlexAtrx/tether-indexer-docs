@@ -191,10 +191,12 @@ app response contract nullable or return a valid explicit string/error shape.
   fabricated balance shape, with unit coverage added. PR tetherto/rumble-data-shard-wrk#252
   updated.
 
-  Note for review: the canonical WDK-side balance budget (`wdk-data-shard-wrk`
-  commit `9e4ae78`, branch `fix/balance-request-timeout-budget`, not yet in dev)
-  takes a better approach: it bounds each per-currency RPC (8s + capped retries) so
-  one hung chain degrades to a null balance for that currency, which the aggregation
-  folds into a valid overall string, with no top-level null. Consider superseding
-  the rumble outer-deadline guard with that per-currency approach instead of keeping
-  a separate whole-fan-out deadline.
+  Direction correction (per Slack, 2026-06-19): the WDK-side balance budget
+  (`wdk-data-shard-wrk` commit `9e4ae78`, PR tetherto/wdk-data-shard-wrk#250) is
+  **no-go**. The team is removing/moving balance logic off the WDK layer into Rumble
+  under WDK-1459 (Israel's balance-move,
+  https://app.asana.com/1/45238840754660/project/1210540875949204/task/1214792055861213).
+  So the timeout safeguard belongs on the Rumble side (this `fix/balance-request-timeout-budget`
+  branch, PR #252) and should land **with** WDK-1459, not standalone and not via the
+  WDK per-currency fix. Do not pin Rumble to #250. Keep #252 as draft until the
+  WDK-1459 balance-move lands, then fold this safeguard in.
