@@ -1,5 +1,9 @@
 # WDK-1196 / RW-1683 - channel split execution rollup
 
+> **Resuming this work? Start with [`RESUME-HERE.md`](./RESUME-HERE.md)** - it has
+> the live PR status, what is blocked on what, and the exact steps to finish both
+> the channel-split PRs and the balance safeguard redo.
+
 Date: 2026-06-19
 
 This is the execution/rollup record for moving Rumble-specific channel-wallet
