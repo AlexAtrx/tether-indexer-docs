@@ -198,5 +198,10 @@ app response contract nullable or return a valid explicit string/error shape.
   https://app.asana.com/1/45238840754660/project/1210540875949204/task/1214792055861213).
   So the timeout safeguard belongs on the Rumble side (this `fix/balance-request-timeout-budget`
   branch, PR #252) and should land **with** WDK-1459, not standalone and not via the
-  WDK per-currency fix. Do not pin Rumble to #250. Keep #252 as draft until the
-  WDK-1459 balance-move lands, then fold this safeguard in.
+  WDK per-currency fix. Do not pin Rumble to #250.
+
+  **Status: PR #252 closed** (team decision). The standalone branch off dev is
+  retired. The safeguard will be re-done directly on top of the WDK-1459
+  balance-move branch once Israel's work lands. Source to replicate from: commit
+  `eaea0fb` on `rumble-data-shard-wrk` `fix/balance-request-timeout-budget`
+  (the `_runWithinBalanceBudget` guard plus the empty-string-balance fix).
