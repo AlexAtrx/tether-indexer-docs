@@ -8,7 +8,7 @@ Commit and push the in-flight changes for: $ARGUMENTS
 ## Hard rules
 
 - **No AI attribution anywhere.** Commit messages, PR titles, and PR descriptions must NOT contain `Co-Authored-By: Claude`, `Generated with Claude Code`, "AI-assisted", or any similar marker. Pass commit messages with a HEREDOC and write the PR body explicitly so nothing is auto-appended.
-- **Push only to the `fork` remote** (the user's `AlexAtrx/*` fork). Never push to `origin` (`tetherto/*`) — the user cannot create branches there. If a repo has no `fork` remote, stop and tell the user.
+- **Push only to the AlexAtrx fork.** "fork" means the fork of the repo under the GitHub user `AlexAtrx` (URL `git@github.com:AlexAtrx/<repo>.git`), no matter what the local remote is named. Resolve it by URL, not by remote name: the AlexAtrx fork may be wired as `origin`, `fork`, or anything else. Never push to any `tetherto/*` remote (the user cannot create branches there). The user also has an old `alatras` fork on some repos that they no longer use: ignore it, never push to it. If no remote points at `AlexAtrx/<repo>`, resolve it before pushing: if `AlexAtrx/<repo>` exists on GitHub (`gh repo view AlexAtrx/<repo>`), add it as a remote named `fork`; if it does not exist, create it with `gh repo fork tetherto/<repo> --clone=false --remote=false` then add the remote. Only stop and ask the user if that resolution fails.
 - **Never use `--no-verify`, `--no-gpg-sign`, `git commit --amend`, or `git push --force`.** If a hook fails, fix the cause and create a new commit.
 - **No em dashes** in any commit message, PR title, or PR description (workspace global rule).
 - **Workspace topology.** The workspace root is `_INDEXER` itself (commonly `/Users/alexa/Documents/repos/tether/_INDEXER/`), and that directory IS its own git repo — it is the docs repo, with `origin` = `git@github.com:AlexAtrx/tether-indexer-docs.git`. Its `.gitignore` ignores every top-level subdirectory and whitelists docs paths (`_tether-indexer-docs/`, `.claude/`, `*.md` at root, etc.). Code repos (`rumble-app-node`, `wdk-data-shard-wrk`, `wdk-ork-wrk`, etc.) are nested clones living as direct subdirectories of the workspace root and are intentionally ignored by the docs repo's gitignore — each is its own independent git repo.
@@ -89,8 +89,8 @@ For each repo:
 
 For each repo:
 
-1. Confirm a `fork` remote exists pointing to `git@github.com:AlexAtrx/<repo>.git`. If not, stop.
-2. `git push -u fork <branch-name>`.
+1. Identify the remote whose URL is `git@github.com:AlexAtrx/<repo>.git` (the AlexAtrx fork), regardless of its name (`origin`, `fork`, etc.). If none exists, resolve it: create the fork with `gh repo fork tetherto/<repo> --clone=false --remote=false` if `AlexAtrx/<repo>` does not exist, then `git remote add fork git@github.com:AlexAtrx/<repo>.git`. Never select a `tetherto/*` or `alatras/*` remote.
+2. `git push -u <that-remote> <branch-name>`.
 3. If the push is rejected (non-fast-forward against an existing fork branch), stop and ask the user — do not force-push.
 
 ## Step 6 — Open draft PR(s)
