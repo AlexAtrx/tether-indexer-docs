@@ -1,4 +1,4 @@
 interface:
   display_name: "Address PR Comments"
-  short_description: "Review PRs and handle review feedback in Alex's style"
-  default_prompt: "Use $address-pr-comments to review a PR or address PR feedback without over-explaining."
+  short_description: "Local-only PR review comments"
+  default_prompt: "Use $address-pr-comments to review a PR locally and return only exact bad findings with paste-ready comments."
