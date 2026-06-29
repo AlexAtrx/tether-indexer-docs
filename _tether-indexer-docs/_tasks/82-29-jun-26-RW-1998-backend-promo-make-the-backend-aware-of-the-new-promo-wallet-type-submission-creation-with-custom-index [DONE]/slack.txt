@@ -1,0 +1,20 @@
+Slack request to Alex (backend) re: "Separate Wallet for promo" — captured 2026-06-29.
+Sender: FE engineer working the FE side (RW-1991 / draft PR rumble-wallet-app-mobile#1311).
+
+---
+Looking for some backend insight on the ticket: Separate Wallet for promo. Right now,
+when we create a wallet, we POST to /api/v1/wallets with the type restricted to
+'user' | 'channel' | 'unrelated'. Because a promo wallet needs BE awareness, I wanted
+to see what you think is the cleanest path forward.
+Here are the options I see:
+
+Option 1 (Metadata): Keep the existing types and just append a flag in the meta object
+(e.g., meta.promo = true).
+Option 2 (New Type): Introduce a brand new type (e.g., type: 'promo'), assuming BE can
+update the validation to support it.
+Option 3 (Account Index): Hardwire it to a specific index (e.g., 10000 accountIndex).
+I'm assuming that promocode redemption will need to be wired directly to this wallet on
+the BE side, so solid backend awareness is definitely key here.
+What's your view on this? Let me know which approach plays nicest with our current
+architecture!
+---
