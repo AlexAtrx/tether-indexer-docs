@@ -1,0 +1,174 @@
+diff --git a/workers/api.shard.data.wrk.js b/workers/api.shard.data.wrk.js
+index 0f395b9..cbceabd 100644
+--- a/workers/api.shard.data.wrk.js
++++ b/workers/api.shard.data.wrk.js
+@@ -39,6 +39,57 @@ class WrkDataShardApi extends WrkBase {
+     return res?.devices || []
+   }
+ 
++  // Rumble exposes optional wallet-type filtering (e.g. user vs channel) on the
++  // user balance/transfer reads via the request-level `walletTypes` field.
++  _filterUserWallets (wallets, req) {
++    return req.walletTypes ? wallets.filter(w => req.walletTypes.includes(w.type)) : wallets
++  }
++
++  async getUserBalance (req) {
++    const { userId, walletTypes } = req
++    if (!walletTypes) {
++      return super.getUserBalance(req)
++    }
++
++    const wallets = (await this.db.walletRepository.getActiveUserWallets(userId).toArray())
++      .filter(w => walletTypes.includes(w.type))
++    if (wallets.length === 0) {
++      return { balance: '0', tokenBalances: {} }
++    }
++
++    const { balance, tokenBalances } = await this.blockchainSvc.getAggregatedWalletBalance(wallets)
++    return { balance, tokenBalances }
++  }
++
++  async getUserTransfersV2 (req) {
++    const { walletTypes } = req
++    if (!walletTypes) {
++      return super.getUserTransfersV2(req)
++    }
++
++    const { userId, blockchain, token, type, from, to, limit = 10, skip = 0, sort = 'desc' } = req
++    if (!userId) {
++      throw new Error('ERR_USER_ID_INVALID')
++    }
++
++    const userWallets = await this.db.walletRepository.getActiveUserWallets(userId).toArray()
++    if (userWallets.length === 0) {
++      throw new Error('ERR_USER_WALLETS_NOT_FOUND')
++    }
++
++    const eligibleWallets = userWallets.filter(w => walletTypes.includes(w.type))
++    if (eligibleWallets.length === 0) {
++      throw new Error('ERR_NO_ELIGIBLE_WALLETS')
++    }
++
++    const reverse = sort.toLowerCase() === 'desc'
++    const docs = await this.db.walletTransfersProcessedRepository
++      .findForWallets(eligibleWallets.map(w => w.id), blockchain, token, type, from, to, reverse, skip, limit)
++      .toArray()
++
++    return { transfers: docs.map(doc => this._mapProcessedToResponse(doc)) }
++  }
++
+   async getUserTipJar (req) {
+     const { userId } = req
+     const userWallets = await this.db.walletRepository.getActiveUserWallets(userId).toArray()
+diff --git a/workers/lib/db/hyperdb/repositories/wallets.js b/workers/lib/db/hyperdb/repositories/wallets.js
+index fd50b98..009ad63 100644
+--- a/workers/lib/db/hyperdb/repositories/wallets.js
++++ b/workers/lib/db/hyperdb/repositories/wallets.js
+@@ -7,6 +7,15 @@ class WalletRepository extends BaseWalletRepository {
+     super(dbOrTx, isTx)
+     this.walletsByCreatedAtIndex = '@wdk-data-shard/wallet-by-created-at'
+     this.walletsByUpdatedAtIndex = '@wdk-data-shard/wallet-by-updated-at'
++    this.activeWalletsByChannelId = '@wdk-data-shard/active-wallets-by-channel-id'
++  }
++
++  // Channel wallets are Rumble-specific: resolve the active wallet for a channelId.
++  getActiveChannelWallet (channelId) {
++    return this.dbOrTx.findOne(this.activeWalletsByChannelId, {
++      gte: channelId,
++      lte: channelId
++    })
+   }
+ 
+   getWalletsByCreatedAt (createdAt = null, limit = null, sort = 'asc') {
+diff --git a/workers/lib/db/mongodb/repositories/wallets.js b/workers/lib/db/mongodb/repositories/wallets.js
+index db074d1..f01ed82 100644
+--- a/workers/lib/db/mongodb/repositories/wallets.js
++++ b/workers/lib/db/mongodb/repositories/wallets.js
+@@ -30,21 +30,45 @@ class WalletRepository extends BaseWalletRepository {
+       { background: true, name: 'idx_wdk_data_shard_wallets_active_wallets_by_updated_at' }
+     )
+ 
+-    // UMA username is unique among ACTIVE wallets only. Partial (not sparse) on
+-    // deletedAt so a soft-deleted wallet releases its username: deletion and the
+-    // UMA compensating rollbacks must not burn a user's immutable username, and
+-    // wallets without a username (channel / pre-UMA) are excluded. (Mongo forbids
+-    // combining sparse with partialFilterExpression, so the partial filter both
+-    // scopes to active wallets and replaces the sparse exclusion.)
++    // UMA username is unique, sparse so only wallets that carry one are indexed
++    // (channel / pre-UMA wallets are excluded). Matches Tether Wallet exactly: the
++    // UMA identity is permanent (a UMA wallet cannot be soft-deleted, see softDel),
++    // so there are no soft-deleted UMA wallets to collide with and no need for a
++    // partial-on-deletedAt filter.
+     await this.collection.createIndex(
+       { username: 1 },
+-      {
+-        unique: true,
+-        background: true,
+-        name: 'idx_wdk_data_shard_wallets_uma_username',
+-        partialFilterExpression: { deletedAt: { $lte: 0 }, username: { $exists: true, $type: 'string' } }
+-      }
++      { unique: true, sparse: true, background: true, name: 'idx_wdk_data_shard_wallets_uma_username' }
+     )
++
++    await this.collection.createIndex(
++      { channelId: 1, enabled: 1, deletedAt: 1 },
++      { background: true, name: 'idx_wdk_data_shard_wallets_active_wallets_by_channel_id' }
++    )
++  }
++
++  // Channel wallets are Rumble-specific: resolve the active wallet for a channelId.
++  getActiveChannelWallet (channelId) {
++    return this.collection.findOne({
++      channelId,
++      deletedAt: { $lte: 0 }
++    }, {
++      ...this.sessionOpts,
++      readPreference: this.readPreference,
++      projection: { _id: 0 },
++      maxTimeMS: this.operations.readTimeout ?? 30000
++    })
++  }
++
++  // A UMA wallet's username is the user's permanent public payment identity, so
++  // it must never be released: disable soft-deletion for any wallet that carries
++  // a username (mirrors Tether Wallet, which disables softDel for UMA wallets).
++  // Non-UMA wallets (channel / username-less) delete as before.
++  async softDel (walletId) {
++    const wallet = await this.getActiveWallet(walletId)
++    if (wallet?.username) {
++      throw new Error('ERR_UMA_WALLET_DELETE_DISABLED')
++    }
++    return super.softDel(walletId)
+   }
+ 
+   // Active wallet by UMA username (normalized lowercase); resolves a username
+diff --git a/workers/proc.shard.data.wrk.js b/workers/proc.shard.data.wrk.js
+index 675a8f7..026d1c4 100644
+--- a/workers/proc.shard.data.wrk.js
++++ b/workers/proc.shard.data.wrk.js
+@@ -200,6 +200,25 @@ class WrkDataShardProc extends WrkBase {
+     })
+   }
+ 
++  // Channel wallets are Rumble-specific: one channel wallet per channelId.
++  _isDuplicateWallet (newWallet, existing) {
++    if (newWallet.type === WALLET_TYPES.CHANNEL) {
++      return existing.type === WALLET_TYPES.CHANNEL && existing.channelId === newWallet.channelId
++    }
++    return super._isDuplicateWallet(newWallet, existing)
++  }
++
++  _validateNewWallet (newWallet) {
++    if (newWallet.type === WALLET_TYPES.CHANNEL && !newWallet.channelId) {
++      return 'ERR_CHANNEL_ID_INVALID'
++    }
++    return super._validateNewWallet(newWallet)
++  }
++
++  _buildExtraWalletFields (newWallet) {
++    return newWallet.channelId ? { channelId: newWallet.channelId } : {}
++  }
++
+   async addWallet (req) {
+     // UMA username storage/uniqueness lives in the Mongo wallet repo (the
+     // HyperDB schema has no username field, and TW is mongodb-only). Reject UMA

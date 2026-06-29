@@ -1,8 +1,9 @@
 # Missing context
 
 > Several items resolved by Alex's discussion on 2026-06-05 — see `discussion-notes.md`.
+> Single consolidated folder for this ticket (Jun-1 and Jun-5 fetches merged on 2026-06-17; duplicate deleted).
 
-- [ ] **Blocking dependency:** "make sure that if this is picked up we wait until that is finished before starting this" — **Need from Alex:** status of the blocking card [Public WDK - Testing - Create cross-service E2E integration test suite](https://app.asana.com/1/45238840754660/task/1213242924383371) (GID 1213242924383371). The ticket title still says BLOCKED. Confirm whether the public-WDK card is done before any work starts. **Source:** description. **Still open.**
+- [x] **Blocking dependency** — RESOLVED (2026-06-17): the blocking card was the [Public WDK E2E suite](https://app.asana.com/1/45238840754660/task/1213242924383371) (GID 1213242924383371 / WDK-1176). Its EVM happy-path suite is built and the PR is approved and merging (section PR OPEN), so the "wait until finished" gate no longer applies. A follow-up to extend that suite to the non-EVM indexers (Bitcoin, Solana, TON, Tron, Spark) was created: https://app.asana.com/1/45238840754660/project/1210540875949204/task/1215798572158482. **Source:** description + Alex (2026-06-17).
 
 - [ ] **Maxime's / Maksym's PRs + Slack setup:** the description credits "Maksym" with prior public-indexer setup work (https://tether-to.slack.com/archives/C090AUH3V6K/p1773856271731709, channel C090AUH3V6K, ts 1773856271731709); the discussion references "Maxime's PRs" as the model to follow (Node-script harness, no Docker for services). **Need from Alex:** links to those PRs and/or the Slack thread contents, and confirmation Maksym == Maxime. This is now a primary reference for the approach, not just background. **Source:** description + discussion.
 

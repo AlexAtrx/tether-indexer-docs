@@ -1,0 +1,37 @@
+diff --git a/workers/api.ork.wrk.js b/workers/api.ork.wrk.js
+index 99ae2da..411e543 100644
+--- a/workers/api.ork.wrk.js
++++ b/workers/api.ork.wrk.js
+@@ -2,6 +2,7 @@
+ 
+ const async = require('async')
+ const WrkBase = require('@tetherto/wdk-ork-wrk/workers/api.ork.wrk')
++const RumbleDataShardUtil = require('./lib/data.shard.util')
+ const { NOTIFICATION_TYPES, WEBHOOK_TYPES } = require('./lib/constants')
+ const { nBN } = require('@bitfinex/lib-js-util-math')
+ const { ensureTraceId, runWithTrace } = require('@tetherto/wdk-ork-wrk/workers/lib/traceId.util')
+@@ -38,6 +39,11 @@ class WrkOrkApi extends WrkBase {
+     ])
+   }
+ 
++  // Use the Rumble shard util, which owns channel -> shard routing.
++  _createShardUtil () {
++    return new RumbleDataShardUtil(this)
++  }
++
+   async getUserTipJar (req) {
+     return this._rpcRequest({ ...req }, 'getUserTipJar')
+   }
+@@ -139,6 +145,12 @@ class WrkOrkApi extends WrkBase {
+         if (username) {
+           await this.lookupStorage.setOrIgnoreLookup('uma_username', username, userId, userId)
+         }
++        // Channel wallets are Rumble-specific: store the channel -> shard lookup so
++        // channel tip-jar and rename requests route back to the owning shard.
++        if (w.channelId) {
++          const { id: shardId } = await this._shardUtil.resolveUserShardRpc(userId)
++          await this._shardUtil.storeChannelShard(w.channelId, shardId, userId)
++        }
+       }
+     }
+ 

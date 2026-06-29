@@ -1,13 +1,22 @@
 ---
 name: address-pr-comments
-description: Address Alex's GitHub PR review comments end to end. Use when Alex asks to review a PR, evaluate, reply to, push back on, refactor for, fix, commit, push, or otherwise handle comments on a GitHub pull request, especially in Tether/Rumble repos. This includes requests to discuss PR comments in Slack, draft short human replies, link a PR to its original Asana ticket, or decide which review comments deserve local code changes versus GitHub replies.
+description: Address Alex's GitHub PR review comments end to end. Use when Alex asks to review a PR, evaluate, reply to, push back on, refactor for, fix, or otherwise handle comments on a GitHub pull request, especially in Tether/Rumble repos. This includes requests to check out a PR branch locally, address comments locally without committing or pushing, draft short human replies, discuss PR comments in Slack, link a PR to its original Asana ticket, or decide which review comments deserve local code changes versus reply-only handling.
 ---
 
 # Address PR Comments
 
 ## Goal
 
-Handle PR feedback the way Alex expects: understand the ticket and full flow first, make only justified code changes, push the proper PR branch when asked, and keep review comments short and human.
+Handle PR feedback the way Alex expects: understand the ticket and full flow first, check out the PR branch locally, make only justified local code changes, do not commit or push on the first pass, and give Alex short human reply drafts for every review comment.
+
+## Non-Negotiables
+
+- Always check out the PR branch locally before changing code or drafting final replies.
+- First-pass handling is local-only: edit files locally as needed, but do not commit and do not push.
+- Never post, resolve, submit, approve, request changes, or otherwise write anything on GitHub on the first round.
+- Do not perform any GitHub write until Alex has reviewed the local result and explicitly approved that specific write action.
+- Draft a reply for every PR review comment in the console, even if the right action is pushback, acknowledgement, or no code change.
+- In the final output, show each original PR comment and its draft reply directly underneath it.
 
 ## Required Context
 
@@ -56,9 +65,10 @@ When a comment deserves code changes:
 2. Keep changes traceable to the review thread.
 3. Run focused tests and lint for touched files. Run broader checks only when risk warrants it.
 4. If repo-wide checks fail on unrelated baseline issues, say that clearly and do not patch unrelated files.
-5. Commit with a concise message explaining what changed.
+5. Stop with local uncommitted changes unless Alex explicitly asks for a separate commit/push follow-up after reviewing the result.
 6. Never add AI attribution, `Co-authored-by`, generated-by footers, or similar metadata.
-7. Push to the proper PR head branch only when Alex asked to execute/push.
+
+If Alex later explicitly approves committing or pushing, make that a separate action after the first-pass report. Keep the commit concise and push only the proper PR head branch.
 
 ## GitHub Replies
 
@@ -67,6 +77,21 @@ suggestions instead.
 
 For handling existing review threads, post replies only when Alex explicitly
 asks for GitHub posting. Do not post drafts by default.
+
+On the first round, always return console-only drafts using this shape for each
+review comment:
+
+```text
+Original comment:
+<reviewer's exact comment text>
+
+Reply draft:
+<short casual reply Alex can paste>
+```
+
+Keep reply drafts casual, human-looking, and not verbose. Prefer one sentence.
+Use "done" for implemented comments. For pushback, give the concrete reason
+without sounding formal.
 
 When posting:
 
@@ -107,10 +132,12 @@ When Alex asks for short answers to paste into Slack:
 
 After execution, report only high-signal facts:
 
-- Commit hash and message.
-- Branch pushed.
-- Threads replied to or intentionally not replied to.
+- Checked-out branch.
+- Local files changed and whether they are uncommitted.
+- Review comments handled locally.
+- Reply draft for every original PR comment.
 - Tests/lint run and results.
 - Any checks blocked by unrelated baseline failures.
+- Any commits, pushes, or GitHub replies intentionally not performed because Alex has not approved them yet.
 
 Keep the final summary concise.

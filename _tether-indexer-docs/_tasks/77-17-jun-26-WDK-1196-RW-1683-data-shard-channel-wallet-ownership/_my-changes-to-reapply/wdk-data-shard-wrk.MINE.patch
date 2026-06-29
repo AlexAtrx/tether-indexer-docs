@@ -1,0 +1,729 @@
+diff --git a/tests/api.shard.data.wrk.intg.test.js b/tests/api.shard.data.wrk.intg.test.js
+index b1b64c8..92a8e31 100644
+--- a/tests/api.shard.data.wrk.intg.test.js
++++ b/tests/api.shard.data.wrk.intg.test.js
+@@ -40,10 +40,9 @@ test('getWallet', async t => {
+   const userId = 'api-test-user-get-wallet-123'
+   const toCreateWallet = {
+     userId,
+-    type: 'channel',
++    type: 'unrelated',
+     name: 'testChannel',
+     enabled: true,
+-    channelId: 'api-channel-get-wallet-123',
+     addresses: {
+       ethereum: '0xa10585e3af9da7ff5dcd8f897ea0756f60f69cc1'.toLowerCase()
+     }
+@@ -64,10 +63,9 @@ test('getWallet', async t => {
+ 
+   const toCreateWalletWithAccountIndex = {
+     userId,
+-    type: 'channel',
++    type: 'unrelated',
+     name: 'testChannelWithAccountIndex',
+     enabled: true,
+-    channelId: 'api-channel-get-wallet-456',
+     addresses: {
+       ethereum: '0xa20585e3af9da7ff5dcd8f897ea0756f60f69cc2'.toLowerCase()
+     },
+@@ -244,9 +242,8 @@ test('updateWallet', async t => {
+   const toCreateWallet = {
+     userId,
+     wallets: [{
+-      type: 'channel',
++      type: 'unrelated',
+       name: 'testChannel',
+-      channelId: 'api-channel-update-wallet-123',
+       userId,
+       addresses: {
+         ethereum: '0xa30585e3af9da7ff5dcd8f897ea0756f60f69cc3'
+@@ -395,8 +392,7 @@ test('getWalletByAddress', async t => {
+     userId: 'api-test-user-get-wallet-by-address-1234',
+     wallets: [{
+       userId: 'api-test-user-get-wallet-by-address-1234',
+-      type: 'channel',
+-      channelId: 'api-channel-get-wallet-by-address-123',
++      type: 'unrelated',
+       name: 'testChannel',
+       addresses: {
+         ethereum: ethAddress,
+@@ -892,17 +888,15 @@ test('getUserTransfers', async t => {
+         }
+       },
+       {
+-        type: 'channel',
++        type: 'unrelated',
+         name: 'Wallet B',
+-        channelId: 'test123',
+         addresses: {
+           ethereum: ethAddress2
+         }
+       },
+       {
+-        type: 'channel',
++        type: 'unrelated',
+         name: 'Wallet C',
+-        channelId: 'test456',
+         addresses: {
+           ethereum: ethAddress3,
+           solana: solAddress
+@@ -910,9 +904,8 @@ test('getUserTransfers', async t => {
+       },
+       {
+         // Adding wallet with no transfers
+-        type: 'channel',
++        type: 'unrelated',
+         name: 'Wallet D',
+-        channelId: 'test789',
+         addresses: {
+           ethereum: ethAddress4
+         }
+@@ -1098,16 +1091,6 @@ test('getUserTransfers', async t => {
+     t.ok(res.transfers.every(tx => tx.blockchain === 'solana'), 'all transfers should be from Solana')
+   })
+ 
+-  await t.test('should filter by wallet type', async t => {
+-    const res = await rpcReq(apiWorkerWrapper, 'getUserTransfers', {
+-      userId,
+-      walletTypes: ['user']
+-    })
+-    t.is(res.transfers.length, 3, 'should return only user wallet transfers')
+-    t.ok(res.transfers.every(tx => tx.walletId === walletA.id),
+-      'all transfers should be from user wallets')
+-  })
+-
+   await t.test('should filter by date range', async t => {
+     const res = await rpcReq(apiWorkerWrapper, 'getUserTransfers', {
+       userId,
+@@ -1180,12 +1163,6 @@ test('getUserTransfers', async t => {
+ 
+     const noUserId = await rpcReq(apiWorkerWrapper, 'getUserTransfers', {})
+     t.is(noUserId, '[HRPC_ERR]=ERR_USER_ID_INVALID', 'should error when userId missing')
+-
+-    const emptyWalletTypes = await rpcReq(apiWorkerWrapper, 'getUserTransfers', {
+-      userId,
+-      walletTypes: ['non-existent-type']
+-    })
+-    t.is(emptyWalletTypes, '[HRPC_ERR]=ERR_USER_WALLET_ADDRESSES_NOT_FOUND', 'should error when no matching wallet types')
+   })
+ })
+ 
+diff --git a/tests/proc.shard.data.wrk.intg.test.js b/tests/proc.shard.data.wrk.intg.test.js
+index a6b7052..0d637c1 100644
+--- a/tests/proc.shard.data.wrk.intg.test.js
++++ b/tests/proc.shard.data.wrk.intg.test.js
+@@ -18,8 +18,7 @@ test('addWallet', async t => {
+   const userId = 'proc-test-user-1234'
+   const toCreateWallet = {
+     userId,
+-    type: 'channel',
+-    channelId: 'proc-channel-123',
++    type: 'unrelated',
+     enabled: true,
+     name: 'procTestChannel',
+     addresses: {
+@@ -39,8 +38,7 @@ test('addWallet', async t => {
+   t.comment('creating another wallet with same accountIndex should fail')
+   const toCreateWalletWithSameAccountIndex = {
+     userId,
+-    type: 'channel',
+-    channelId: 'proc-channel-124',
++    type: 'unrelated',
+     enabled: true,
+     name: 'procTestChannelDuplicateAccountIndex',
+     addresses: {
+@@ -59,8 +57,7 @@ test('addWallet', async t => {
+   const toCreateWalletsWithSameAccountIndex = [
+     {
+       userId,
+-      type: 'channel',
+-      channelId: 'proc-channel-125',
++      type: 'unrelated',
+       enabled: true,
+       name: 'procTestChannelDuplicateAccountIndex1',
+       addresses: {
+@@ -70,8 +67,7 @@ test('addWallet', async t => {
+     },
+     {
+       userId,
+-      type: 'channel',
+-      channelId: 'proc-channel-126',
++      type: 'unrelated',
+       enabled: true,
+       name: 'procTestChannelDuplicateAccountIndex2',
+       addresses: {
+@@ -92,8 +88,7 @@ test('addWallet', async t => {
+   const toCreateWalletsWithDifferentAccountIndex = [
+     {
+       userId,
+-      type: 'channel',
+-      channelId: 'proc-channel-127',
++      type: 'unrelated',
+       enabled: true,
+       name: 'procTestChannelDifferentAccountIndex1',
+       addresses: {
+@@ -103,8 +98,7 @@ test('addWallet', async t => {
+     },
+     {
+       userId,
+-      type: 'channel',
+-      channelId: 'proc-channel-128',
++      type: 'unrelated',
+       enabled: true,
+       name: 'procTestChannelDifferentAccountIndex2',
+       addresses: {
+@@ -125,8 +119,7 @@ test('addWallet', async t => {
+ test('updateWallet', async t => {
+   const userId = 'proc-test-user-456'
+   const toCreateWallet = {
+-    channelId: 'proc-channel-456',
+-    type: 'channel',
++    type: 'unrelated',
+     name: 'procTestChannel2',
+     addresses: {
+       ethereum: '0x2222222222222222222222222222222222222222'
+@@ -148,8 +141,7 @@ test('updateWallet', async t => {
+ test('updateWallet - accountIndex', async t => {
+   const userId = 'proc-test-user-789'
+   const toCreateWallet = {
+-    channelId: 'proc-channel-789',
+-    type: 'channel',
++    type: 'unrelated',
+     name: 'procTestChannel3',
+     addresses: {
+       ethereum: '0x1222222222222222222222222222222222222222'
+@@ -214,8 +206,7 @@ test('deleteInactiveUsersDataJob', async t => {
+ 
+   const walletForUserToDelete = {
+     userId: toDeleteUserId,
+-    channelId: 'channel123',
+-    type: 'channel',
++    type: 'unrelated',
+     name: 'testChannel',
+     addresses: {
+       ethereum: '0x870585E3AF9dA7ff5dcd8f897EA0756f60F69cc1'
+@@ -223,8 +214,7 @@ test('deleteInactiveUsersDataJob', async t => {
+   }
+   const walletForUserToKeep = {
+     userId: toKeepUserId,
+-    channelId: 'channel1234',
+-    type: 'channel',
++    type: 'unrelated',
+     name: 'testChannel',
+     addresses: {
+       ethereum: '0xE70585E3AF9dA7ff5dcd8f897EA0756f60F69cc1'
+@@ -360,8 +350,6 @@ test('deleteInactiveUsersDataJob', async t => {
+ 
+   const toKeepUserWalletEntryBefore = await wrk.db.walletRepository.getActiveWallet(toKeepWalletId)
+   const toDeleteWalletEntryBefore = await wrk.db.walletRepository.getActiveWallet(toDeleteWalletId)
+-  const toKeepChannelWalletEntryBefore = await wrk.db.walletRepository.getActiveChannelWallet(toKeepWallet.channelId)
+-  const toDeleteChannelWalletEntryBefore = await wrk.db.walletRepository.getActiveChannelWallet(toDeleteWallet.channelId)
+   const toKeepUserWalletsEntryBefore = await wrk.db.walletRepository.getActiveUserWallets(toKeepUserId).toArray()
+   const toDeleteUserWalletsEntryBefore = await wrk.db.walletRepository.getActiveUserWallets(toDeleteUserId).toArray()
+   const toKeepWalletBalanceEntryBefore = await wrk.db.walletBalanceRepository.getWalletBalancesInRange(toKeepWalletId, 0, Date.now()).toArray()
+@@ -377,8 +365,6 @@ test('deleteInactiveUsersDataJob', async t => {
+ 
+   t.is(toKeepUserWalletEntryBefore.id, toKeepWalletId)
+   t.is(toDeleteWalletEntryBefore.id, toDeleteWalletId)
+-  t.is(toKeepChannelWalletEntryBefore.channelId, toKeepWallet.channelId)
+-  t.is(toDeleteChannelWalletEntryBefore.channelId, toDeleteWallet.channelId)
+   t.is(toKeepUserWalletsEntryBefore.length, 1)
+   t.is(toKeepUserWalletsEntryBefore[0].id, toKeepWalletId)
+   t.is(toDeleteUserWalletsEntryBefore[0].userId, toDeleteUserId)
+@@ -424,8 +410,6 @@ test('deleteInactiveUsersDataJob', async t => {
+ 
+   const toKeepUserWalletEntryAfter = await wrk.db.walletRepository.getActiveWallet(toKeepWalletId)
+   const toDeleteWalletEntryAfter = await wrk.db.walletRepository.getActiveWallet(toDeleteWalletId)
+-  const toKeepChannelWalletEntryAfter = await wrk.db.walletRepository.getActiveChannelWallet(toKeepWallet.channelId)
+-  const toDeleteChannelWalletEntryAfter = await wrk.db.walletRepository.getActiveChannelWallet(toDeleteWallet.channelId)
+   const toKeepUserWalletsEntryAfter = await wrk.db.walletRepository.getActiveUserWallets(toKeepUserId).toArray()
+   const toDeleteUserWalletsEntryAfter = await wrk.db.walletRepository.getActiveUserWallets(toDeleteUserId).toArray()
+   const toKeepWalletBalanceEntryAfter = await wrk.db.walletBalanceRepository.getWalletBalancesInRange(toKeepWalletId, 0, Date.now()).toArray()
+@@ -441,8 +425,6 @@ test('deleteInactiveUsersDataJob', async t => {
+ 
+   t.not(toKeepUserWalletEntryAfter, null)
+   t.is(toDeleteWalletEntryAfter, null)
+-  t.not(toKeepChannelWalletEntryAfter, null)
+-  t.is(toDeleteChannelWalletEntryAfter, null)
+   t.is(toKeepUserWalletsEntryAfter.length, 1)
+   t.is(toDeleteUserWalletsEntryAfter.length, 0)
+   t.is(toKeepWalletBalanceEntryAfter.length, 1)
+@@ -461,8 +443,7 @@ test('deleteWallet', async t => {
+   const userId = '1234'
+   const toCreateWallet = {
+ 
+-    channelId: 'channel124',
+-    type: 'channel',
++    type: 'unrelated',
+     addresses: {
+       ethereum: '0x870585E3AF9dA7ff5dcd8f897EA0756f60F69cc1'
+     }
+@@ -492,8 +473,7 @@ test('addWallet - activeWalletsPerUser limit', async t => {
+     const hexSuffix = String(i).padStart(40, '0')
+     walletsToCreate.push({
+       userId,
+-      type: 'channel',
+-      channelId: `proc-channel-limit-${i}`,
++      type: 'unrelated',
+       enabled: true,
+       name: `LimitTestChannel${i}`,
+       addresses: {
+@@ -521,8 +501,7 @@ test('addWallet - activeWalletsPerUser limit', async t => {
+   t.comment('Attempting to create one more wallet should fail with limit exceeded')
+   const extraWallet = {
+     userId,
+-    type: 'channel',
+-    channelId: 'proc-channel-limit-extra',
++    type: 'unrelated',
+     enabled: true,
+     name: 'LimitTestChannelExtra',
+     addresses: {
+@@ -570,8 +549,7 @@ test('addWallet - custom walletLimit', async t => {
+     const hexSuffix = Math.random().toString(16).substring(2, 15)
+     walletsToCreate.push({
+       userId,
+-      type: 'channel',
+-      channelId: `proc-channel-custom-${i}`,
++      type: 'unrelated',
+       enabled: true,
+       name: `CustomLimitTestChannel${i}`,
+       addresses: {
+@@ -601,8 +579,7 @@ test('addWallet - custom walletLimit', async t => {
+ 
+   const extraWallet = {
+     userId,
+-    type: 'channel',
+-    channelId: 'proc-channel-custom-extra',
++    type: 'unrelated',
+     enabled: true,
+     name: 'CustomLimitTestChannelExtra',
+     addresses: {
+diff --git a/tests/unit/api.shard.data.wrk.unit.test.js b/tests/unit/api.shard.data.wrk.unit.test.js
+index 651c10e..06aa345 100644
+--- a/tests/unit/api.shard.data.wrk.unit.test.js
++++ b/tests/unit/api.shard.data.wrk.unit.test.js
+@@ -157,7 +157,7 @@ test('getWallets', async t => {
+     },
+     {
+       id: 'wallet2',
+-      type: 'channel',
++      type: 'unrelated',
+       name: 'Test Wallet 2',
+       addresses: {
+         ethereum: '0xabcdef1234567890abcdef1234567890abcdef12',
+@@ -194,10 +194,10 @@ test('getWallets', async t => {
+       toArray: sandbox.stub().resolves(wallets)
+     })
+ 
+-    const fetchedWallets = await apiWrk.getWallets({ userId, type: 'channel' })
++    const fetchedWallets = await apiWrk.getWallets({ userId, type: 'unrelated' })
+ 
+-    t.is(fetchedWallets.length, 1, 'fetched wallets count should match for channel type')
+-    t.is(fetchedWallets[0].id, wallets[1].id, 'fetched wallet should be the channel type wallet')
++    t.is(fetchedWallets.length, 1, 'fetched wallets count should match for unrelated type')
++    t.is(fetchedWallets[0].id, wallets[1].id, 'fetched wallet should be the unrelated type wallet')
+   })
+ })
+ 
+diff --git a/tests/unit/proc.shard.data.wrk.unit.test.js b/tests/unit/proc.shard.data.wrk.unit.test.js
+index 0c467da..a7b4c74 100644
+--- a/tests/unit/proc.shard.data.wrk.unit.test.js
++++ b/tests/unit/proc.shard.data.wrk.unit.test.js
+@@ -122,44 +122,6 @@ test('addWallet', async t => {
+     t.is(res.length, 1, 'should return an array with one wallet')
+   })
+ 
+-  t.test('should throw error if channelId not provided', async t => {
+-    existingWallets = []
+-    const channelWallet = { id: 'channel-wallet-id', type: 'channel', name: 'Ch', addresses: {}, enabled: false }
+-    const res = await procWrk.addWallet({ userId: '56234', wallets: [channelWallet] })
+-    const result = res[0]
+-    t.is(result.status, 400, 'should return status 400 for invalid channel wallet')
+-    t.is(result.error, 'ERR_CHANNEL_ID_INVALID', 'should return error for invalid channel wallet')
+-  })
+-
+-  t.test('should throw error if channel wallet already exists', async t => {
+-    const userId2 = '123566'
+-    const existingChannelWallet = [{ id: 'w1', type: 'channel', channelId: 'channel123', userId: userId2, addresses: {} }]
+-
+-    procWrk.db = {
+-      unitOfWork: async () => ({
+-        walletRepository: {
+-          getActiveUserWallets: () => ({ toArray: async () => existingChannelWallet }),
+-          getActiveWalletsByAddresses: () => ({ toArray: async () => [] }),
+-          save: async (w) => { savedWallets.push(w) }
+-        },
+-        userRepository: {
+-          getUser: async () => null,
+-          updateLastActiveToToday: async () => { }
+-        },
+-        commit: async () => { },
+-        rollback: async () => { }
+-      })
+-    }
+-
+-    const duplicateChannelWallet = { id: 'duplicate-channel-wallet-id', type: 'channel', channelId: 'channel123', enabled: true, addresses: {} }
+-
+-    const res = await procWrk.addWallet({ userId: userId2, wallets: [duplicateChannelWallet] })
+-
+-    t.is(res.length, 1, 'should return an array with one wallet')
+-    t.is(res[0].status, 400, 'should return status 400 for existing wallet')
+-    t.is(res[0].error, 'ERR_WALLET_ALREADY_EXISTS', 'should return error for existing wallet')
+-  })
+-
+   t.test('should return error when address already exists in database', async t => {
+     const userId3 = 'user-addr-conflict'
+     existingWallets = []
+@@ -202,7 +164,7 @@ test('addWallet', async t => {
+     // Create 2 existing active wallets (different types to avoid duplicate check)
+     const existingWalletsLimit = [
+       { id: 'w11', type: 'user', userId: userIdLimit, enabled: true, addresses: { ethereum: '0x111' } },
+-      { id: 'w22', type: 'channel', channelId: 'ch1', userId: userIdLimit, enabled: true, addresses: { ethereum: '0x222' } }
++      { id: 'w22', type: 'unrelated', userId: userIdLimit, enabled: true, addresses: { ethereum: '0x222' } }
+     ]
+ 
+     // Ensure savedWallets is reset for this test
+@@ -238,10 +200,9 @@ test('addWallet', async t => {
+       }
+     }
+ 
+-    // Create a channel wallet (not user type) to avoid duplicate check
++    // Create an unrelated wallet (not user type) to avoid duplicate check
+     const newWallet = {
+-      type: 'channel',
+-      channelId: 'ch2', // Different channelId to avoid duplicate check
++      type: 'unrelated',
+       name: 'Limit Test Wallet',
+       addresses: { ethereum: '0x333' },
+       enabled: true
+@@ -282,8 +243,7 @@ test('addWallet', async t => {
+     for (let i = 0; i < customLimit; i++) {
+       existingWalletsCustom.push({
+         id: `w${i}`,
+-        type: 'channel',
+-        channelId: `ch${i}`,
++        type: 'unrelated',
+         userId: userIdCustomLimit,
+         enabled: true,
+         addresses: { ethereum: `0x${i.toString().padStart(40, '0')}` }
+@@ -307,8 +267,7 @@ test('addWallet', async t => {
+     }
+ 
+     const newWallet = {
+-      type: 'channel',
+-      channelId: 'ch-new',
++      type: 'unrelated',
+       name: 'Custom Limit Test Wallet',
+       addresses: { ethereum: '0x9999999999999999999999999999999999999999' },
+       enabled: true
+@@ -333,8 +292,7 @@ test('addWallet', async t => {
+     for (let i = 0; i < 10; i++) {
+       existingWallets.push({
+         id: `w${i}`,
+-        type: 'channel',
+-        channelId: `ch${i}`,
++        type: 'unrelated',
+         userId: userIdHighLimit,
+         enabled: true,
+         addresses: { ethereum: `0x${i.toString().padStart(40, '0')}` }
+@@ -358,8 +316,7 @@ test('addWallet', async t => {
+     }
+ 
+     const newWallet = {
+-      type: 'channel',
+-      channelId: 'ch-new',
++      type: 'unrelated',
+       name: 'High Limit Test Wallet',
+       addresses: { ethereum: '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' },
+       enabled: true
+diff --git a/workers/api.shard.data.wrk.js b/workers/api.shard.data.wrk.js
+index 9af595a..4daa5d0 100644
+--- a/workers/api.shard.data.wrk.js
++++ b/workers/api.shard.data.wrk.js
+@@ -212,9 +212,21 @@ class WrkDataShardApi extends WrkBase {
+   }
+ 
+   async getUserBalance (req) {
+-    const { userId, walletTypes } = req
++    const { userId } = req
+ 
+-    return this.blockchainSvc.getUserBalance(userId, walletTypes)
++    return this.blockchainSvc.getUserBalance(userId)
++  }
++
++  /**
++   * Selects which of a user's wallets a balance/transfer request applies to.
++   * Generic default returns every wallet; overlays (e.g. Rumble) override this
++   * to honour request-level wallet filtering.
++   * @param {object[]} wallets
++   * @param {object} req
++   * @returns {object[]}
++   */
++  _filterUserWallets (wallets, req) {
++    return wallets
+   }
+ 
+   async getWalletBalance (req) {
+@@ -320,8 +332,7 @@ class WrkDataShardApi extends WrkBase {
+       type,
+       limit = 10,
+       skip = 0,
+-      sort = 'desc',
+-      walletTypes = null
++      sort = 'desc'
+     } = req
+ 
+     if (!userId) {
+@@ -339,9 +350,7 @@ class WrkDataShardApi extends WrkBase {
+     const walletIdToAddresses = {}
+     const eligibleWallets = []
+ 
+-    for (const wallet of userWallets) {
+-      if (walletTypes && !walletTypes.includes(wallet.type)) continue
+-
++    for (const wallet of this._filterUserWallets(userWallets, req)) {
+       const addresses = Object.values(wallet.addresses || {})
+       if (wallet.meta?.spark?.sparkDepositAddress) {
+         addresses.push(wallet.meta.spark.sparkDepositAddress)
+@@ -520,8 +529,7 @@ class WrkDataShardApi extends WrkBase {
+       type,
+       limit = 10,
+       skip = 0,
+-      sort = 'desc',
+-      walletTypes = null
++      sort = 'desc'
+     } = req
+ 
+     if (!userId) {
+@@ -539,9 +547,7 @@ class WrkDataShardApi extends WrkBase {
+     const walletIdToAddresses = {}
+     const eligibleWallets = []
+ 
+-    for (const wallet of userWallets) {
+-      if (walletTypes && !walletTypes.includes(wallet.type)) continue
+-
++    for (const wallet of this._filterUserWallets(userWallets, req)) {
+       walletIdToAddresses[wallet.id] = [wallet.meta.spark.sparkDepositAddress]
+       walletAddresses.push(wallet.meta.spark.sparkDepositAddress)
+       eligibleWallets.push(wallet)
+@@ -659,33 +665,16 @@ class WrkDataShardApi extends WrkBase {
+   }
+ 
+   async getUserTransfersV2 (req) {
+-    const { userId, blockchain, token, type, from, to, limit = 10, skip = 0, sort = 'desc', walletTypes = null } = req
++    const { userId, blockchain, token, type, from, to, limit = 10, skip = 0, sort = 'desc' } = req
+     if (!userId) {
+       throw new Error('ERR_USER_ID_INVALID')
+     }
+ 
+     const reverse = sort.toLowerCase() === 'desc'
+ 
+-    let docs
+-    if (walletTypes) {
+-      const userWallets = await this.db.walletRepository.getActiveUserWallets(userId).toArray()
+-      if (userWallets.length === 0) {
+-        throw new Error('ERR_USER_WALLETS_NOT_FOUND')
+-      }
+-
+-      const eligibleWallets = userWallets.filter(w => walletTypes.includes(w.type))
+-      if (eligibleWallets.length === 0) {
+-        throw new Error('ERR_NO_ELIGIBLE_WALLETS')
+-      }
+-
+-      docs = await this.db.walletTransfersProcessedRepository
+-        .findForWallets(eligibleWallets.map(w => w.id), blockchain, token, type, from, to, reverse, skip, limit)
+-        .toArray()
+-    } else {
+-      docs = await this.db.walletTransfersProcessedRepository
+-        .findForUser(userId, blockchain, token, type, from, to, reverse, skip, limit)
+-        .toArray()
+-    }
++    const docs = await this.db.walletTransfersProcessedRepository
++      .findForUser(userId, blockchain, token, type, from, to, reverse, skip, limit)
++      .toArray()
+ 
+     return { transfers: docs.map(doc => this._mapProcessedToResponse(doc)) }
+   }
+diff --git a/workers/lib/blockchain.svc.js b/workers/lib/blockchain.svc.js
+index 65c6ac5..9ac6a7b 100644
+--- a/workers/lib/blockchain.svc.js
++++ b/workers/lib/blockchain.svc.js
+@@ -352,15 +352,12 @@ class BlockchainService {
+ 
+   /**
+    * @param {string} userId
+-   * @param {array | null} walletTypes
+    * @returns {Promise<Balance>}
+    */
+-  async getUserBalance (userId, walletTypes = null) {
++  async getUserBalance (userId) {
+     const ctx = this.ctx
+     const wallets = []
+     for await (const wallet of ctx.db.walletRepository.getActiveUserWallets(userId)) {
+-      if (walletTypes && !walletTypes.includes(wallet.type)) continue
+-
+       wallets.push(wallet)
+     }
+ 
+diff --git a/workers/lib/db/base/repositories/wallets.js b/workers/lib/db/base/repositories/wallets.js
+index 682e9db..66618f4 100644
+--- a/workers/lib/db/base/repositories/wallets.js
++++ b/workers/lib/db/base/repositories/wallets.js
+@@ -77,14 +77,6 @@ class WalletsRepository {
+     throw new Error('ERR_NOT_IMPLEMENTED')
+   }
+ 
+-  /**
+-   * @param {string} channelId
+-   * @return {Promise<WalletsEntity|null>}
+-   */
+-  getActiveChannelWallet (channelId) {
+-    throw new Error('ERR_NOT_IMPLEMENTED')
+-  }
+-
+   /**
+    * @return {WalletsEntityStreamResult}
+    */
+diff --git a/workers/lib/db/hyperdb/repositories/wallets.js b/workers/lib/db/hyperdb/repositories/wallets.js
+index 5981d34..d9f773d 100644
+--- a/workers/lib/db/hyperdb/repositories/wallets.js
++++ b/workers/lib/db/hyperdb/repositories/wallets.js
+@@ -14,7 +14,6 @@ class WalletRepository extends BaseWalletRepository {
+     this.isTx = isTx
+     this.activeWalletsIndex = '@wdk-data-shard/active-wallets'
+     this.activeWalletsByUserIdIndex = '@wdk-data-shard/active-wallets-by-user-id'
+-    this.activeWalletsByChannelId = '@wdk-data-shard/active-wallets-by-channel-id'
+     this.walletsByDeletedAtIndex = '@wdk-data-shard/wallets-by-deleted-at'
+     this.activeWalletsByAddressIndex = '@wdk-data-shard/active-wallets-by-address'
+   }
+@@ -93,13 +92,6 @@ class WalletRepository extends BaseWalletRepository {
+     })
+   }
+ 
+-  getActiveChannelWallet (channelId) {
+-    return this.dbOrTx.findOne(this.activeWalletsByChannelId, {
+-      gte: channelId,
+-      lte: channelId
+-    })
+-  }
+-
+   getDeletedWallets () {
+     return this.dbOrTx.find(this.walletsByDeletedAtIndex, {
+       gt: 0
+diff --git a/workers/lib/db/mongodb/repositories/wallets.js b/workers/lib/db/mongodb/repositories/wallets.js
+index 99614d1..749fc18 100644
+--- a/workers/lib/db/mongodb/repositories/wallets.js
++++ b/workers/lib/db/mongodb/repositories/wallets.js
+@@ -44,11 +44,6 @@ class WalletRepository extends BaseWalletRepository {
+       { background: true, name: 'idx_wdk_data_shard_wallets_active_wallets_by_user_id' }
+     )
+ 
+-    await this.collection.createIndex(
+-      { channelId: 1, enabled: 1, deletedAt: 1 },
+-      { background: true, name: 'idx_wdk_data_shard_wallets_active_wallets_by_channel_id' }
+-    )
+-
+     await this.collection.createIndex(
+       { deletedAt: 1 },
+       { background: true, name: 'idx_wdk_data_shard_wallets_by_deleted_at' }
+@@ -194,18 +189,6 @@ class WalletRepository extends BaseWalletRepository {
+     })
+   }
+ 
+-  getActiveChannelWallet (channelId) {
+-    return this.collection.findOne({
+-      channelId,
+-      deletedAt: { $lte: 0 }
+-    }, {
+-      ...this.sessionOpts,
+-      readPreference: this.readPreference,
+-      projection: { _id: 0 },
+-      maxTimeMS: this.operations.readTimeout ?? 30000
+-    })
+-  }
+-
+   getDeletedWallets () {
+     return this.collection.find(
+       {
+diff --git a/workers/proc.shard.data.wrk.js b/workers/proc.shard.data.wrk.js
+index 2d530e2..24df73a 100644
+--- a/workers/proc.shard.data.wrk.js
++++ b/workers/proc.shard.data.wrk.js
+@@ -223,6 +223,36 @@ class WrkDataShardProc extends WrkBase {
+     throw new Error('ERR_DB_ENGINE_UNK')
+   }
+ 
++  /**
++   * Duplicate-wallet rule. A user may hold a single `user` wallet. Overlays
++   * (e.g. Rumble) override this to add rules for their own wallet types.
++   * @param {object} newWallet - the wallet being created
++   * @param {object} existing - a wallet to compare against
++   * @returns {boolean}
++   */
++  _isDuplicateWallet (newWallet, existing) {
++    return newWallet.type === 'user' && existing.type === 'user'
++  }
++
++  /**
++   * Creation-time validation hook. Returns an error-code string to reject the
++   * wallet, or null to accept it. Overlays override this for their own types.
++   * @param {object} newWallet
++   * @returns {string|null}
++   */
++  _validateNewWallet (newWallet) {
++    return null
++  }
++
++  /**
++   * Extra persisted fields contributed by overlays (e.g. Rumble `channelId`).
++   * @param {object} newWallet
++   * @returns {object}
++   */
++  _buildExtraWalletFields (newWallet) {
++    return {}
++  }
++
+   async addWallet (req) {
+     const uow = await this.db.unitOfWork()
+     const seenAddresses = new Set()
+@@ -237,14 +267,11 @@ class WrkDataShardProc extends WrkBase {
+       const user = await uow.userRepository.getUser(userId)
+       const userWalletLimit = user?.walletLimit > 0 ? user.walletLimit : this.activeWalletsPerUser
+       for (const newWallet of wallets) {
+-        const { type, channelId, name, addresses, enabled = false, accountIndex, meta } = newWallet
++        const { type, name, addresses, enabled = false, accountIndex, meta } = newWallet
+         const accountIndexInStr = Number.isInteger(accountIndex) ? String(accountIndex) : undefined
+ 
+         const isDup = (wallets) =>
+-          wallets.some(w =>
+-            (type === 'channel' && w.type === 'channel' && w.channelId === channelId) ||
+-            (type === 'user' && w.type === 'user')
+-          )
++          wallets.some(w => this._isDuplicateWallet(newWallet, w))
+ 
+         if (isDup(existingWallets) || isDup(newWallets)) {
+           newWallets.push({
+@@ -255,11 +282,12 @@ class WrkDataShardProc extends WrkBase {
+           continue
+         }
+ 
+-        if (type === 'channel' && !channelId) {
++        const validationError = this._validateNewWallet(newWallet)
++        if (validationError) {
+           newWallets.push({
+             ...newWallet,
+             status: 400,
+-            error: 'ERR_CHANNEL_ID_INVALID'
++            error: validationError
+           })
+           continue
+         }
+@@ -376,7 +404,7 @@ class WrkDataShardProc extends WrkBase {
+           enabled,
+           createdAt: now,
+           updatedAt: now,
+-          ...(channelId && { channelId }),
++          ...this._buildExtraWalletFields(newWallet),
+           ...(accountIndexInStr && { accountIndex: accountIndexInStr }),
+           ...(isValidMeta && { meta })
+         }

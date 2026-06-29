@@ -1,5 +1,9 @@
 # Next steps for WDK-1085 — cross-service E2E integration test suite
 
+> Single consolidated folder for this ticket. The earlier Jun-1 fetch and the
+> Jun-5 re-fetch were merged here on 2026-06-17; the duplicate folder was deleted.
+> This is the only folder that represents WDK-1085.
+
 **Ticket:** https://app.asana.com/1/45238840754660/project/1210540875949204/task/1212919215237588
 
 ## What we know
@@ -21,10 +25,14 @@
 - 0 non-image attachments
 - 0 human comments (system stories only, in `comments.md`)
 
-## What's still missing (from `missing-context.md`)
-- Status of the blocking card (Public WDK E2E suite, GID 1213242924383371) — confirm it's done first.
-- Links to Maxime's / Maksym's PRs and the Slack thread (C090AUH3V6K / ts 1773856271731709) — now the reference approach for the Node-script harness.
+## Blocking dependency — resolved (2026-06-17)
+- The blocking card was the Public WDK E2E suite (GID 1213242924383371 / WDK-1176): https://app.asana.com/1/45238840754660/project/1210540875949204/task/1213242924383371
+- That card's EVM happy-path suite is built; its PR is approved and merging (section PR OPEN). The "wait until it's finished before starting" gate from the original description no longer applies.
+- Follow-up created on 2026-06-17 to extend that suite to the non-EVM indexers (Bitcoin, Solana, TON, Tron, Spark): https://app.asana.com/1/45238840754660/project/1210540875949204/task/1215798572158482
+
+## Still to pull when work starts
+- Links to Maxime's / Maksym's PRs and the Slack thread (C090AUH3V6K / ts 1773856271731709) — the reference approach for the Node-script harness.
 - `rumble-app-node/tests/test-lib/` patterns (read from local clone).
 
 ## Before starting work
-This is flagged BLOCKED. **First confirm the blocking public-WDK card is finished**, then get Maxime's PRs as the model for the Node-script harness. Scope/approach are now settled (separate repo, no Docker for services, EVM happy path, local + GitHub CI). Still a chunky, possibly-rework-later task.
+No longer blocked. Get Maxime's PRs as the model for the Node-script harness. Scope/approach are settled (separate repo, no Docker for services, EVM happy path, local + GitHub CI). Still a chunky, possibly-rework-later task.

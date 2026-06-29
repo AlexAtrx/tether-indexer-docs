@@ -22,3 +22,20 @@ This is not a "go implement" ticket yet. The first deliverable is the **card spl
 1. Use `LOCAL-CODE-AUDIT.md` as the current ownership map.
 2. Use `SPLIT-PROPOSAL.md` as the suggested three-card split: data-shard, ork, app/API/docs.
 3. Resolve the HyperDB migration question before filing/starting the data-shard card.
+
+## Child slices (the 3 cards, fetched locally) — dependency order
+All three are subtasks of this card, assigned to Alex, In-Progress in Rumble Wallet, High, Sprint 3/4.
+The title prefix `WDK-1196 / RW-1683` is the shared epic label; each card has its own RW/WDK IDs.
+
+1. **Data-shard channel wallet ownership** (do FIRST — storage/source-of-truth, riskiest)
+   — RW-1870 / WDK-1530, GID `1215537119353708`
+   → `_tasks/77-17-jun-26-WDK-1196-RW-1683-data-shard-channel-wallet-ownership/`
+2. **Rumble-owned channel shard routing** (do SECOND — ork; tip-jar routes need channelId -> shard)
+   — RW-1871 / WDK-1531, GID `1215537218483628`
+   → `_tasks/78-17-jun-26-WDK-1196-RW-1683-rumble-owned-channel-shard-routing/`
+3. **Rumble-owned channel wallet API and docs** (do LAST — app + docs)
+   — RW-1872 / WDK-1532, GID `1215537079067713`
+   → `_tasks/76-17-jun-26-WDK-1196-RW-1683-rumble-owned-channel-wallet-api-and-docs/`
+
+These map 1:1 to the three cards in `SPLIT-PROPOSAL.md`. Each card ends with the Rumble
+repo bumped to the cleaned WDK dependency so the stack stays shippable at every step.

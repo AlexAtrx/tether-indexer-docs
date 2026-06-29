@@ -1,0 +1,157 @@
+diff --git a/workers/http.node.wrk.js b/workers/http.node.wrk.js
+index 8df21b1..d99f9c2 100644
+--- a/workers/http.node.wrk.js
++++ b/workers/http.node.wrk.js
+@@ -82,6 +82,10 @@ class WrkServerHttp extends WdkServerHttpBase {
+       }
+     }
+ 
++    // Re-add the Rumble-owned channel-wallet + walletTypes surface to the
++    // inherited (now generic) WDK wallet routes.
++    libServer.applyChannelWalletSchemas(this)
++
+     // Document uma/username on the wallet routes' response schemas; the values
+     // themselves are attached uniformly by the preSerialization hook below.
+     libServer.applyUmaWalletSchemas(this)
+diff --git a/workers/lib/server.js b/workers/lib/server.js
+index 63ebead..9c75273 100644
+--- a/workers/lib/server.js
++++ b/workers/lib/server.js
+@@ -8,6 +8,17 @@ const { postPromoClaimSchema, getClaimStatusSchema } = require('./schemas')
+ const { txHashValidationRules } = require('./schemas/tx-hash')
+ const constants = require('./utils/constants')
+ const { WALLET_RESPONSE_ROUTES } = require('./utils/uma')
++const { cachedRoute } = require('@tetherto/wdk-app-node/workers/lib/utils/cached.route')
++const { allPropsNonNullDeep } = require('@tetherto/wdk-app-node/workers/lib/utils/helpers')
++
++// Channel wallets are Rumble-specific, so the generic wdk-app-node no longer
++// advertises the 'channel' wallet type, the channelId field, or the walletTypes
++// balance/transfer filter. Rumble re-adds them to the inherited wallet routes.
++const CHANNEL_WALLET_ENUM = ['user', 'channel', 'unrelated']
++const channelWalletTypesSchema = {
++  type: 'array',
++  items: { type: 'string', enum: CHANNEL_WALLET_ENUM }
++}
+ 
+ const send200 = (rep, data) => {
+   return rep.status(200).send(data)
+@@ -27,6 +38,54 @@ const applyUmaWalletSchemas = (ctx) => {
+   }
+ }
+ 
++// Re-adds the Rumble-specific channel-wallet + walletTypes surface to the
++// inherited (now generic) WDK wallet routes.
++const applyChannelWalletSchemas = (ctx) => {
++  // POST /api/v1/wallets: allow type 'channel' and the channelId field, and
++  // require channelId when the wallet type is 'channel'.
++  const createItems = ctx.routes.get('POST:/api/v1/wallets')?.schema?.body?.items
++  if (createItems?.properties) {
++    createItems.properties.type = { enum: CHANNEL_WALLET_ENUM }
++    createItems.properties.channelId = { type: 'string', minLength: 1, maxLength: 255 }
++    createItems.allOf = [
++      {
++        if: { required: ['type'], properties: { type: { const: 'channel' } } },
++        then: { required: ['channelId'] },
++        else: { properties: { channelId: false } }
++      },
++      ...(createItems.allOf || [])
++    ]
++  }
++
++  // Balance + transfer reads accept the walletTypes filter again.
++  for (const key of [
++    'GET:/api/v1/users/:userId/balance',
++    'GET:/api/v1/users/:userId/token-transfers',
++    'GET:/api/v1/users/:userId/spark/bitcoin/token-transfers',
++    'GET:/api/v2/users/:userId/token-transfers'
++  ]) {
++    const qs = ctx.routes.get(key)?.schema?.querystring
++    if (qs?.properties) {
++      qs.properties.walletTypes = channelWalletTypesSchema
++    }
++  }
++
++  // The cached user-balance handler must key on walletTypes (otherwise a filtered
++  // and an unfiltered balance for the same user collide in the cache) and forward
++  // it to the shard. Transfer handlers already spread req.query, so they need no
++  // override.
++  const balanceRoute = ctx.routes.get('GET:/api/v1/users/:userId/balance')
++  if (balanceRoute) {
++    balanceRoute.handler = async (req, rep) => {
++      const ckeyParts = ['/api/v1/users/:userId/balance', req.params.userId, req.query.walletTypes]
++      return send200(
++        rep,
++        await cachedRoute(ctx, ckeyParts, '/api/v1/users/:userId/balance', () => service.ork.getUserBalance(ctx, req), !req.query.cache, allPropsNonNullDeep)
++      )
++    }
++  }
++}
++
+ /**
+  * Returns the JSON schema for a single log entry.
+  * Used by the /api/v1/logs endpoint to validate incoming log payloads.
+@@ -1189,5 +1248,6 @@ const routes = (ctx) => {
+ 
+ module.exports = {
+   routes,
+-  applyUmaWalletSchemas
++  applyUmaWalletSchemas,
++  applyChannelWalletSchemas
+ }
+diff --git a/workers/lib/services/ork.js b/workers/lib/services/ork.js
+index ed44b52..8364c5b 100644
+--- a/workers/lib/services/ork.js
++++ b/workers/lib/services/ork.js
+@@ -165,7 +165,15 @@ const getWalletById = async (ctx, req, walletId) => {
+   return rpcCall(ctx, req, 'getWallet', { id: walletId })
+ }
+ 
++// Rumble-specific: forward the optional walletTypes filter (e.g. user vs channel)
++// to the data shard, which the generic wdk-app-node no longer carries.
++const getUserBalance = async (ctx, req) => {
++  const { walletTypes } = req.query || {}
++  return rpcCall(ctx, req, 'getUserBalance', { ...(walletTypes && { walletTypes }) })
++}
++
+ module.exports = {
++  getUserBalance,
+   getUserTipJar,
+   getChannelTipJar,
+   updateChannelWalletName,
+diff --git a/workers/lib/utils/errorsCodes.js b/workers/lib/utils/errorsCodes.js
+index 09d460f..140d183 100644
+--- a/workers/lib/utils/errorsCodes.js
++++ b/workers/lib/utils/errorsCodes.js
+@@ -1,6 +1,10 @@
+ 'use strict'
+ 
+ module.exports = {
++  // Tip-jar lookups are Rumble-specific (channel wallets); these map the ork
++  // errors surfaced by the Rumble tip-jar routes to their HTTP status.
++  ERR_USER_TIP_JAR_NOT_FOUND: 404,
++  ERR_CHANNEL_TIP_JAR_NOT_FOUND: 404,
+   ERR_NO_PROMO_SERVICE_AVAILABLE: 503,
+   ERR_USER_NOT_AUTHENTICATED: 401,
+   ERR_USER_WALLET_NOT_FOUND: 404,
+diff --git a/workers/lib/utils/uma.js b/workers/lib/utils/uma.js
+index 2db1f48..e67bdac 100644
+--- a/workers/lib/utils/uma.js
++++ b/workers/lib/utils/uma.js
+@@ -31,6 +31,8 @@ const walletWithUmaSchema = {
+   ...walletSchema,
+   properties: {
+     ...walletSchema.properties,
++    // Channel wallets are Rumble-specific, so Rumble (not WDK) documents channelId.
++    channelId: { type: 'string' },
+     username: { type: 'string' },
+     uma: umaConfigSchema
+   }
+@@ -51,6 +53,8 @@ const walletCreateResultsWithUmaSchema = {
+     ...walletCreateResultSchema,
+     properties: {
+       ...walletCreateResultSchema.properties,
++      // Channel wallets are Rumble-specific, so Rumble (not WDK) documents channelId.
++      channelId: { type: 'string' },
+       username: { type: 'string' },
+       uma: umaConfigSchema
+     }
