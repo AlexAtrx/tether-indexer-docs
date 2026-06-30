@@ -70,8 +70,9 @@ your recommended answer with each question so Alex can just confirm. Keep going
 until every load-bearing branch is resolved, then continue the step you came
 from with the answers folded in.
 
-Use grill-me at the three points called out below (Step 2 blockers, Step 3
-classification, Step 5b design), and any other time a real ambiguity would
+Use grill-me at the points called out below (Step 2 blockers, Step 3
+classification, Step 5a layer-scoping, Step 5c design), and any other time a real
+ambiguity would
 otherwise force a guess. For non-load-bearing gaps, note them and continue (no
 grill needed).
 
@@ -242,14 +243,34 @@ analysis ticket unless Alex asks for the fix afterward.
 
 ## Step 5 — Implementation flow (bug / feature / refactor)
 
-### 5a. Find the exact site and the right layer
+### 5a. Scope the layers FIRST (mandatory gate — Rumble vs shared base)
 
-Use `repos.md` + `architecture.md` to land in the correct repo and layer. Read
-the surrounding code end to end, not just the spot you'll change. Identify every
-repo the change must touch (a shared-lib or schema change fans out, see the
-version-bump policy in `conventions.md`).
+Before reading the change site in detail and before any edit, run the
+`scope-feature` skill (`.claude/skills/scope-feature/SKILL.md`) on this ticket.
+Most tickets here are Rumble; the recurring, expensive mistake is putting
+Rumble-specific logic into a shared `wdk-*` / `bfx-*` / indexer / wallet-lib base
+and having to relocate it into the `rumble-*` fork later (e.g. RW-1998 promo).
 
-### 5b. Design the minimal change against the conventions
+Decompose the feature into concerns, classify each with the litmus test ("would a
+non-Rumble consumer of this base want this change?"), and produce the per-concern
+layer map (`concern → owning repo → mechanism → why`). **Default Rumble-only
+unless proven shared.** When a concern is clearly owned, proceed; **stop and ask
+Alex only when ownership is genuinely ambiguous** (you can't confidently answer
+the litmus test, or it's unclear whether the Tether Wallet app / indexer also
+needs it). If a base edit is unavoidable for a Rumble feature, the base gets only
+a generic hook and the specifics go in the fork (the `_isDuplicateWallet` /
+`_enablePromoWalletType` precedents).
+
+Carry the layer map into the steps below; it fixes which repos you touch.
+
+### 5b. Find the exact site and the right layer
+
+Use `repos.md` + `architecture.md` to land in the correct repo and layer (the one
+the layer map assigned). Read the surrounding code end to end, not just the spot
+you'll change. Identify every repo the change must touch (a shared-lib or schema
+change fans out, see the version-bump policy in `conventions.md`).
+
+### 5c. Design the minimal change against the conventions
 
 Before editing, make the design satisfy all of these, explicitly:
 
@@ -274,14 +295,14 @@ Before editing, make the design satisfy all of these, explicitly:
 State any assumption you have to make and isolate its effect. If a design point
 is genuinely unclear, run `grill-me` to resolve it with Alex before writing code.
 
-### 5c. Implement
+### 5d. Implement
 
 Edit the local clones under `/Users/alexa/Documents/repos/_tether/_INDEXER/`.
 Make matching changes in every repo the change fans out to (don't leave one side
 of an HRPC contract or a version bump half-done). Follow the file's existing
 patterns, error handling, and logging conventions.
 
-### 5d. Test locally — tests match the change and all pass
+### 5e. Test locally — tests match the change and all pass
 
 You do **not** need to boot the backend stack. What matters is that the repo's
 own test suite reflects the change and is green:
@@ -298,7 +319,7 @@ own test suite reflects the change and is green:
 
 Record what you ran and the result; you'll cite it in the summary.
 
-### 5e. Write the change log into the folder
+### 5f. Write the change log into the folder
 
 Write **`HANDLING.md`** into the task folder so the work is auditable later:
 

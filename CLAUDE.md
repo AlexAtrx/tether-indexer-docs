@@ -63,6 +63,30 @@ gives Alex a short chat summary that lists the repos involved. **All work stays
 local: never commits, never pushes to GitHub, never posts to Asana**, and never
 uses em dashes in human-facing output.
 
+### Scope a Feature (Rumble vs shared base)
+
+**Triggers:** any message asking which layer/repo owns a change, or whether a
+feature is Rumble-only or also touches the rest of the backend. Examples:
+
+- "is this rumble-only" / "is this purely Rumble or does it hit the indexer/wallet"
+- "which repo should this go in" / "where should this change live"
+- "scope this feature" / "separate the concerns" / "split this by layer"
+
+**Skill file:** `.claude/skills/scope-feature/SKILL.md`
+
+**Summary:** Decides which layer and repo owns each concern of a feature BEFORE
+any code is written, so Rumble-specific logic lands in the `rumble-*` forks
+(`rumble-app-node` / `rumble-ork-wrk` / `rumble-data-shard-wrk`, or a Rumble-only
+worker) and never leaks into the shared WDK / Tether-Wallet / indexer base
+(`wdk-*` / `bfx-*` / `svc-facs-*` / `*-base` / wallet libs). Default assumption is
+**Rumble-only unless proven shared**. Uses one litmus test ("would a non-Rumble
+consumer of this base want this change?"); when a base edit is unavoidable it
+keeps the base generic via a hook and puts specifics in the fork (the RW-1998
+`_isDuplicateWallet` / `_enablePromoWalletType` precedents). Produces a per-concern
+layer map and **stops to ask Alex only when ownership is genuinely ambiguous**.
+This skill is also run automatically by `handle-ticket` as a mandatory gate at
+the start of its implementation flow (Step 5a), so it fires on every code change.
+
 ### Refresh Tether TODOs
 
 **Triggers:** any message asking Alex's TODO / ticket queue to be pulled,
@@ -150,3 +174,75 @@ ports 3000/3001/3002 behind Caddy at :443), Redis Sentinel cluster
 `mystreams` over a Wireguard mesh, on-disk layout, common recipes
 (worker listing, log tail, Caddy/Sentinel inspection, controlled
 rolling restart), and the same hard cleanup rule as the dev skill.
+
+### Check an Error on an Environment
+
+**Triggers:** any message handing over an error (a Slack bug report, a
+Sentry issue, or a raw log line) and asking whether it is still happening on
+a live box, or whether a fix actually landed. Examples:
+
+- "is this error still happening on staging/prod"
+- "check if this error exists on dev / walletstg1"
+- "did the fix deploy" / "is this still firing after the merge"
+- pasting a log line or Slack report and asking to verify it on a real server
+
+**Skill file:** `.claude/skills/check-error-on-env/SKILL.md`
+
+**Summary:** Orchestration layer on top of `access-dev-server` /
+`access-staging-servers`. Extracts a stable greppable signature from the
+pasted error (strips pids/timestamps/ids/worker suffixes), picks the
+environment, greps the live PM2 logs over a bounded time window (all three
+staging replicas unless told otherwise), and correlates the hit to a known
+`_tasks/` folder so a still-firing error against a `[DONE]` ticket reads as
+"fix unmerged or undeployed". Read-only by default (never restarts or
+redeploys), confirms the deployed commit before trusting a "not happening"
+result, leaves no traces on the box, and never uses em dashes back to Alex.
+
+### Find a Task Folder
+
+**Triggers:** any message asking which `_tasks/` folder owns something
+concrete in hand — a PR link, an error, a ticket id, local changes, or a
+keyword. Examples:
+
+- "find the ticket folder responsible for this [local changes]"
+- "search for the task that had this PR in it: <github pr url>"
+- "which task covers this error" / "did we already work on this"
+
+**Skill file:** `.claude/skills/find-task/SKILL.md`
+
+**Summary:** Local reverse-lookup over the 80+ folders under
+`_tether-indexer-docs/_tasks/`. Classifies the input (PR URL / error
+signature / ticket id / local git diff / keyword), greps the high-signal
+files (`ticket.md`, `comments.md`, `HANDLING.md`, `root-cause.md`) plus the
+folder names, ranks matches and confirms weak ones, and reports each with
+ticket id and `[DONE]`/deploy status so a `[DONE]` folder behind a live error
+reads as "fix unmerged or undeployed". Read-only (never renames or edits
+folders); a confident "no existing ticket" beats a forced match. Natural
+hand-off into `handle-ticket`; reused by `check-error-on-env` and
+`sentry-triage` for their correlation step.
+
+### Triage a Sentry Issue
+
+**Triggers:** any message handing over a `sentry.rumble.work` issue link, or
+relaying a Sentry error (often from the tech lead) and asking why it happens
+or whether it is a backend issue. Examples:
+
+- "investigate this Sentry issue <sentry.rumble.work url>"
+- "why is this timing out in prod" with a Sentry link
+- "is this a backend issue" with a pasted Sentry error
+
+**Skill file:** `.claude/skills/sentry-triage/SKILL.md`
+
+**Summary:** Uses the already-configured `sentry` MCP server
+(`sentry-mcp-rumble` wrapper → `sentry.rumble.work`, org `rumble`; no token
+needed from Alex). Resolves the issue in the right project/environment
+(`rumble-wallet-backend` vs mobile `rumble-wallet-app`), reads the latest
+event + stacktrace + tags, and traces it to the responsible `file:line`
+across the layered WDK/Rumble services (respecting the app-node-HTTP vs
+internal-HRPC split; using `read-remote-repo` for the deployed release).
+States plainly whether it is a backend defect, a benign client rejection
+reaching Sentry as an Error, or not ours. Correlates via `find-task`,
+cross-checks live logs via `check-error-on-env`, optionally writes
+`sentry-investigation-YYYY-MM-DD.md` into the task folder, and hands off to
+`handle-ticket`. Read-only in Sentry (never resolves/assigns/mutes); no em
+dashes back to Alex.

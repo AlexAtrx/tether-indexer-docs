@@ -145,6 +145,114 @@ Three further review findings, all fixed:
 Tests added: wdk-app-node integration `POST .../wallets` promo-without-accountIndex -> 422;
 rumble-app-node unit `getCodeStatus` promo-hit and unrelated-fallback paths.
 
+## Update 4 — PR review: move promo dedup out of the WDK base (SargeKhan, #264)
+Review comment on `wdk-data-shard-wrk#264` (`workers/proc.shard.data.wrk.js:247`):
+"i personally think we shouldn't add this logic in the wdk layer as it's specific to
+rumble". Valid: the one-promo-per-user invariant exists to serve Rumble's promo-code
+resolver (`rumble-app-node` rejects a non-unique promo wallet), so it is a Rumble rule, not
+a generic WDK one. Relocated it, keeping the WDK base generic:
+
+- `wdk-data-shard-wrk/workers/proc.shard.data.wrk.js` — extracted the per-type duplicate
+  test from the inline `isDup` closure into an overridable method `_isDuplicateWallet
+  (candidate, existing)` that holds the base `user` / `channel` singleton rules only. The
+  `promo` clause was removed from the base. `addWallet`'s `isDup` now calls
+  `this._isDuplicateWallet`. Removed the base promo unit test (it no longer belongs there).
+- `rumble-data-shard-wrk/workers/proc.shard.data.wrk.js` — overrides `_isDuplicateWallet`
+  to add `promo` on top of `super._isDuplicateWallet(...)`. Added `PROMO: 'promo'` to
+  `workers/lib/utils/constants.js` `WALLET_TYPES`. Added a focused unit test (promo dup,
+  promo-vs-nonpromo, unrelated not deduped, plus inherited user/channel rules).
+
+`type: 'promo'` is still accepted and stored at the generic layers (the `wdk-app-node`
+`walletEnum` and the opaque-string HyperDB `type` are unchanged); only the Rumble-specific
+business invariant moved down to Rumble. Tests: wdk-data-shard-wrk `npm run test:unit`
+56/56, lint clean; rumble-data-shard-wrk new proc test 39/39, the three touched files lint
+clean (pre-existing lint noise in untouched files only).
+
+Deploy-time fan-out (not done locally): `rumble-data-shard-wrk` pins `@tetherto/
+wdk-data-shard-wrk` at `f1dac14`, which predates the new `_isDuplicateWallet` base method.
+The pin must be bumped to a base commit that includes it (and `npm install` re-run) or
+`super._isDuplicateWallet` is undefined at runtime. Needs the base commit pushed first.
+This also means a new `rumble-data-shard-wrk` PR is required (it had none among the three).
+
+## Update 5 — PR review part 2: promo out of wdk-app-node too (SargeKhan, #141 + #264)
+Reviewer broadened the concern to wdk-app-node#141: "we shouldn't add rumble-specific logic
+in the wdk layers". Correct, and stronger here than the data-shard case: `user` / `channel`
+/ `unrelated` are the WDK base's own generic wallet vocabulary, but `promo` is genuinely
+Rumble-only, so it does not belong in the base `walletEnum` or base wallet schema. Alex's
+call: relocate fully to Rumble and empty #141.
+
+- `wdk-app-node` — reverted the entire promo commit (485c886) in the working tree
+  (`git checkout 485c886^ -- <6 files>`): `walletEnum` back to `['user','channel',
+  'unrelated']`, GET description restored, the promo `accountIndex` `if/then` removed from
+  the POST `/api/v1/wallets` schema, base promo unit + integration tests removed, version
+  bump reverted to `0.1.1`. #141 now has no functional change, so **close it** (do not
+  merge). No other consumer needed promo from the base (`wdk-indexer-app-node` does no
+  wallet creation).
+- `rumble-app-node` — now owns the promo wallet type at the HTTP boundary without touching
+  the base. In `http.node.wrk.js` `_setupRoutes` (where it already patches the base
+  `POST /api/v1/wallets` preHandler), added `_enablePromoWalletType(...)` that teaches the
+  inherited GET/POST wallets routes to accept `type: 'promo'` and requires `accountIndex`
+  for promo via an appended `allOf` `if/then`. The patch runs before the base registers
+  routes into fastify (`base.http.server.wdk.js:248`), and clones the enum arrays rather
+  than mutating the shared base schema. Added 3 integration tests (promo accepted +
+  forwarded with its index; promo without accountIndex -> 422; `?type=promo` -> 200).
+
+End-to-end the promo create path is now all-Rumble: rumble-app-node accepts `type: 'promo'`
+-> rumble-ork passes it through -> rumble-data-shard-wrk stores it and enforces one promo
+wallet per user (Update 4). WDK base layers stay generic and know nothing about promo.
+
+Tests: rumble-app-node `http.node.wrk.intg.test.js` 3 new promo tests pass, the two touched
+files lint clean; the one `not ok` (`GET /wallets/:id/balance`) is pre-existing (fails
+identically with my changes stashed, needs the real stack). wdk-app-node files restored to
+their pre-promo committed state (known green).
+
+PR set after this round: close `wdk-app-node#141` (now empty); `wdk-data-shard-wrk#264`
+needs its promo bits dropped (Update 4) or can also be closed if the base no longer changes
+(it still carries the generic `_isDuplicateWallet` refactor, which is worth keeping, so keep
+#264 but without promo); new PRs needed for `rumble-app-node` (promo schema) and
+`rumble-data-shard-wrk` (promo dedup). rumble-data-shard-wrk must bump its wdk-data-shard-wrk
+pin to a commit with `_isDuplicateWallet`.
+
+## Update 6 — review finding: rumble shard depends on an unpinned base hook (critical)
+Finding (rumble-data-shard-wrk/package.json:48): the pin
+`@tetherto/wdk-data-shard-wrk#f1dac14` predates the `_isDuplicateWallet` hook, but rumble's
+`_isDuplicateWallet` override calls `super._isDuplicateWallet(...)`. Verified:
+- `f1dac14` is the commit right before the promo work (`chore: bump bfx-svc-boot-js`); its
+  `addWallet` uses the old inline `isDup` (user/channel) and never calls `_isDuplicateWallet`.
+- The hook exists only in my uncommitted Update-4 working tree, so NO pushed base commit has
+  it. Local `node_modules` has drifted to include it (that is why local tests pass), masking
+  the gap. Confirmed correct: the committed dependency graph is broken.
+- Clean-install failure mode is actually **silent, not a crash**: f1dac14's base never calls
+  `this._isDuplicateWallet`, so rumble's override is dead code and promo uniqueness is simply
+  not enforced. That then breaks rumble-app-node's `ERR_USER_PROMO_WALLET_NOT_UNIQUE`
+  assumption (the resolver expects at most one promo wallet per user).
+
+Design check (why not just move it into rumble to avoid the base coupling): the base does its
+dedup + save inside one `unitOfWork` (exclusive transaction). A rumble-only pre-check before
+`super.addWallet` would read and write in separate transactions, so two concurrent promo
+creates could both pass -> TOCTOU race, strictly weaker than the base's existing `user`-type
+dedup. So the base hook is the CORRECT design; the fix is the pin bump, not a redesign.
+
+What I did locally (the parts that don't need a push):
+- Added `rumble-data-shard-wrk/tests/wdk-base-contract.unit.test.js`: a contract test against
+  the REAL installed base asserting `typeof WdkDataShardProc.prototype._isDuplicateWallet ===
+  'function'`. Passes locally (drifted node_modules), FAILS on a clean install from f1dac14
+  (0 occurrences of the hook there). This converts the silent drift into a loud CI failure and
+  directly answers the "the rumble unit test mocks the hook so proves nothing" criticism.
+
+Release step (CANNOT be done under the local-only rule; needs a push), in order:
+1. Commit + push the wdk-data-shard-wrk `_isDuplicateWallet` refactor (Update 4) to a real
+   commit on the #264 branch.
+2. Bump `rumble-data-shard-wrk` `@tetherto/wdk-data-shard-wrk` pin to that SHA.
+3. `npm install` in rumble-data-shard-wrk to update package-lock, commit it.
+After step 1 the contract test goes green on a clean install; until then it correctly fails.
+
+GitHub reply (paste-ready, do not post unless Alex says so): "Agreed. The promo-singleton
+rule has to live inside the base addWallet transaction to avoid a TOCTOU race, so it stays as
+the generic `_isDuplicateWallet` hook the base calls. I'll bump the `@tetherto/wdk-data-shard-wrk`
+pin to the commit that adds that hook once it's pushed, and re-run npm install. Added a
+contract test so a clean install fails loudly if the base lacks the hook."
+
 ## Assumptions / open points
 - **Promo-code redemption rewiring: DONE** (see Update above). Original deferral note kept
   for history: it resolved `type: 'unrelated'` and would have broken claims for users
