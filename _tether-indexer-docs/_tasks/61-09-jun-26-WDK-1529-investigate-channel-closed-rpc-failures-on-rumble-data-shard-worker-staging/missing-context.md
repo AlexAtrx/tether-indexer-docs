@@ -1,3 +1,0 @@
-- [ ] Logs/Grafana: "Grafana (CHANNEL_CLOSED rate, staging)" — Loki query over `wrk-data-shard-proc-w-.+`, `env=staging`, `level=40`, `|= CHANNEL_CLOSED`. **Need from Alex:** direct server log access (have it) to read the raw lines around traceId shard-348d16ba-7161-40d4-b880-e1f7580ff1f3. **Source:** description
-- [ ] Slack: "Slack deployment thread" https://tether-to.slack.com/archives/C0A5DFYRNBB/p1780932441711149 — **Need from Alex:** the deploy thread content (what was deployed, when dev was merged into main). **Source:** description
-- [ ] Context: Alex states this started "after staging deploy which happened after merging dev into main." **Need from Alex:** confirm which repos/versions were in that deploy. **Source:** chat
