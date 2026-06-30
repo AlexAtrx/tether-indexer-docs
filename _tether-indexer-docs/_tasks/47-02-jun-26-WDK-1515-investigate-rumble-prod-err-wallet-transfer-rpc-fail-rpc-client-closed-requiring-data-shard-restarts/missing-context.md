@@ -1,6 +1,0 @@
-# Missing context
-
-- [ ] Slack thread: "Slack thread (full context, screenshots, log export)" — **Need from Alex:** the contents of the main incident thread at `tether-to.slack.com/archives/C0A5DFYRNBB/p1779986078317469` (screenshots and exported logs are only in Slack). **Source:** description.
-- [ ] Slack thread (root cause): "Root cause: …" — **Need from Alex:** the root-cause message Alex posted at `tether-to.slack.com/archives/C0A5DFYRNBB/p1779991695497499?thread_ts=1779986078.317469`. This is the single most important missing artifact — Alex already identified the root cause in Slack but it was never written into the ticket. **Source:** Alex Atrash comment, 2026-05-28T18:30:30Z.
-- [ ] Logs / Grafana: "Grafana (pm2 errors, level=40)" — **Need from Alex:** access to the Loki/Grafana dashboard at `rwg.rmbl.ws` (datasource `cf3bb6f6m44xsb`, job=pm2, level=40) for the incident window (from `1779936172369` to `1779940187449`, ~2026-05-28). **Source:** description.
-- [ ] Environment / systems: production wallet boxes (`walletprd3` seen in the sample log) running `rumble-data-shard-wrk` under PM2 at `/srv/data/production/rumble-data-shard-wrk`. A future reader needs prod access (or dev/staging repro) to inspect live `@hyperswarm/rpc` client state. **Source:** description sample log line.

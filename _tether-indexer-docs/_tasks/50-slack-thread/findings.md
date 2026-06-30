@@ -1,8 +1,0 @@
-# MoonPay staging signature failure
-
-- Checked `walletstg1`: `rumble-app-node` is online on `app-3000/3001/3002`, deployed at `0f543b0` (`release/v1.2.1`). Its MoonPay config has a `pk_test_*` publishable key plus non-empty signing/webhook secrets. Recent `/api/v1/signature/moonpay` requests on June 2 and June 3 returned `200`, with no backend-side signature errors in PM2 logs.
-- Backend signing matches MoonPay's URL-signing flow: `rumble-app-node/workers/lib/services/moonpay.utils.js` signs `new URL(data).search` with `moonpay.secretKey` using HMAC-SHA256/base64, and `/api/v1/signature/moonpay` returns `{ signature }`.
-- Likely issue is staging app configuration, not the signing endpoint being down. Mobile builds the unsigned URL from `EXPO_PUBLIC_MOONPAY_API_KEY` plus `EXPO_PUBLIC_MOONPAY_BUY_BASE_URL` / `EXPO_PUBLIC_MOONPAY_CASHOUT_BASE_URL`, asks BE for the signature, then appends it. Mobile code explicitly warns that `pk_test_*` must use `https://buy-sandbox.moonpay.com` / `https://sell-sandbox.moonpay.com`; `pk_live_*` must use live hosts. That mismatch produces the user-facing "Signature check failed".
-- Repo `eas.json` does not set the MoonPay widget base URLs for the `firebase` staging profile, so unless EAS env/secrets override them, the app defaults to live `buy.moonpay.com` / `sell.moonpay.com`. Confirm the actual EAS env for app `2.3.0 (627)`.
-
-Suggested check/fix: staging should use one MoonPay environment end to end: `pk_test_*` in the app, sandbox buy/sell widget URLs, and the matching `sk_test_*` backend `moonpay.secretKey`; then rebuild the staging app. Sell/cashout needs the same host/key check.
