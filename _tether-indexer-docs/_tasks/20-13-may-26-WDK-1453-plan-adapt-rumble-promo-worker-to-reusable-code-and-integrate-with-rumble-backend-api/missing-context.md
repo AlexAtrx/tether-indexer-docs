@@ -1,6 +1,0 @@
-# Missing context
-
-- [ ] **Existing Promo Worker code:** ticket says "refactor the Rumble Promo Worker into reusable code" but does not link the repo. **Need from Alex:** confirm the source repo (likely `tetherto/rumble-promo-wrk`, per the parallel security ticket WDK-1441). **Source:** description.
-- [ ] **Rumble Backend API target:** integration target is "Rumble Backend API" but the specific endpoint surface / repo is not linked. **Need from Alex:** which repo (rumble-be / rumble-app-node?) and which existing endpoints if any. **Source:** description.
-- [ ] **Multi-campaign requirements:** WDK-1454 (the implementation card) says "support multiple configurable campaigns and a reusable codebase" but no concrete campaign list / config schema is attached. The Google Doc on RW-1691 likely holds these specs. **Need from Alex:** access to that doc; whether it covers existing v1 campaign + planned v2 campaign. **Source:** companion ticket WDK-1454 + RW-1691.
-- [ ] **Decision dependency on FE:** RW-1691 comment (2026-05-12) says "Decide with the FE team about the interface 1st. Wait until final specs are rolled out." That blocks the design doc this planning card has to produce. **Need from Alex:** are FE specs ready yet?
