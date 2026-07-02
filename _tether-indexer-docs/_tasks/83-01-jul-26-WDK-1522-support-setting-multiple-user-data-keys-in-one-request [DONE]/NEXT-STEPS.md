@@ -28,3 +28,12 @@ Source / Generic Support, so the change belongs in the shared base and must stay
 generic. Confirm the batch-vs-new-endpoint decision (ticket leans extend-existing
 with single-key backward compat) and how the batched shard RPC should behave on
 partial failure (all-or-nothing vs per-key) before implementing.
+
+## Follow-up ticket (added 2026-07-02)
+
+The duplication found during this work spawned **WDK-1589 "Migrate setting user data on
+wdk base layer"** (GID 1216237230149454), fetched at
+`_tasks/84-02-jul-26-WDK-1589-migrate-setting-user-data-on-wdk-base-layer/`.
+That refactor moves the user-data API from the tether-wallet/rumble forks into the wdk
+base; the batch PRs from this ticket (app-node #169, ork #81, data-shard #141) are part
+of its merge-order decision.
